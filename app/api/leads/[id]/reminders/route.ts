@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma, LeadActivityType } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { LeadActivityType } from '@prisma/client';
 
 // POST /api/leads/[id]/reminders - Create a reminder for a task
 export async function POST(

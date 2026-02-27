@@ -1,20 +1,20 @@
 import api from '../lib/axios';
-import { Customer, Employee, ApiResponse } from '../types/api';
+import { Student, Employee, ApiResponse } from '../types/api';
 
-export const getCustomers = async (page = 1, limit = 10): Promise<{ customers: Customer[], pagination: any }> => {
-    return api.get(`/customers?page=${page}&limit=${limit}`);
+export const getStudents = async (page = 1, limit = 10, search = ""): Promise<{ students: Student[], pagination: any }> => {
+    return api.get(`/students?page=${page}&limit=${limit}&search=${search}`);
 };
 
-export const createCustomer = async (data: Partial<Customer>): Promise<Customer> => {
-    return api.post('/customers', data);
+export const createStudent = async (data: Partial<Student>): Promise<Student> => {
+    return api.post('/students', data);
 };
 
-export const updateCustomer = async (id: string, data: Partial<Customer>): Promise<Customer> => {
-    return api.patch(`/customers/${id}`, data);
+export const updateStudent = async (id: string, data: Partial<Student>): Promise<Student> => {
+    return api.patch(`/students/${id}`, data);
 };
 
-export const deleteCustomer = async (id: string): Promise<void> => {
-    return api.delete(`/customers/${id}`);
+export const deleteStudent = async (id: string): Promise<void> => {
+    return api.delete(`/students/${id}`);
 };
 
 export const getEmployees = async (page = 1, limit = 10): Promise<{ employees: Employee[], pagination: any }> => {
@@ -31,4 +31,45 @@ export const updateEmployee = async (id: string, data: Partial<Employee>): Promi
 
 export const deleteEmployee = async (id: string): Promise<void> => {
     return api.delete(`/employees/${id}`);
+};
+
+// Applications
+export const getApplications = async (page = 1, limit = 10, search = ''): Promise<{ applications: any[], pagination: any }> => {
+    return api.get(`/applications?page=${page}&limit=${limit}&search=${search}`);
+};
+
+export const createApplication = async (data: any): Promise<any> => {
+    return api.post('/applications', data);
+};
+
+export const updateApplication = async (id: string, data: any): Promise<any> => {
+    return api.patch(`/applications/${id}`, data);
+};
+
+export const deleteApplication = async (id: string): Promise<void> => {
+    return api.delete(`/applications/${id}`);
+};
+
+export const deleteApplicationsBulk = async (ids: string[]): Promise<void> => {
+    return api.delete(`/applications/bulk`, { data: { ids } });
+};
+
+// Visa Applications
+export const getVisaApplications = async (studentId?: string, page = 1, limit = 10): Promise<{ visaApplications: any[], pagination: any }> => {
+    const url = studentId
+        ? `/visa-applications?studentId=${studentId}&page=${page}&limit=${limit}`
+        : `/visa-applications?page=${page}&limit=${limit}`;
+    return api.get(url);
+};
+
+export const createVisaApplication = async (data: any): Promise<any> => {
+    return api.post('/visa-applications', data);
+};
+
+export const updateVisaApplication = async (id: string, data: any): Promise<any> => {
+    return api.patch(`/visa-applications/${id}`, data);
+};
+
+export const deleteVisaApplication = async (id: string): Promise<void> => {
+    return api.delete(`/visa-applications/${id}`);
 };

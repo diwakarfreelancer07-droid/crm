@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRolePath } from "@/hooks/use-role-path";
 
 interface RecentLead extends Lead {
     customer?: {
@@ -67,6 +68,7 @@ const columns: ColumnDef<RecentLead>[] = [
 ];
 
 export function RecentLeadsTable({ data }: { data: RecentLead[] }) {
+    const { prefixPath } = useRolePath();
     const router = useRouter();
     const [page, setPage] = useState(1);
     const [pageSize, setPageSize] = useState(5);
@@ -112,7 +114,7 @@ export function RecentLeadsTable({ data }: { data: RecentLead[] }) {
                             table.getRowModel().rows.map((row) => (
                                 <tr
                                     key={row.id}
-                                    onClick={() => router.push(`/leads/${row.original.id}`)}
+                                    onClick={() => router.push(prefixPath(`/leads/${row.original.id}`))}
                                     className="group hover:bg-muted/50 transition-colors border-b border-border last:border-0 cursor-pointer"
                                 >
                                     {row.getVisibleCells().map((cell, index) => (

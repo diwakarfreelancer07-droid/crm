@@ -1,10 +1,8 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma, LeadActivityType, DocumentType } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { LeadActivityType, DocumentType } from '@prisma/client';
-import { writeFile, unlink } from 'fs/promises';
-import { join } from 'path';
+import { S3UploadService } from '@/lib/s3';
 
 export async function POST(
     req: Request,
@@ -25,30 +23,41 @@ export async function POST(
             return NextResponse.json({ message: 'No file uploaded' }, { status: 400 });
         }
 
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
+        if (!session.user?.email) {
+            return NextResponse.json({ message: 'Unauthorized: no email in session' }, { status: 401 });
+        }
+        const sessionUser = await prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: { id: true },
+        });
+        if (!sessionUser) {
+            return NextResponse.json({ message: 'Uploader account not found' }, { status: 400 });
+        }
+        const uploaderId = sessionUser.id;
 
-        const fileName = `${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
-        const path = join(process.cwd(), 'public', 'uploads', fileName);
-        await writeFile(path, buffer);
+        // Upload to S3
+        const s3Service = new S3UploadService();
+        const uploadResult = await s3Service.uploadFile(file);
 
-        const fileUrl = `/uploads/${fileName}`;
+        if (!uploadResult.success || !uploadResult.imageUrl) {
+            return NextResponse.json({ message: uploadResult.error || 'Upload failed' }, { status: 500 });
+        }
 
         const document = await prisma.$transaction(async (tx) => {
             const newDoc = await tx.leadDocument.create({
                 data: {
                     leadId: id,
-                    uploadedBy: session.user.id,
+                    uploadedBy: uploaderId,
                     type: documentType,
                     fileName: file.name,
-                    fileUrl,
+                    fileUrl: uploadResult.imageUrl,
                 }
             });
 
             await tx.leadActivity.create({
                 data: {
                     leadId: id,
-                    userId: session.user.id,
+                    userId: uploaderId,
                     type: LeadActivityType.DOCUMENT_UPLOAD,
                     content: `Document uploaded: ${file.name} (${documentType})`
                 }
@@ -118,13 +127,21 @@ export async function DELETE(
             return NextResponse.json({ message: 'Document not found' }, { status: 404 });
         }
 
-        // Delete file from storage
-        try {
-            const filePath = join(process.cwd(), 'public', document.fileUrl);
-            await unlink(filePath);
-        } catch (error) {
-            console.error('File deletion error:', error);
+        if (!session.user?.email) {
+            return NextResponse.json({ message: 'Unauthorized: no email in session' }, { status: 401 });
         }
+        const sessionUser = await prisma.user.findUnique({
+            where: { email: session.user.email },
+            select: { id: true },
+        });
+        if (!sessionUser) {
+            return NextResponse.json({ message: 'Uploader account not found' }, { status: 400 });
+        }
+        const uploaderId = sessionUser.id;
+
+        // Delete from S3
+        const s3Service = new S3UploadService();
+        await s3Service.deleteFile(document.fileUrl);
 
         // Delete from database
         await prisma.$transaction(async (tx) => {
@@ -135,7 +152,7 @@ export async function DELETE(
             await tx.leadActivity.create({
                 data: {
                     leadId: id,
-                    userId: session.user.id,
+                    userId: uploaderId,
                     type: LeadActivityType.NOTE,
                     content: `Document deleted: ${document.fileName}`
                 }

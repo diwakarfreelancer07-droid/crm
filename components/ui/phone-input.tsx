@@ -12,6 +12,16 @@ export interface PhoneInputProps extends React.ComponentProps<typeof ReactPhoneI
 
 export const PhoneInput = forwardRef<HTMLInputElement, PhoneInputProps>(
     ({ className, error, ...props }, ref) => {
+        const [mounted, setMounted] = (require('react')).useState(false);
+
+        (require('react')).useEffect(() => {
+            setMounted(true);
+        }, []);
+
+        if (!mounted) {
+            return <div className={cn("h-10 w-full rounded-md border border-input bg-muted/20 animate-pulse", className)} />;
+        }
+
         return (
             <ReactPhoneInput
                 defaultCountry="in"

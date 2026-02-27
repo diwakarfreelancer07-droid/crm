@@ -37,7 +37,8 @@ export async function GET(req: NextRequest) {
             total += count;
         });
 
-        counts.ALL = total;
+        // ALL should reflect the default list view (Active leads: All except Converted)
+        counts.ALL = total - (counts.CONVERTED || 0);
 
         return NextResponse.json(counts);
     } catch (error) {

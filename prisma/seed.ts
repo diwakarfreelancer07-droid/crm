@@ -1,4 +1,4 @@
-import { PrismaClient, Role, LeadStatus, LeadTemperature, LeadActivityType, TaskStatus, DocumentType, NotificationType } from '@prisma/client';
+import { PrismaClient, Role, LeadStatus, LeadTemperature, LeadActivityType, TaskStatus, DocumentType, NotificationType } from './generated/client';
 import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
@@ -72,8 +72,8 @@ async function main() {
             name: 'John Doe',
             email: 'john@example.com',
             phone: '9876543210',
-            source: 'Website 1',
-            status: 'IN_PROGRESS',
+            source: 'WEBSITE_1',
+            status: 'UNDER_REVIEW',
             temperature: 'HOT',
             message: 'Looking for a custom software solution.',
         },
@@ -137,6 +137,7 @@ async function main() {
     console.log('Tasks and Reminders seeded');
 
     // 7. Notifications
+    /*
     await prisma.notification.create({
         data: {
             userId: employee.id,
@@ -147,6 +148,7 @@ async function main() {
     });
 
     console.log('Notifications seeded');
+    */
 
     // 8. Lead Documents
     await prisma.leadDocument.create({
@@ -161,7 +163,8 @@ async function main() {
 
     console.log('Documents seeded');
 
-    // 9. Customers (Converted Leads)
+    // 9. Students (Converted Leads)
+    /*
     const convertedLead = await prisma.lead.create({
         data: {
             name: 'Ali Khan',
@@ -171,7 +174,7 @@ async function main() {
         }
     });
 
-    await prisma.customer.create({
+    await prisma.student.create({
         data: {
             leadId: convertedLead.id,
             name: 'Ali Khan',
@@ -180,7 +183,8 @@ async function main() {
         },
     });
 
-    console.log('Customers seeded');
+    console.log('Students seeded');
+    */
 
     // 10. Audit Logs
     await prisma.auditLog.create({
@@ -193,6 +197,42 @@ async function main() {
         },
     });
 
+    // 11. Application Checklist (Standard Documents)
+    const checklistItems = [
+        "10th Mark Sheet", "12th Mark Sheet", "Academic Transcripts", "Affidavit of Support",
+        "Bachelor's Mark Sheets", "Bank Balance Certificate", "Bank Statement",
+        "Birth Certificate", "Curriculum Vitae (CV)", "Education Loan Sanction Letter",
+        "Experience Letter(s)", "GRE/GMAT/SAT/ACT Score Card",
+        "IELTS/TOEFL/PTE/Duolingo Score Card", "Income Proof of Sponsor",
+        "Letter(s) of Recommendation (LOR)", "Master's Degree Certificate",
+        "Medium of Instruction (MOI)", "Passport", "Photographs", "Relieving Letter",
+        "Salary Slips", "Statement of Purpose (SOP)"
+    ];
+
+    for (const name of checklistItems) {
+        await prisma.applicationChecklist.upsert({
+            where: { id: `seed-${name.toLowerCase().replace(/\s+/g, '-')}` }, // Using stable IDs for seeds if possible, but schema doesn't have unique name yet
+            update: {},
+            create: {
+                name,
+                type: 'MANDATORY',
+                isEnquiryForm: false,
+                isMandatory: true,
+            }
+        }).catch(() => {
+            // If ID strategy fails (e.g. not UUID), just create
+            return prisma.applicationChecklist.create({
+                data: {
+                    name,
+                    type: 'MANDATORY',
+                    isEnquiryForm: false,
+                    isMandatory: true,
+                }
+            });
+        });
+    }
+
+    console.log('Application Checklist seeded');
     console.log('Audit Logs seeded');
     console.log('Seeding completed successfully!');
 }

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
-import { LeadSource } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { LeadSource } from "@/lib/constants";
 
 export const dynamic = 'force-dynamic';
 

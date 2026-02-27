@@ -20,6 +20,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useSession, signOut } from "next-auth/react";
+import { ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface AssignLeadSheetProps {
     isOpen: boolean;
@@ -37,50 +39,98 @@ export function AssignLeadSheet({
     onAssign,
 }: AssignLeadSheetProps) {
     const { data: session } = useSession() as any;
-    const [employees, setEmployees] = useState<any[]>([]);
-    const [selectedEmployee, setSelectedEmployee] = useState<string>("");
-    const [isLoading, setIsLoading] = useState(false);
+    const [agents, setAgents] = useState<any[]>([]);
+    const [agentCounselors, setAgentCounselors] = useState<Record<string, any[]>>({});
+    const [isLoadingAgents, setIsLoadingAgents] = useState(false);
+    const [loadingAgentsMap, setLoadingAgentsMap] = useState<Record<string, boolean>>({});
     const [isSaving, setIsSaving] = useState(false);
+    const [selectedManagerId, setSelectedManagerId] = useState<string>("");
+    const [selectedCounselorId, setSelectedCounselorId] = useState<string>("");
+
+    const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "MANAGER";
+    const isAgent = session?.user?.role === "AGENT";
 
     useEffect(() => {
-        if (isOpen && (session?.user?.role === "ADMIN" || session?.user?.role === "MANAGER")) {
-            fetchEmployees();
+        if (isOpen) {
+            setSelectedManagerId("");
+            setSelectedCounselorId("");
+            if (isAdmin) {
+                fetchAgents();
+            } else if (isAgent) {
+                fetchDirectCounselors();
+            }
         }
     }, [isOpen, session]);
 
-    const fetchEmployees = async () => {
-        setIsLoading(true);
+    const fetchAgents = async () => {
+        setIsLoadingAgents(true);
         try {
-            // Fetch only active employees
-            const response = await axios.get("/api/employees?status=active&limit=100");
-            setEmployees(response.data.employees);
+            const roles = ["AGENT", "SALES_REP", "MANAGER"];
+            const requests = roles.map(role =>
+                axios.get(`/api/employees?role=${role}&status=active&limit=100`)
+            );
+            const responses = await Promise.all(requests);
+            const allStaff = responses.flatMap(r => r.data.employees);
+            allStaff.sort((a, b) => a.name.localeCompare(b.name));
+            setAgents(allStaff);
         } catch (error) {
-            console.error("Failed to fetch employees", error);
-            toast.error("Failed to load employees");
+            toast.error("Failed to load assignment options");
         } finally {
-            setIsLoading(false);
+            setIsLoadingAgents(false);
         }
     };
 
-    const handleAssign = async () => {
-        if (!leadId || !selectedEmployee) return;
+    const fetchDirectCounselors = async () => {
+        try {
+            const response = await axios.get("/api/employees?role=COUNSELOR&status=active&limit=100");
+            setAgentCounselors({ "direct": response.data.employees });
+        } catch (error) {
+            toast.error("Failed to load counselors");
+        }
+    };
+
+    const handleManagerChange = async (value: string) => {
+        setSelectedManagerId(value);
+        setSelectedCounselorId("");
+
+        if (value && !agentCounselors[value]) {
+            setLoadingAgentsMap(prev => ({ ...prev, [value]: true }));
+            try {
+                const response = await axios.get(`/api/employees?role=COUNSELOR&status=active&agentId=${value}&limit=100`);
+                setAgentCounselors(prev => ({ ...prev, [value]: response.data.employees }));
+            } catch (error) {
+                toast.error("Failed to load counselors for this manager");
+            } finally {
+                setLoadingAgentsMap(prev => ({ ...prev, [value]: false }));
+            }
+        }
+    };
+
+    const handleAssignClick = () => {
+        const finalAssigneeId = (selectedCounselorId && selectedCounselorId !== "none") ? selectedCounselorId : selectedManagerId;
+        if (finalAssigneeId) {
+            handleAssign(finalAssigneeId);
+        } else {
+            toast.error("Please select a staff member");
+        }
+    };
+
+    const handleAssign = async (employeeId: string) => {
+        if (!leadId || !employeeId) return;
 
         setIsSaving(true);
         try {
             await axios.patch(`/api/leads/${leadId}`, {
-                assignedTo: selectedEmployee,
+                assignedTo: employeeId,
             });
             toast.success("Lead assigned successfully");
             onAssign();
             onClose();
-            setSelectedEmployee("");
         } catch (error: any) {
             console.error("Failed to assign lead", error);
             if (axios.isAxiosError(error) && error.response?.status === 401) {
-                toast.error("Your session has expired or is invalid. Please log in again.");
+                toast.error("Your session has expired. Please log in again.");
                 signOut({ callbackUrl: "/login" });
-            } else if (axios.isAxiosError(error) && error.response?.data?.message) {
-                toast.error(error.response.data.message);
             } else {
                 toast.error("Failed to assign lead");
             }
@@ -95,42 +145,116 @@ export function AssignLeadSheet({
                 <SheetHeader>
                     <SheetTitle>Assign Lead</SheetTitle>
                     <SheetDescription>
-                        Assign <strong>{leadName}</strong> to an employee.
+                        Select a manager and optionally a counselor to assign <strong>{leadName}</strong>.
                     </SheetDescription>
                 </SheetHeader>
-                <div className="space-y-6 mt-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="employee">Select Employee</Label>
-                        <Select
-                            value={selectedEmployee}
-                            onValueChange={setSelectedEmployee}
-                            disabled={isLoading}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder={isLoading ? "Loading..." : "Select an employee"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {employees.map((emp) => (
-                                    <SelectItem key={emp.id} value={emp.id}>
-                                        {emp.name} ({emp.role})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
 
-                    <div className="flex justify-end gap-3 pt-4">
-                        <Button variant="outline" onClick={onClose} disabled={isSaving}>
-                            Cancel
-                        </Button>
-                        <Button
-                            onClick={handleAssign}
-                            disabled={!selectedEmployee || isSaving}
-                            className="bg-primary hover:bg-primary/90 text-white rounded-xl font-bold shadow-sm px-8"
-                        >
-                            {isSaving ? "Assigning..." : "Assign Lead"}
-                        </Button>
-                    </div>
+                <div className="mt-8 space-y-6">
+                    {isLoadingAgents ? (
+                        <div className="flex justify-center py-8 text-muted-foreground animate-pulse">
+                            Loading staff...
+                        </div>
+                    ) : (
+                        <div className="space-y-6">
+                            {isAdmin && (
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Label>Manager / Agent</Label>
+                                        <Select value={selectedManagerId} onValueChange={handleManagerChange}>
+                                            <SelectTrigger className="w-full h-12 rounded-xl bg-slate-50 border-slate-200">
+                                                <SelectValue placeholder="Select Manager or Agent" />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl shadow-xl border-slate-200">
+                                                {agents.map((agent) => (
+                                                    <SelectItem key={agent.id} value={agent.id} className="cursor-pointer py-3 rounded-lg focus:bg-primary/5">
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-xs">
+                                                                {agent.name.charAt(0)}
+                                                            </div>
+                                                            <div>
+                                                                <p className="font-semibold text-sm">{agent.name}</p>
+                                                                <p className="text-[10px] text-muted-foreground uppercase tracking-widest">{agent.role}</p>
+                                                            </div>
+                                                        </div>
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <AnimatePresence>
+                                        {selectedManagerId && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0, y: -10 }}
+                                                animate={{ height: "auto", opacity: 1, y: 0 }}
+                                                exit={{ height: 0, opacity: 0, y: -10 }}
+                                                className="space-y-2 overflow-hidden"
+                                            >
+                                                <Label>Counselor (Optional)</Label>
+                                                <Select value={selectedCounselorId} onValueChange={setSelectedCounselorId}>
+                                                    <SelectTrigger className="w-full h-12 rounded-xl bg-slate-50 border-slate-200">
+                                                        <SelectValue placeholder={loadingAgentsMap[selectedManagerId] ? "Loading..." : "Select Counselor (Optional)"} />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="rounded-xl shadow-xl border-slate-200">
+                                                        <SelectItem value="none" className="py-2">No Counselor (Assign to Manager)</SelectItem>
+                                                        {agentCounselors[selectedManagerId]?.map((counselor) => (
+                                                            <SelectItem key={counselor.id} value={counselor.id} className="cursor-pointer py-3 rounded-lg focus:bg-primary/5">
+                                                                <div className="flex items-center gap-2">
+                                                                    <div className="w-1.5 h-1.5 rounded-full bg-primary/40" />
+                                                                    <span className="text-sm font-medium">{counselor.name}</span>
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))}
+                                                        {(!loadingAgentsMap[selectedManagerId] && (!agentCounselors[selectedManagerId] || agentCounselors[selectedManagerId].length === 0)) && (
+                                                            <div className="p-4 text-center text-xs text-muted-foreground italic">
+                                                                No counselors found for this manager
+                                                            </div>
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            )}
+
+                            {isAgent && (
+                                <div className="space-y-2">
+                                    <Label>Counselor</Label>
+                                    <Select value={selectedCounselorId} onValueChange={setSelectedCounselorId}>
+                                        <SelectTrigger className="w-full h-12 rounded-xl bg-slate-50 border-slate-200">
+                                            <SelectValue placeholder="Select Counselor" />
+                                        </SelectTrigger>
+                                        <SelectContent className="rounded-xl shadow-xl border-slate-200">
+                                            {agentCounselors["direct"]?.map((counselor) => (
+                                                <SelectItem key={counselor.id} value={counselor.id} className="cursor-pointer py-3 rounded-lg focus:bg-primary/5">
+                                                    <span className="text-sm font-medium">{counselor.name}</span>
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <div className="flex flex-col gap-3 mt-10 pt-6 border-t">
+                    <Button
+                        onClick={handleAssignClick}
+                        disabled={isSaving || (isAdmin && !selectedManagerId) || (isAgent && !selectedCounselorId)}
+                        className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 transition-all font-semibold shadow-lg shadow-primary/20"
+                    >
+                        {isSaving ? "Assigning..." : "Assign Lead"}
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        onClick={onClose}
+                        disabled={isSaving}
+                        className="w-full h-12 rounded-xl text-slate-500 hover:bg-slate-50 transition-all"
+                    >
+                        Cancel
+                    </Button>
                 </div>
             </SheetContent>
         </Sheet>

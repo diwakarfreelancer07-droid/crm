@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma, TaskStatus, LeadActivityType } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { LeadActivityType, TaskStatus } from '@prisma/client';
 
 export async function POST(
     req: Request,
@@ -51,7 +50,7 @@ export async function POST(
                     leadId: id,
                     userId: session.user.id,
                     type: LeadActivityType.TASK_CREATED,
-                    content: `Task created: ${title}${remindAt ? ' with reminder' : ''}`
+                    content: `Task created: ${title}${remindAt ? ' with reminder' : ''} `
                 }
             });
 

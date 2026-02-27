@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { useRolePath } from "@/hooks/use-role-path";
 import { CalendarClock, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,7 +21,8 @@ interface UpcomingTasksProps {
     isLoading: boolean;
 }
 
-export function UpcomingTasks({ tasks, isLoading }: UpcomingTasksProps) {
+export function UpcomingTasks({ tasks, isLoading }: { tasks: any[], isLoading: boolean }) {
+    const { prefixPath } = useRolePath();
     if (isLoading) {
         return (
             <Card className="rounded-xl border-border shadow-none h-full">
@@ -81,7 +83,7 @@ export function UpcomingTasks({ tasks, isLoading }: UpcomingTasksProps) {
                     )}
                 </div>
                 <div className="pt-4 mt-auto border-t border-border/50">
-                    <Link href="/leads" className="text-sm font-semibold text-primary hover:opacity-80 transition-opacity flex items-center gap-1">
+                    <Link href={prefixPath("/leads")} className="text-sm font-semibold text-primary hover:opacity-80 transition-opacity flex items-center gap-1">
                         View all tasks <span className="text-lg leading-none">›</span>
                     </Link>
                 </div>

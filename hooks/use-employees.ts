@@ -14,11 +14,12 @@ interface EmployeeStats {
     inactive: number;
 }
 
-export function useEmployeeStats() {
+export function useEmployeeStats(role?: string) {
     return useQuery({
-        queryKey: ["employee-stats"],
+        queryKey: ["employee-stats", role],
         queryFn: async () => {
-            const { data } = await axios.get<EmployeeStats>("/api/employees/stats");
+            const params = role ? `?role=${role}` : "";
+            const { data } = await axios.get<EmployeeStats>(`/api/employees/stats${params}`);
             return data;
         },
     });
@@ -28,28 +29,31 @@ interface Employee extends User {
     // any extra fields
 }
 
-export const useEmployees = (status: string = "all", page: number = 1, limit: number = 10) => {
+export const useEmployees = (status: string = "all", page: number = 1, limit: number = 10, role?: string) => {
     return useQuery({
-        queryKey: ["employees", status, page, limit],
+        queryKey: ["employees", status, page, limit, role],
         queryFn: async () => {
             const params = new URLSearchParams({
                 status,
                 page: page.toString(),
                 limit: limit.toString(),
             });
-            const { data } = await axios.get(`/api/employees?${params}`);
-            // If the API returns { employees, pagination }, handle it.
-            // Assuming current API might return array, but we updated api/employees/route.ts to return { employees, pagination }
+            if (role) {
+                params.append("role", role);
+            }
+            const endpoint = role === 'AGENT' ? '/api/agents' : role === 'COUNSELOR' ? '/api/counselors' : '/api/employees';
+            const { data } = await axios.get(`${endpoint}?${params}`);
             return data;
         },
     });
 };
 
-export function useEmployee(id: string) {
+export function useEmployee(id: string, role?: string) {
     return useQuery({
-        queryKey: ["employee", id],
+        queryKey: ["employee", id, role],
         queryFn: async () => {
-            const { data } = await axios.get<Employee>(`/api/employees/${id}`);
+            const endpoint = role === 'AGENT' ? '/api/agents' : role === 'COUNSELOR' ? '/api/counselors' : '/api/employees';
+            const { data } = await axios.get<Employee>(`${endpoint}/${id}`);
             return data;
         },
         enabled: !!id,
@@ -61,11 +65,16 @@ export function useCreateEmployee() {
 
     return useMutation({
         mutationFn: async (employeeData: any) => {
-            const { data } = await axios.post("/api/employees", employeeData);
+            console.log("Creating employee with payload:", employeeData);
+            const role = employeeData.role;
+            const endpoint = role === 'AGENT' ? '/api/agents' : role === 'COUNSELOR' ? '/api/counselors' : '/api/employees';
+            const { data } = await axios.post(endpoint, employeeData);
             return data;
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["employees"] });
+            queryClient.invalidateQueries({ queryKey: ["agents"] }); // Add these if needed
+            queryClient.invalidateQueries({ queryKey: ["counselors"] });
             queryClient.invalidateQueries({ queryKey: ["employee-stats"] });
         },
     });
@@ -76,12 +85,16 @@ export function useUpdateEmployee() {
 
     return useMutation({
         mutationFn: async ({ id, data }: { id: string; data: any }) => {
-            const response = await axios.patch(`/api/employees/${id}`, data);
+            const role = data.role;
+            const endpoint = role === 'AGENT' ? '/api/agents' : role === 'COUNSELOR' ? '/api/counselors' : '/api/employees';
+            const response = await axios.patch(`${endpoint}/${id}`, data);
             return response.data;
         },
         onSuccess: (data, variables) => {
             queryClient.invalidateQueries({ queryKey: ["employees"] });
             queryClient.invalidateQueries({ queryKey: ["employee-stats"] });
+            queryClient.invalidateQueries({ queryKey: ["agents"] });
+            queryClient.invalidateQueries({ queryKey: ["counselors"] });
             queryClient.invalidateQueries({ queryKey: ["employee", variables.id] });
         },
     });

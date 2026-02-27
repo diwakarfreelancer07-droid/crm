@@ -1,0 +1,32 @@
+DATABASE SCHEMA DOCUMENT
+
+1) LEAD
+
+Primary Key: - id
+
+Fields: - firstName - lastName - email - phone - alternateNo -
+dateOfBirth - gender - nationality - maritalStatus - address -
+highestQualification - interestedCourse - testName - testScore -
+interestedCountry - intake - applyLevel - source - status (default: New
+Enquiry) - remark - createdAt - updatedAt
+
+2) FOLLOW UP
+
+Primary Key: - id
+
+Foreign Key: - leadId (references Lead.id)
+
+Fields: - followUpDate - followUpTime - followUpRemarks - createdAt
+
+Relationship: - One Lead can have many Follow Ups
+
+3) APPOINTMENT
+
+Primary Key: - id
+
+Foreign Key: - leadId (references Lead.id)
+
+Fields: - appointmentDate - appointmentTime - appointmentRemarks -
+createdAt
+
+Relationship: - One Lead can have many Appointments

@@ -18,21 +18,29 @@ interface LeadStatusDistributionProps {
 }
 
 const COLORS = [
-    '#0d9488', // Teal
-    '#2563eb', // Blue
-    '#f59e0b', // Amber
-    '#ef4444', // Red
-    '#8b5cf6', // Violet
-    '#64748b'  // Slate
+    '#2563eb', // Blue (New)
+    '#f59e0b', // Amber (Under Review)
+    '#8b5cf6', // Purple (Contacted)
+    '#0891b2', // Cyan (Counselling Scheduled)
+    '#0d9488', // Teal (Counselling Completed)
+    '#e11d48', // Rose (Followup Required)
+    '#10b981', // Emerald (Interested)
+    '#64748b', // Slate (Not Interested)
+    '#f97316', // Orange (On Hold)
+    '#0f172a'  // Black/Slate (Closed)
 ];
 
 const STATUS_LABELS: Record<string, string> = {
     NEW: "New",
-    ASSIGNED: "Assigned",
-    IN_PROGRESS: "In Progress",
-    FOLLOW_UP: "Follow Up",
-    CONVERTED: "Converted",
-    LOST: "Lost"
+    UNDER_REVIEW: "Under Review",
+    CONTACTED: "Contacted",
+    COUNSELLING_SCHEDULED: "Counselling Scheduled",
+    COUNSELLING_COMPLETED: "Counselling Completed",
+    FOLLOWUP_REQUIRED: "Followup Required",
+    INTERESTED: "Interested",
+    NOT_INTERESTED: "Not Interested",
+    ON_HOLD: "On Hold",
+    CLOSED: "Closed"
 };
 
 export function LeadStatusDistribution({ data, isLoading }: LeadStatusDistributionProps) {

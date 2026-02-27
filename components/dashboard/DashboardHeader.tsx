@@ -1,8 +1,8 @@
 "use client";
 
-import { FaSearch, FaPlus } from "react-icons/fa";
-import { Bell } from "lucide-react";
+import { Bell, ArrowLeft } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import {
     DropdownMenu,
@@ -16,6 +16,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { NotificationBell } from "@/components/dashboard/NotificationBell";
 
 import { useSession } from "next-auth/react";
+import { useRolePath } from "@/hooks/use-role-path";
 
 interface DashboardHeaderProps {
     title?: string;
@@ -23,11 +24,12 @@ interface DashboardHeaderProps {
     action?: React.ReactNode;
 }
 
-import { usePathname } from "next/navigation";
 
 export function DashboardHeader({ title, description, action }: DashboardHeaderProps) {
     const { data: session } = useSession() as any;
+    const { rolePrefix, prefixPath } = useRolePath();
     const pathname = usePathname();
+    const router = useRouter();
 
     const getGreeting = () => {
         const hour = new Date().getHours();
@@ -38,23 +40,51 @@ export function DashboardHeader({ title, description, action }: DashboardHeaderP
 
     const getTitle = () => {
         if (title) return title;
+        if (pathname.includes("/leads/new")) return "Add New Lead";
+        if (pathname.includes("/edit")) return "Edit Lead";
         if (pathname.includes("/leads")) return "Lead Management";
-        if (pathname.includes("/employees")) return "Employees";
-        if (pathname.includes("/customers")) return "Customers";
-        if (pathname.includes("/roles")) return "Roles";
-        return `${getGreeting()}, ${session?.user?.name || 'User'}`;
+        if (pathname.includes("/employees")) return "Counselors Management";
+        if (pathname.includes("/students")) return "Student Records";
+        if (pathname.includes("/roles")) return "Role & Permission Management";
+        if (pathname.includes("/master/countries")) return "Country Management";
+        if (pathname.includes("/master/qualifications")) return "Qualification Management";
+        if (pathname.includes("/master/websites")) return "Website Management";
+        if (pathname.includes("/profile")) return "Account Profile";
+        if (pathname.includes("/dashboard")) return `${getGreeting()}, ${session?.user?.name || 'User'}`;
+        return "Control Panel";
     };
+
+    const getDescription = () => {
+        if (description) return description;
+        if (pathname.includes("/leads/new")) return "Create a comprehensive profile for your potential student";
+        if (pathname.includes("/master/countries")) return "Manage available countries for leads and admissions";
+        if (pathname.includes("/master/qualifications")) return "Manage academic qualifications for tracking";
+        if (pathname.includes("/master/websites")) return "Manage source websites for tracking leads";
+        return null;
+    };
+
+    const isSubPage = pathname.split('/').length > 3 && !pathname.endsWith('/dashboard');
 
     return (
         <header className="flex items-center justify-between px-2 py-4 mb-4 border-b border-border sticky top-0 z-50 bg-background dark:bg-sidebar">
             {/* Greeting */}
-            <div className="min-w-[180px]">
-                <h2 suppressHydrationWarning className="font-bold text-[18px] leading-none tracking-normal font-sans text-foreground">
-                    {getTitle()}
-                </h2>
-                {description && (
-                    <p className="text-sm text-muted-foreground mt-1">{description}</p>
+            <div className="flex items-center gap-4 min-w-[180px]">
+                {isSubPage && (
+                    <button
+                        onClick={() => router.back()}
+                        className="p-2 hover:bg-muted rounded-xl transition-colors shrink-0"
+                    >
+                        <ArrowLeft className="w-5 h-5 text-muted-foreground" />
+                    </button>
                 )}
+                <div>
+                    <h2 suppressHydrationWarning className="font-bold text-[18px] leading-none tracking-normal font-sans text-foreground">
+                        {getTitle()}
+                    </h2>
+                    {getDescription() && (
+                        <p className="text-sm text-muted-foreground mt-1">{getDescription()}</p>
+                    )}
+                </div>
             </div>
 
             {/* Centered Search - Removed as per user request */}
@@ -96,7 +126,7 @@ export function DashboardHeader({ title, description, action }: DashboardHeaderP
                         <DropdownMenuLabel>My Account</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem asChild>
-                            <Link href="/profile" className="cursor-pointer w-full">Profile</Link>
+                            <Link href={prefixPath("/profile")} className="cursor-pointer w-full">Profile</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem className="cursor-pointer">Settings</DropdownMenuItem>
                         <DropdownMenuSeparator />

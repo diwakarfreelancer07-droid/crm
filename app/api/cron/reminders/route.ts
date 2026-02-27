@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
+import { prisma, LeadActivityType } from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
 import { createNotification } from '@/lib/notifications';
-import { LeadActivityType } from '@prisma/client';
 
 export const dynamic = 'force-dynamic'; // Ensure no caching for cron
 

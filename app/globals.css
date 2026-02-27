@@ -191,44 +191,4 @@
     /* Firefox */
   }
 
-  /* Curved tab connection - creates inverse curves for smooth connection */
-  .curved-tab-connection {
-    position: relative;
-  }
-
-  /* Curves hidden by default (collapsed state) */
-  .curved-tab-connection::before,
-  .curved-tab-connection::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    width: 20px;
-    height: 20px;
-    background: transparent;
-    display: none;
-    /* Hidden by default */
-  }
-
-  /* Show curves only on XL+ screens where sidebar is flush with content */
-  @media (min-width: 1280px) {
-
-    .curved-tab-connection::before,
-    .curved-tab-connection::after {
-      display: block;
-    }
-  }
-
-  /* Top inverse curve (cutout) */
-  .curved-tab-connection::before {
-    top: -20px;
-    border-bottom-right-radius: 12px;
-    box-shadow: 5px 5px 0 5px #164e63;
-  }
-
-  /* Bottom inverse curve (cutout) */
-  .curved-tab-connection::after {
-    bottom: -20px;
-    border-top-right-radius: 12px;
-    box-shadow: 5px -5px 0 5px #164e63;
-  }
 }

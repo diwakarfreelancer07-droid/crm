@@ -1,6 +1,5 @@
-import prisma from '@/lib/prisma';
 import { sendEmail } from '@/lib/email';
-import { NotificationType } from '@prisma/client';
+import { prisma, NotificationType } from '@/lib/prisma';
 
 export async function createNotification(userId: string, title: string, message: string, type: NotificationType) {
     try {

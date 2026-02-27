@@ -12,9 +12,15 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
         }
 
+        const { searchParams } = new URL(req.url);
+        const role = searchParams.get("role");
+
+        const where: any = {};
+        if (role) where.role = role;
+
         const [active, inactive] = await Promise.all([
-            prisma.user.count({ where: { isActive: true } }),
-            prisma.user.count({ where: { isActive: false } }),
+            prisma.user.count({ where: { ...where, isActive: true } }),
+            prisma.user.count({ where: { ...where, isActive: false } }),
         ]);
 
         return NextResponse.json({

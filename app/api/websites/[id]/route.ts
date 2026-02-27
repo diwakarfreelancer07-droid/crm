@@ -3,8 +3,9 @@ import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
-    const session = await getServerSession(authOptions);
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const session = await getServerSession(authOptions) as any;
     if (!session || session.user.role !== 'ADMIN') {
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
@@ -12,7 +13,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     try {
         const { name, url, isActive } = await req.json();
         const website = await prisma.website.update({
-            where: { id: params.id },
+            where: { id },
             data: { name, url, isActive }
         });
         return NextResponse.json(website);
@@ -21,8 +22,9 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-    const session = await getServerSession(authOptions);
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params;
+    const session = await getServerSession(authOptions) as any;
     if (!session || session.user.role !== 'ADMIN') {
         return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
@@ -35,7 +37,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
         // Actually, since relation isn't enforced (String), hard delete is fine for the Master list,
         // but old leads will keep the string value.
         await prisma.website.delete({
-            where: { id: params.id }
+            where: { id }
         });
         return NextResponse.json({ message: 'Deleted' });
     } catch (error) {

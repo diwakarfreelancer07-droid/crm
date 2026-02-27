@@ -13,7 +13,8 @@ export async function GET(req: Request) {
         const user = await prisma.user.findUnique({
             where: { id: session.user.id },
             include: {
-                employeeProfile: true, // Fetch related profile data
+                agentProfile: true,
+                counselorProfile: true,
             },
         });
 
@@ -46,21 +47,22 @@ export async function PATCH(req: Request) {
             where: { id: session.user.id },
             data: {
                 name,
-                employeeProfile: {
+                agentProfile: session.user.role === 'AGENT' ? {
                     upsert: {
-                        create: {
-                            phone,
-                            department,
-                        },
-                        update: {
-                            phone,
-                            department,
-                        },
-                    },
-                },
+                        create: { phone },
+                        update: { phone },
+                    }
+                } : undefined,
+                counselorProfile: session.user.role === 'COUNSELOR' ? {
+                    upsert: {
+                        create: { phone, department },
+                        update: { phone, department },
+                    }
+                } : undefined,
             },
             include: {
-                employeeProfile: true,
+                agentProfile: true,
+                counselorProfile: true,
             }
         });
 

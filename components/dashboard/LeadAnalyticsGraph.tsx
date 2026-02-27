@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 interface AnalyticsData {
     date: string;
     leads: number;
-    customers: number;
+    students: number;
 }
 
 interface LeadAnalyticsGraphProps {
@@ -71,7 +71,7 @@ export function LeadAnalyticsGraph({ data, isLoading }: LeadAnalyticsGraphProps)
                                     <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.05} />
                                     <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                                 </linearGradient>
-                                <linearGradient id="colorCustomers" x1="0" y1="0" x2="0" y2="1">
+                                <linearGradient id="colorStudents" x1="0" y1="0" x2="0" y2="1">
                                     <stop offset="5%" stopColor="hsl(173 80% 40%)" stopOpacity={0.05} />
                                     <stop offset="95%" stopColor="hsl(173 80% 40%)" stopOpacity={0} />
                                 </linearGradient>
@@ -103,11 +103,11 @@ export function LeadAnalyticsGraph({ data, isLoading }: LeadAnalyticsGraphProps)
                             />
                             <Area
                                 type="monotone"
-                                dataKey="customers"
+                                dataKey="students"
                                 stroke="hsl(173 80% 40%)"
                                 fillOpacity={1}
-                                fill="url(#colorCustomers)"
-                                name="Customers"
+                                fill="url(#colorStudents)"
+                                name="Students"
                                 strokeWidth={2}
                             />
                         </AreaChart>

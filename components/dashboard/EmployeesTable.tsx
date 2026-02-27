@@ -33,17 +33,18 @@ interface EmployeesTableProps {
         pageSize: number;
         onPageChange: (page: number) => void;
         onPageSizeChange: (pageSize: number) => void;
-    }
+    };
+    title?: string;
 }
 
-export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagination }: EmployeesTableProps) {
+export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagination, title = "Employee" }: EmployeesTableProps) {
     const [editSheetOpen, setEditSheetOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState<Employee | undefined>(undefined);
 
     const columns: ColumnDef<any>[] = [
         {
             accessorKey: "name",
-            header: "Employee",
+            header: title,
             cell: ({ row }) => (
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-cyan-50 text-cyan-600 flex items-center justify-center font-bold">
@@ -64,10 +65,10 @@ export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagin
                         <Mail className="h-3.5 w-3.5" />
                         {row.original.email}
                     </div>
-                    {row.original.employeeProfile?.phone && (
+                    {(row.original.agentProfile?.phone || row.original.counselorProfile?.phone || row.original.employeeProfile?.phone) && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <Phone className="h-3.5 w-3.5" />
-                            {row.original.employeeProfile.phone}
+                            {row.original.agentProfile?.phone || row.original.counselorProfile?.phone || row.original.employeeProfile?.phone}
                         </div>
                     )}
                 </div>
@@ -91,7 +92,7 @@ export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagin
             cell: ({ row }) => (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Briefcase className="h-3.5 w-3.5" />
-                    {row.original.employeeProfile?.department || "N/A"}
+                    {row.original.agentProfile?.companyName || row.original.counselorProfile?.department || row.original.employeeProfile?.department || "N/A"}
                 </div>
             ),
         },
@@ -101,6 +102,15 @@ export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagin
             cell: ({ row }) => (
                 <p className="text-sm text-foreground">
                     {row.original._count?.assignedLeads || 0}
+                </p>
+            ),
+        },
+        {
+            id: "converted",
+            header: "Converted",
+            cell: ({ row }) => (
+                <p className="text-sm text-foreground">
+                    {row.original._count?.onboardedStudents || row.original._count?.onboardedCustomers || 0}
                 </p>
             ),
         },
@@ -136,18 +146,23 @@ export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagin
                             <DropdownMenuItem
                                 onClick={() => {
                                     // Map the user+profile data to the Employee type expected by the form
+                                    const profile = row.original.agentProfile || row.original.counselorProfile || row.original.employeeProfile;
                                     const employeeData: any = {
                                         id: row.original.id,
                                         email: row.original.email,
                                         firstName: row.original.name.split(' ')[0],
                                         lastName: row.original.name.split(' ').slice(1).join(' '),
-                                        phone: row.original.employeeProfile?.phone || "",
+                                        phone: profile?.phone || "",
                                         role: row.original.role,
-                                        department: row.original.employeeProfile?.department || "",
-                                        salary: row.original.employeeProfile?.salary,
-                                        joiningDate: row.original.employeeProfile?.joiningDate,
-                                        designation: row.original.employeeProfile?.designation,
-                                        password: "", // Password is typically not sent back
+                                        department: (profile as any)?.department || "",
+                                        companyName: (profile as any)?.companyName || "",
+                                        commission: (profile as any)?.commission || "",
+                                        salary: (profile as any)?.salary,
+                                        joiningDate: (profile as any)?.joiningDate,
+                                        designation: (profile as any)?.designation,
+                                        agentId: (profile as any)?.agentId,
+                                        address: (profile as any)?.address || "",
+                                        password: "",
                                     };
                                     setEditingEmployee(employeeData);
                                     setEditSheetOpen(true);
@@ -296,9 +311,9 @@ export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagin
             <Sheet open={editSheetOpen} onOpenChange={setEditSheetOpen}>
                 <SheetContent className="overflow-y-auto w-full sm:max-w-sm">
                     <SheetHeader>
-                        <SheetTitle>Edit Employee</SheetTitle>
+                        <SheetTitle>Edit {title}</SheetTitle>
                         <SheetDescription>
-                            Update employee details.
+                            Update {title.toLowerCase()} details.
                         </SheetDescription>
                     </SheetHeader>
                     {editingEmployee && (

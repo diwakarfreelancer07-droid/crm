@@ -104,6 +104,50 @@ export class S3UploadService {
     }
 
     /**
+     * Upload buffer to S3/DigitalOcean Spaces
+     */
+    async uploadBuffer(buffer: Buffer, fileName: string, mimeType: string): Promise<UploadResult> {
+        try {
+            // Generate unique filename
+            const uniqueFileName = this.generateFileName(fileName);
+            const key = `${this.config.rootFolder}/${this.config.subFolder}/${uniqueFileName}`;
+
+            // Prepare upload
+            const upload = new Upload({
+                client: this.s3,
+                params: {
+                    Bucket: this.config.bucketName,
+                    Key: key,
+                    Body: buffer,
+                    ContentType: mimeType,
+                    Metadata: {
+                        originalName: fileName,
+                        uploadedAt: new Date().toISOString(),
+                        fileSize: buffer.length.toString()
+                    },
+                    ACL: this.config.makePublic ? 'public-read' : undefined
+                },
+            });
+
+            const uploadResult = await upload.done();
+
+            return {
+                success: true,
+                imageUrl: uploadResult.Location,
+                fileName: uniqueFileName,
+                fileSize: buffer.length
+            };
+
+        } catch (error: any) {
+            console.error('Error uploading buffer to Spaces:', error);
+            return {
+                success: false,
+                error: 'Failed to upload file to storage'
+            };
+        }
+    }
+
+    /**
      * Upload file to S3/DigitalOcean Spaces
      */
     async uploadFile(file: File): Promise<UploadResult> {
@@ -117,58 +161,15 @@ export class S3UploadService {
                 };
             }
 
-            // Generate unique filename
-            const fileName = this.generateFileName(file.name);
-            const key = `${this.config.rootFolder}/${this.config.subFolder}/${fileName}`;
-
-            // Convert File to Buffer/Stream for AWS sdk
-            // Note: v3 Upload supports web streams, blobs, etc.
-            // Using arrayBuffer -> Buffer for compatibility
             const bytes = await file.arrayBuffer();
             const buffer = Buffer.from(bytes);
-
-            // Prepare upload
-            const upload = new Upload({
-                client: this.s3,
-                params: {
-                    Bucket: this.config.bucketName,
-                    Key: key,
-                    Body: buffer,
-                    ContentType: file.type,
-                    Metadata: {
-                        originalName: file.name,
-                        uploadedAt: new Date().toISOString(),
-                        fileSize: file.size.toString()
-                    },
-                    ACL: this.config.makePublic ? 'public-read' : undefined
-                },
-            });
-
-            const uploadResult = await upload.done();
-
-            console.log('File uploaded successfully to Spaces:', uploadResult.Location);
-
-            return {
-                success: true,
-                imageUrl: uploadResult.Location,
-                fileName: fileName,
-                fileSize: file.size
-            };
+            return this.uploadBuffer(buffer, file.name, file.type);
 
         } catch (error: any) {
             console.error('Error uploading file to Spaces:', error);
-
-            let errorMessage = 'Failed to upload file to storage';
-
-            if (error.$metadata?.httpStatusCode === 404) {
-                errorMessage = 'Storage bucket not found. Please check configuration.';
-            } else if (error.$metadata?.httpStatusCode === 403) {
-                errorMessage = 'Access denied to storage. Please check credentials.';
-            }
-
             return {
                 success: false,
-                error: errorMessage
+                error: 'Failed to upload file'
             };
         }
     }

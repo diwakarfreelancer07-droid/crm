@@ -11,21 +11,45 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions) as any;
-        if (!session || session.user.role !== 'ADMIN') {
+        if (!session) {
             return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+        }
+
+        // RBAC: 
+        // Admin/Manager: All
+        // Agent/Sales Rep: Can see Counselors (and maybe themselves? logic below)
+        // For now, let's allow authenticated users to fetch, and we can filter in the query if needed or just return all and let frontend filter. 
+        // But to be safe, let's restrict what they get back if possible, or just open it up for now as "Employees" list is generally internal directory.
+        // The previous code restricted to ADMIN only.
+
+        const userRole = session.user.role;
+        const allowedRoles = ['ADMIN', 'MANAGER', 'AGENT', 'SALES_REP', 'COUNSELOR', 'SUPPORT_AGENT']; // All staff
+
+        if (!allowedRoles.includes(userRole)) {
+            return NextResponse.json({ message: 'Unauthorized' }, { status: 403 });
         }
 
         const { searchParams } = new URL(req.url);
         const search = searchParams.get("search") || "";
         const role = searchParams.get("role") || "";
         const status = searchParams.get("status") || "active";
+        const agentId = searchParams.get("agentId") || ""; // New filter
         const page = parseInt(searchParams.get("page") || "1");
         const limit = parseInt(searchParams.get("limit") || "10");
         const skip = (page - 1) * limit;
 
-        console.log("API Employees Params:", { search, role, status, page, limit });
+        console.log("API Employees Params:", { search, role, status, agentId, page, limit });
 
         const where: any = {};
+
+        // Filter by Agent ID (if provided)
+        if (agentId) {
+            where.counselorProfile = {
+                agent: {
+                    userId: agentId
+                }
+            };
+        }
 
         // Search by name or email
         if (search) {
@@ -38,6 +62,20 @@ export async function GET(req: NextRequest) {
         // Filter by role
         if (role) {
             where.role = role;
+        }
+
+        // AGENT can only see their own subordinates
+        if (session.user.role === 'AGENT') {
+            const agent = await prisma.agentProfile.findUnique({
+                where: { userId: session.user.id }
+            });
+            if (agent) {
+                where.counselorProfile = {
+                    agentId: agent.id
+                };
+            } else {
+                where.id = 'none'; // Should not happen but helps security
+            }
         }
 
         // Filter by status
@@ -59,16 +97,17 @@ export async function GET(req: NextRequest) {
                     role: true,
                     isActive: true,
                     createdAt: true,
-                    employeeProfile: {
-                        select: {
-                            phone: true,
-                            department: true,
-                        },
+                    agentProfile: true,
+                    counselorProfile: {
+                        include: {
+                            agent: { include: { user: { select: { name: true } } } }
+                        }
                     },
                     _count: {
                         select: {
                             assignedLeads: true,
                             activities: true,
+                            onboardedStudents: true,
                         },
                     },
                 },
@@ -96,17 +135,18 @@ export async function GET(req: NextRequest) {
     }
 }
 
-// POST /api/employees - Create new employee (Admin only)
+// POST /api/employees - Create new employee (Admin/Manager/Agent?)
 export async function POST(req: NextRequest) {
     try {
         const session = await getServerSession(authOptions) as any;
-        const { name, email, password, role, imageUrl, phone, department, designation, salary, joiningDate } = await req.json();
+        const body = await req.json();
+        const { name, email, password, role, imageUrl, phone, department, designation, salary, joiningDate, managerId } = body;
 
         if (!session?.user) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Only admins can create employees
+        // Only admins can create employees (for now)
         if (session.user.role !== "ADMIN") {
             return NextResponse.json({ error: "Forbidden" }, { status: 403 });
         }
@@ -136,18 +176,27 @@ export async function POST(req: NextRequest) {
                 role: role || "EMPLOYEE",
                 imageUrl, // Save profile picture
                 emailVerified: new Date(), // Auto-verify employees created by admin
-                employeeProfile: {
+                agentProfile: ["AGENT", "SALES_REP", "MANAGER"].includes(role) ? {
+                    create: {
+                        phone: phone || null,
+                        companyName: body.companyName || null,
+                        commission: body.commission ? parseFloat(body.commission) : null,
+                    }
+                } : undefined,
+                counselorProfile: role === "COUNSELOR" ? {
                     create: {
                         phone: phone || null,
                         department: department || null,
                         designation: designation || null,
                         salary: salary ? parseFloat(salary) : null,
                         joiningDate: joiningDate ? new Date(joiningDate) : null,
-                    },
-                },
+                        agentId: body.agentId || null,
+                    }
+                } : undefined,
             },
             include: {
-                employeeProfile: true,
+                agentProfile: true,
+                counselorProfile: true,
             },
         });
 

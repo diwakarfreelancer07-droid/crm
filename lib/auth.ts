@@ -11,8 +11,13 @@ export const authOptions: NextAuthOptions = {
             credentials: {
                 email: { label: 'Email', type: 'email' },
                 password: { label: 'Password', type: 'password' },
+                loginType: { label: 'Login Type', type: 'text' },
             },
             async authorize(credentials) {
+                console.log('Authorize check:', {
+                    email: credentials?.email,
+                    loginType: (credentials as any)?.loginType || 'none'
+                });
                 try {
                     if (!credentials?.email || !credentials?.password) {
                         throw new Error('Email and password required');
@@ -38,6 +43,31 @@ export const authOptions: NextAuthOptions = {
 
                     if (!isValid) {
                         throw new Error('Invalid password');
+                    }
+
+                    // Role-based access control
+                    const loginType = (credentials as any).loginType;
+
+                    if (loginType === 'admin') {
+                        if (user.role !== 'ADMIN' && user.role !== 'MANAGER') {
+                            throw new Error('Access denied. Admin privileges required.');
+                        }
+                    } else if (loginType === 'agent') {
+                        const allowedRoles = ['AGENT', 'COUNSELOR', 'SALES_REP', 'SUPPORT_AGENT'];
+                        if (!allowedRoles.includes(user.role)) {
+                            throw new Error('Access denied. Agent privileges required.');
+                        }
+                    } else if (loginType === 'student') {
+                        if (user.role !== 'STUDENT') {
+                            if (user.role === 'ADMIN' || user.role === 'MANAGER') {
+                                throw new Error('Please use the Admin login page at /admin/login');
+                            }
+                            const allowedAgentRoles = ['AGENT', 'COUNSELOR', 'SALES_REP', 'SUPPORT_AGENT'];
+                            if (allowedAgentRoles.includes(user.role)) {
+                                throw new Error('Please use the Agent login page at /agent/login');
+                            }
+                            throw new Error('Access denied. Student account required.');
+                        }
                     }
 
                     return {
@@ -88,7 +118,16 @@ export const authOptions: NextAuthOptions = {
             return true;
         },
         async jwt({ token, user, account }) {
-            if (token.email) {
+            // Initial sign in: user object is available
+            if (user) {
+                token.userId = user.id;
+                token.role = user.role;
+                // Add any other fields you need in the token initially
+            }
+
+            // Optional: Re-fetch user data if you need to keep it perfectly in sync with DB
+            // But if P6001 is happening here, we can skip it or wrap it
+            if (!token.role && token.email) {
                 try {
                     const dbUser = await prisma.user.findUnique({
                         where: { email: token.email },

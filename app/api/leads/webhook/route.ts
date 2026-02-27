@@ -1,6 +1,6 @@
+import { prisma, LeadActivityType } from '@/lib/prisma';
+import { LeadSource } from '@/lib/constants';
 import { NextResponse } from 'next/server';
-import prisma from '@/lib/prisma';
-import { LeadSource, LeadActivityType } from '@prisma/client';
 
 export async function POST(req: Request) {
     try {
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
                     create: {
                         userId: systemUser.id,
                         type: LeadActivityType.NOTE,
-                        content: `Lead created from ${leadSource}`
+                        content: `Lead created from ${leadSource} `
                     }
                 }
             }

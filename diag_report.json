@@ -1,0 +1,32 @@
+{
+  "roles": {
+    "ADMIN": 1,
+    "MANAGER": 1,
+    "SALES_REP": 1
+  },
+  "totalUsers": 3,
+  "users": [
+    {
+      "name": "System Admin",
+      "email": "admin@inter.in",
+      "role": "ADMIN",
+      "active": true
+    },
+    {
+      "name": "Office Manager",
+      "email": "manager@inter.in",
+      "role": "MANAGER",
+      "active": true
+    },
+    {
+      "name": "Sales Rep 1",
+      "email": "sales@inter.in",
+      "role": "SALES_REP",
+      "active": true
+    }
+  ],
+  "profiles": {
+    "agent": 0,
+    "counselor": 0
+  }
+}

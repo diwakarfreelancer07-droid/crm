@@ -4,15 +4,29 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ChevronDown, ChevronRight, Shield } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { menuItems } from "./menuItems";
 
 export function Sidebar() {
     const pathname = usePathname();
     const router = useRouter();
-    const { data: session } = useSession() as any;
+    const { data: session, status } = useSession() as any;
     const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
+
+    // Compute the URL namespace prefix based on user role
+    const rolePrefix = (() => {
+        if (status !== "authenticated") return null; // session not ready yet
+        const role = session?.user?.role as string | undefined;
+        if (!role) return null;
+        if (["ADMIN", "MANAGER"].includes(role)) return "/admin";
+        if (["AGENT", "COUNSELOR", "SALES_REP", "SUPPORT_AGENT"].includes(role)) return "/agent";
+        if (role === "STUDENT") return "/student";
+        return null;
+    })();
+
+    // Prefix a path with the role namespace — returns "#" if session not ready
+    const prefixHref = (href: string) => rolePrefix ? `${rolePrefix}${href}` : "#";
 
     // Filter menu items based on user role
     const filteredMenuItems = menuItems.filter((item) => {
@@ -35,7 +49,7 @@ export function Sidebar() {
         // If menu is currently collapsed, expand it and navigate to first submenu
         if (expandedMenu !== label && firstSubmenuHref) {
             setExpandedMenu(label);
-            router.push(firstSubmenuHref);
+            router.push(prefixHref(firstSubmenuHref));
         } else if (expandedMenu === label) {
             // If already expanded, just close it (toggle off)
             setExpandedMenu(null);
@@ -53,8 +67,8 @@ export function Sidebar() {
     };
 
     const isActive = (href?: string, submenu?: { href: string }[]) => {
-        if (href) return pathname === href;
-        if (submenu) return submenu.some((item) => pathname === item.href);
+        if (href) return pathname === prefixHref(href);
+        if (submenu) return submenu.some((item) => pathname === prefixHref(item.href));
         return false;
     };
 
@@ -67,15 +81,18 @@ export function Sidebar() {
             {/* Floating/Fixed Sidebar */}
             <aside className="fixed left-0 top-0 h-screen bg-sidebar text-white overflow-hidden flex flex-col transition-all duration-300 w-[78px] hover:w-[252px] xl:w-[252px] group z-50 shadow-2xl">
                 {/* Logo - Sticky */}
-                <div className="px-4 xl:px-6 py-6 flex justify-center shrink-0">
-                    <div className="relative w-8 group-hover:w-48 xl:w-48 h-10 transition-all duration-300 overflow-hidden">
-                        <div className="flex items-center gap-3 w-full h-full px-2">
-                            <Shield className="w-8 h-8 text-white shrink-0" />
-                            <span className="text-xl font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 xl:opacity-100 transition-opacity duration-300 hidden group-hover:block xl:block">
-                                Inter CRM
-                            </span>
+                <div className="px-4 xl:px-6 py-4 flex justify-center shrink-0">
+                    <Link href={`${rolePrefix}/dashboard`} className="relative w-8 group-hover:w-48 xl:w-48 h-10 transition-all duration-300 overflow-hidden flex items-center">
+                        {/* Icon always visible */}
+                        <div className="shrink-0 w-9 h-9 rounded-full overflow-hidden">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img src="/intered-icon.png" alt="InterEd" width={36} height={36} className="object-cover w-full h-full" />
                         </div>
-                    </div>
+                        {/* Text shown when expanded */}
+                        <span className="ml-2.5 text-xl font-bold text-white whitespace-nowrap opacity-0 group-hover:opacity-100 xl:opacity-100 transition-opacity duration-300 hidden group-hover:inline xl:inline">
+                            InterEd
+                        </span>
+                    </Link>
                 </div>
 
                 {/* MAIN MENU Text - Sticky */}
@@ -96,8 +113,8 @@ export function Sidebar() {
                                     <>
                                         <motion.button
                                             onClick={() => toggleSubmenu(item.label, item.submenu?.[0]?.href)}
-                                            className={`w-full flex items-center justify-center group-hover:justify-between xl:justify-between px-2 xl:px-3 h-[41px] text-sm font-semibold rounded-[12px] xl:rounded-l-[12px] xl:rounded-r-none group-hover:rounded-l-[12px] group-hover:rounded-r-[12px] transition-all duration-300 ${isActive(undefined, item.submenu)
-                                                ? "bg-[#164e63] text-white font-bold curved-tab-connection"
+                                            className={`w-full flex items-center justify-center group-hover:justify-between xl:justify-between px-3 h-[41px] text-sm font-semibold rounded-lg transition-all duration-300 ${isActive(undefined, item.submenu)
+                                                ? "bg-primary/10 text-primary font-bold"
                                                 : "text-white hover:bg-white/5"
                                                 }`}
                                             whileHover={{ x: 2 }}
@@ -162,14 +179,14 @@ export function Sidebar() {
                                                     )}
 
                                                     {item.submenu.map((subItem) => {
-                                                        const isSubActive = pathname === subItem.href;
+                                                        const isSubActive = pathname === prefixHref(subItem.href);
                                                         return (
                                                             <li
                                                                 key={subItem.href}
                                                                 className="relative h-9 flex items-center"
                                                             >
                                                                 <Link
-                                                                    href={subItem.href}
+                                                                    href={prefixHref(subItem.href)}
                                                                     onClick={handleSubmenuClick}
                                                                     className={`block text-sm font-medium leading-none transition-colors duration-200 whitespace-nowrap ${isSubActive
                                                                         ? "text-primary"
@@ -192,10 +209,10 @@ export function Sidebar() {
                                         transition={{ type: "spring", stiffness: 400, damping: 25 }}
                                     >
                                         <Link
-                                            href={item.href!}
+                                            href={prefixHref(item.href!)}
                                             onClick={() => setExpandedMenu(null)}
-                                            className={`flex items-center justify-center group-hover:justify-start xl:justify-start gap-2.5 px-2 xl:px-3 h-[41px] text-sm font-semibold rounded-[12px] xl:rounded-l-[12px] xl:rounded-r-none group-hover:rounded-l-[12px] group-hover:rounded-r-[12px] transition-all duration-300 ${pathname === item.href
-                                                ? "bg-[#164e63] text-white font-bold curved-tab-connection"
+                                            className={`flex items-center justify-center group-hover:justify-start xl:justify-start gap-2.5 px-3 h-[41px] text-sm font-semibold rounded-lg transition-all duration-300 ${pathname === prefixHref(item.href!)
+                                                ? "bg-primary/10 text-primary font-bold"
                                                 : "text-white hover:bg-white/5 hover:text-white"
                                                 }`}
                                         >
@@ -208,7 +225,8 @@ export function Sidebar() {
                         ))}
                     </ul>
                 </nav>
-            </aside >
+            </aside>
         </>
     );
 }
+

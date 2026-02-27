@@ -15,17 +15,29 @@ export async function GET(
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        // Only admins and managers can view employee details
-        if (session.user.role !== "ADMIN" && session.user.role !== "MANAGER") {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
         const { id } = await params;
+
+        // RBAC Check
+        if (session.user.role !== "ADMIN" && session.user.role !== "MANAGER") {
+            if (session.user.role === "AGENT") {
+                const agent = await prisma.agentProfile.findUnique({ where: { userId: session.user.id } });
+                const targetCounselor = await prisma.counselorProfile.findUnique({
+                    where: { userId: id },
+                    select: { agentId: true }
+                });
+                if (targetCounselor?.agentId !== agent?.id && session.user.id !== id) {
+                    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+                }
+            } else if (session.user.id !== id) {
+                return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+            }
+        }
 
         const employee = await prisma.user.findUnique({
             where: { id },
             include: {
-                employeeProfile: true,
+                agentProfile: true,
+                counselorProfile: true,
                 assignedLeads: {
                     include: {
                         lead: {
@@ -50,6 +62,21 @@ export async function GET(
                     orderBy: { createdAt: "desc" },
                     take: 20,
                 },
+                onboardedStudents: {
+                    select: {
+                        id: true,
+                        name: true,
+                        phone: true,
+                        createdAt: true,
+                        lead: {
+                            select: {
+                                source: true
+                            }
+                        }
+                    },
+                    orderBy: { createdAt: "desc" },
+                    take: 50,
+                }
             },
         });
 
@@ -107,21 +134,22 @@ export async function PATCH(
             where: { id },
             data: {
                 ...updateData,
-                employeeProfile: {
+                agentProfile: ["AGENT", "SALES_REP", "MANAGER"].includes(role) ? {
                     upsert: {
-                        create: {
-                            phone: phone || null,
-                            department: department || null,
-                        },
-                        update: {
-                            ...(phone !== undefined && { phone }),
-                            ...(department !== undefined && { department }),
-                        },
-                    },
-                },
+                        create: { phone: phone || null },
+                        update: { phone: phone || null },
+                    }
+                } : undefined,
+                counselorProfile: role === "COUNSELOR" ? {
+                    upsert: {
+                        create: { phone: phone || null, department: department || null },
+                        update: { phone: phone || null, department: department || null },
+                    }
+                } : undefined,
             },
             include: {
-                employeeProfile: true,
+                agentProfile: true,
+                counselorProfile: true,
             },
         });
 
@@ -157,14 +185,14 @@ export async function DELETE(
             return NextResponse.json({ error: "You cannot delete your own account" }, { status: 400 });
         }
 
-        // Check for onboarding customers (Business Rule: Cannot delete if they own customers)
-        const customerCount = await prisma.customer.count({
+        // Check for onboarding students (Business Rule: Cannot delete if they own students)
+        const studentCount = await prisma.student.count({
             where: { onboardedBy: id }
         });
 
-        if (customerCount > 0) {
+        if (studentCount > 0) {
             return NextResponse.json({
-                error: `Cannot delete employee. They have onboarded ${customerCount} customers. Please reassign these customers first.`
+                error: `Cannot delete employee. They have onboarded ${studentCount} students. Please reassign these students first.`
             }, { status: 400 });
         }
 
@@ -214,8 +242,13 @@ export async function DELETE(
                 where: { userId: id }
             });
 
-            // 6. Delete Employee Profile
-            // Attempt to delete if exists (ignoring if not found is handled by deleteMany or finding first)
+            // 6. Delete Employee Profiles
+            await tx.agentProfile.deleteMany({
+                where: { userId: id }
+            });
+            await tx.counselorProfile.deleteMany({
+                where: { userId: id }
+            });
             await tx.employeeProfile.deleteMany({
                 where: { userId: id }
             });

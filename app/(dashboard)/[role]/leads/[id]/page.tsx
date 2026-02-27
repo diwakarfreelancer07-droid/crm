@@ -73,6 +73,7 @@ import { DateTimePicker } from "@/components/ui/date-time-picker";
 import { Label } from "@/components/ui/label";
 import { format } from "date-fns";
 import { ConvertToStudentModal } from "@/components/dashboard/ConvertToStudentModal";
+import { CallHistoryList } from "@/components/calls/CallHistoryList";
 
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -95,6 +96,7 @@ export default function LeadDetailPage() {
     const [taskRemindAt, setTaskRemindAt] = useState<Date | undefined>();
     const [dialogRemindAt, setDialogRemindAt] = useState<Date | undefined>();
     const [isAssigning, setIsAssigning] = useState(false);
+    const [isCalling, setIsCalling] = useState(false);
 
     // Modal states
     const [showProposalDialog, setShowProposalDialog] = useState(false);
@@ -424,6 +426,7 @@ export default function LeadDetailPage() {
         { id: "reminders", label: "Reminders", icon: <Bell className="h-4 w-4" /> },
         { id: "notes", label: "Notes", icon: <MessageSquare className="h-4 w-4" /> },
         { id: "activity", label: "Activity Log", icon: <History className="h-4 w-4" /> },
+        { id: "calls", label: "Calls", icon: <Phone className="h-4 w-4" /> },
     ];
 
     return (
@@ -626,6 +629,31 @@ export default function LeadDetailPage() {
                             {/* Interaction Quick Actions */}
                             <Card className="border border-border rounded-2xl bg-card shadow-none">
                                 <CardContent className="p-4 flex flex-wrap items-center gap-3">
+                                    <Button
+                                        variant="outline"
+                                        className="rounded-xl border-primary/20 text-primary h-10 gap-2 hover:bg-primary/5 bg-card flex-1 font-bold text-xs"
+                                        disabled={isCalling}
+                                        onClick={async () => {
+                                            const assignedEmployeeId = lead.assignments?.[lead.assignments.length - 1]?.assignedTo || session?.user?.id;
+                                            if (!assignedEmployeeId) { toast.error('No employee assigned'); return; }
+                                            setIsCalling(true);
+                                            try {
+                                                const res = await axios.post('/api/exotel/call', {
+                                                    employeeId: assignedEmployeeId,
+                                                    targetType: 'lead',
+                                                    targetId: lead.id,
+                                                });
+                                                toast.success(`Call initiated! SID: ${res.data.callSid}`);
+                                                setActiveTab('calls');
+                                            } catch (err: any) {
+                                                toast.error(err.response?.data?.error || 'Failed to initiate call');
+                                            } finally {
+                                                setIsCalling(false);
+                                            }
+                                        }}
+                                    >
+                                        <Phone className="h-4 w-4" /> {isCalling ? 'Calling...' : 'Call'}
+                                    </Button>
                                     <Button
                                         variant="outline"
                                         className="rounded-xl border-primary/20 text-primary h-10 gap-2 hover:bg-primary/5 bg-card flex-1 font-bold text-xs"
@@ -1587,6 +1615,10 @@ export default function LeadDetailPage() {
                             )}
                         </div>
                     </div>
+                )}
+
+                {activeTab === "calls" && (
+                    <CallHistoryList leadId={params.id as string} />
                 )}
             </div>
 

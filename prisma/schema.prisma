@@ -42,6 +42,7 @@ model User {
   assignedApplications   UniversityApplication[] @relation("ApplicationAssignedTo")
   createdApplications    UniversityApplication[] @relation("ApplicationAssignedBy")
   applicationNotes       ApplicationNote[]
+  callLogs              CallLog[]
 }
 
 model Notification {
@@ -136,6 +137,7 @@ model Lead {
   tasks                LeadTask[]
   student              Student?
   workExperience       WorkExperience[]
+  callLogs             CallLog[]
 
   @@index([phone])
   @@index([status])
@@ -275,6 +277,7 @@ model Student {
   user               User              @relation(fields: [onboardedBy], references: [id])
   studentUser        User?             @relation("StudentUser", fields: [studentUserId], references: [id])
   documents          StudentDocument[]
+  callLogs           CallLog[]
 
   @@index([onboardedBy])
   @@index([status])
@@ -660,4 +663,34 @@ enum AuditModule {
   COURSES
   VISA
   MASTERS
+}
+
+model CallLog {
+  id             String    @id @default(uuid())
+  exotelCallSid  String    @unique
+  callerId       String
+  toNumber       String
+  direction      String
+  status         String
+  duration       Int?
+  recordingUrl   String?
+  startedAt      DateTime?
+  endedAt        DateTime?
+  createdAt      DateTime  @default(now())
+
+  employeeId     String?
+  employee       User?     @relation(fields: [employeeId], references: [id])
+
+  leadId         String?
+  lead           Lead?     @relation(fields: [leadId], references: [id])
+
+  studentId      String?
+  student        Student?  @relation(fields: [studentId], references: [id])
+
+  leadActivityId String?   @unique
+
+  @@index([leadId])
+  @@index([studentId])
+  @@index([employeeId])
+  @@index([toNumber])
 }

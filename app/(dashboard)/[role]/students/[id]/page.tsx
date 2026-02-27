@@ -48,6 +48,7 @@ import {
 import StudentDocumentsSection from "@/components/student/StudentDocumentsSection";
 import VisaApplicationsSection from "@/components/student/VisaApplicationsSection";
 import { AddVisaApplicationModal } from "@/components/student/AddVisaApplicationModal";
+import { CallHistoryList } from "@/components/calls/CallHistoryList";
 
 function InfoField({ label, value }: { label: string; value?: string | null }) {
     if (!value) return null;
@@ -67,7 +68,8 @@ export default function StudentDetailPage() {
     const [student, setStudent] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [addVisaModalOpen, setAddVisaModalOpen] = useState(false);
-    const [prefilledVisaData, setPrefilledVisaData] = useState<any>(null); // For future use if modal supports it
+    const [prefilledVisaData, setPrefilledVisaData] = useState<any>(null);
+    const [isCalling, setIsCalling] = useState(false);
 
     // Activity Pagination State
     const [activities, setActivities] = useState<any[]>([]);
@@ -241,6 +243,13 @@ export default function StudentDetailPage() {
                         <History className="h-3.5 w-3.5 mr-1.5" />
                         Activity
                     </TabsTrigger>
+                    <TabsTrigger
+                        value="calls"
+                        className="flex-1 text-xs font-semibold rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm"
+                    >
+                        <Phone className="h-3.5 w-3.5 mr-1.5" />
+                        Calls
+                    </TabsTrigger>
                 </TabsList>
 
                 {/* === OVERVIEW TAB === */}
@@ -312,6 +321,28 @@ export default function StudentDetailPage() {
                                     </div>
 
                                     <div className="pt-3 border-t border-border/50 flex flex-col gap-2">
+                                        <Button
+                                            className="w-full bg-primary hover:bg-primary/90 rounded-xl h-9 text-sm font-bold shadow-sm"
+                                            disabled={isCalling}
+                                            onClick={async () => {
+                                                setIsCalling(true);
+                                                try {
+                                                    const res = await axios.post('/api/exotel/call', {
+                                                        employeeId: session?.user?.id,
+                                                        targetType: 'student',
+                                                        targetId: student.id,
+                                                    });
+                                                    toast.success(`Call initiated! SID: ${res.data.callSid}`);
+                                                } catch (err: any) {
+                                                    toast.error(err.response?.data?.error || 'Failed to initiate call');
+                                                } finally {
+                                                    setIsCalling(false);
+                                                }
+                                            }}
+                                        >
+                                            <Phone className="h-3.5 w-3.5 mr-2" />
+                                            {isCalling ? 'Calling...' : 'Call Student'}
+                                        </Button>
                                         <Button
                                             className="w-full bg-primary hover:bg-primary/90 rounded-xl h-9 text-sm font-bold shadow-sm"
                                             onClick={() => router.push(prefixPath(`/students/${params.id}/applications/add`))}
@@ -575,6 +606,11 @@ export default function StudentDetailPage() {
                             </div>
                         </CardContent>
                     </Card>
+                </TabsContent>
+
+                {/* === CALLS TAB === */}
+                <TabsContent value="calls" className="mt-5">
+                    <CallHistoryList studentId={params.id as string} />
                 </TabsContent>
 
             </Tabs>

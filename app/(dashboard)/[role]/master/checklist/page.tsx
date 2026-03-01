@@ -48,6 +48,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { useDebounce } from "@/hooks/use-debounce";
+import { usePermissions } from "@/hooks/use-permissions";
 
 interface Country {
     id: string;
@@ -67,6 +68,7 @@ interface ChecklistItem {
 }
 
 export default function ChecklistPage() {
+    const { can } = usePermissions();
     const [items, setItems] = useState<ChecklistItem[]>([]);
     const [countries, setCountries] = useState<Country[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -277,7 +279,7 @@ export default function ChecklistPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    {selectedIds.length > 0 && (
+                    {selectedIds.length > 0 && can("MASTERS", "DELETE") && (
                         <Button
                             variant="destructive"
                             size="sm"
@@ -287,87 +289,89 @@ export default function ChecklistPage() {
                             <Trash2 className="h-4 w-4" /> Delete Selected ({selectedIds.length})
                         </Button>
                     )}
-                    <Sheet open={isSheetOpen} onOpenChange={(open) => {
-                        setIsSheetOpen(open);
-                        if (!open) resetForm();
-                    }}>
-                        <SheetTrigger asChild>
-                            <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl h-10 px-5 text-sm font-bold shadow-sm flex items-center gap-2">
-                                <Plus className="h-4 w-4" /> Add Checklist
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent className="sm:max-w-[425px] border-l border-border bg-card">
-                            <SheetHeader className="mb-6">
-                                <SheetTitle className="text-xl font-bold text-foreground">
-                                    {editingItem ? "Edit Checklist Item" : "Add New Checklist Item"}
-                                </SheetTitle>
-                                <SheetDescription className="text-muted-foreground">
-                                    Set requirements for student applications.
-                                </SheetDescription>
-                            </SheetHeader>
-                            <form onSubmit={handleSubmit} className="space-y-5">
-                                <div className="space-y-2">
-                                    <Label htmlFor="name" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Document Name</Label>
-                                    <Input
-                                        id="name"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        placeholder="e.g. Passport"
-                                        required
-                                        className="rounded-xl border-border bg-background h-10"
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Document Type</Label>
-                                    <Select value={type} onValueChange={(v: any) => setType(v)}>
-                                        <SelectTrigger className="rounded-xl border-border bg-background h-10">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="MANDATORY">Mandatory</SelectItem>
-                                            <SelectItem value="OPTIONAL">Optional</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Country</Label>
-                                    <Select value={countryId} onValueChange={setCountryId}>
-                                        <SelectTrigger className="rounded-xl border-border bg-background h-10">
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="all">All Countries</SelectItem>
-                                            {countries.map(c => (
-                                                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-muted/30">
-                                    <div className="space-y-0.5">
-                                        <Label className="text-sm font-bold">Enquiry Form</Label>
-                                        <p className="text-xs text-muted-foreground">Include in initial enquiry</p>
-                                    </div>
-                                    <Switch checked={isEnquiryForm} onCheckedChange={setIsEnquiryForm} />
-                                </div>
-
-                                <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-muted/30">
-                                    <div className="space-y-0.5">
-                                        <Label className="text-sm font-bold">Is Mandatory</Label>
-                                        <p className="text-xs text-muted-foreground">Required for completion</p>
-                                    </div>
-                                    <Switch checked={isMandatory} onCheckedChange={setIsMandatory} />
-                                </div>
-
-                                <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl h-11 font-bold transition-all shadow-md">
-                                    {isSubmitting ? "Processing..." : (editingItem ? "Update Item" : "Save Item")}
+                    {can("MASTERS", "CREATE") && (
+                        <Sheet open={isSheetOpen} onOpenChange={(open) => {
+                            setIsSheetOpen(open);
+                            if (!open) resetForm();
+                        }}>
+                            <SheetTrigger asChild>
+                                <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl h-10 px-5 text-sm font-bold shadow-sm flex items-center gap-2">
+                                    <Plus className="h-4 w-4" /> Add Checklist
                                 </Button>
-                            </form>
-                        </SheetContent>
-                    </Sheet>
+                            </SheetTrigger>
+                            <SheetContent className="sm:max-w-[425px] border-l border-border bg-card">
+                                <SheetHeader className="mb-6">
+                                    <SheetTitle className="text-xl font-bold text-foreground">
+                                        {editingItem ? "Edit Checklist Item" : "Add New Checklist Item"}
+                                    </SheetTitle>
+                                    <SheetDescription className="text-muted-foreground">
+                                        Set requirements for student applications.
+                                    </SheetDescription>
+                                </SheetHeader>
+                                <form onSubmit={handleSubmit} className="space-y-5">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="name" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Document Name</Label>
+                                        <Input
+                                            id="name"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            placeholder="e.g. Passport"
+                                            required
+                                            className="rounded-xl border-border bg-background h-10"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Document Type</Label>
+                                        <Select value={type} onValueChange={(v: any) => setType(v)}>
+                                            <SelectTrigger className="rounded-xl border-border bg-background h-10">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="MANDATORY">Mandatory</SelectItem>
+                                                <SelectItem value="OPTIONAL">Optional</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Country</Label>
+                                        <Select value={countryId} onValueChange={setCountryId}>
+                                            <SelectTrigger className="rounded-xl border-border bg-background h-10">
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="all">All Countries</SelectItem>
+                                                {countries.map(c => (
+                                                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-muted/30">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-sm font-bold">Enquiry Form</Label>
+                                            <p className="text-xs text-muted-foreground">Include in initial enquiry</p>
+                                        </div>
+                                        <Switch checked={isEnquiryForm} onCheckedChange={setIsEnquiryForm} />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-3 rounded-xl border border-border bg-muted/30">
+                                        <div className="space-y-0.5">
+                                            <Label className="text-sm font-bold">Is Mandatory</Label>
+                                            <p className="text-xs text-muted-foreground">Required for completion</p>
+                                        </div>
+                                        <Switch checked={isMandatory} onCheckedChange={setIsMandatory} />
+                                    </div>
+
+                                    <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl h-11 font-bold transition-all shadow-md">
+                                        {isSubmitting ? "Processing..." : (editingItem ? "Update Item" : "Save Item")}
+                                    </Button>
+                                </form>
+                            </SheetContent>
+                        </Sheet>
+                    )}
                 </div>
             </div>
 
@@ -418,22 +422,26 @@ export default function ChecklistPage() {
                                     </TableCell>
                                     <TableCell className="px-4">
                                         <div className="flex gap-1">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleEdit(item)}
-                                                className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all opacity-40 group-hover:opacity-100"
-                                            >
-                                                <Pencil className="h-3.5 w-3.5" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleDelete(item.id)}
-                                                className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-all opacity-40 group-hover:opacity-100"
-                                            >
-                                                <Trash2 className="h-3.5 w-3.5" />
-                                            </Button>
+                                            {can("MASTERS", "EDIT") && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleEdit(item)}
+                                                    className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all opacity-40 group-hover:opacity-100"
+                                                >
+                                                    <Pencil className="h-3.5 w-3.5" />
+                                                </Button>
+                                            )}
+                                            {can("MASTERS", "DELETE") && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleDelete(item.id)}
+                                                    className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-all opacity-40 group-hover:opacity-100"
+                                                >
+                                                    <Trash2 className="h-3.5 w-3.5" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </TableCell>
                                     <TableCell className="px-4 text-xs font-medium text-muted-foreground whitespace-nowrap">

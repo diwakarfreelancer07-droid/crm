@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
+import { usePermissions } from "@/hooks/use-permissions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,7 +32,7 @@ interface Qualification {
 }
 
 export default function QualificationsPage() {
-    const { data: session } = useSession();
+    const { can } = usePermissions();
     const [qualifications, setQualifications] = useState<Qualification[]>([]);
     const [loading, setLoading] = useState(true);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -123,9 +123,6 @@ export default function QualificationsPage() {
 
     if (loading) return <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div>;
 
-    if (session?.user?.role !== "ADMIN" && session?.user?.role !== "MANAGER") {
-        return <div className="p-8">Unauthorized</div>;
-    }
 
     return (
         <div className="p-6 space-y-6">
@@ -134,38 +131,40 @@ export default function QualificationsPage() {
                     <h1 className="text-2xl font-bold tracking-tight text-foreground">Master Settings: Qualifications</h1>
                     <p className="text-sm text-muted-foreground mt-1">Manage academic qualifications available for leads and students.</p>
                 </div>
-                <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
-                    <SheetTrigger asChild>
-                        <Button className="gap-2 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-sm px-6">
-                            <Plus className="h-4 w-4" /> Add Qualification
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent className="sm:max-w-md">
-                        <SheetHeader className="pb-4">
-                            <SheetTitle className="text-xl font-bold">{editingQualification ? "Edit Qualification" : "Add Qualification"}</SheetTitle>
-                            <SheetDescription>
-                                {editingQualification ? "Update the name of the qualification." : "Enter the name for the new academic qualification."}
-                            </SheetDescription>
-                        </SheetHeader>
-                        <form onSubmit={handleSubmit} className="space-y-6 py-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="name" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Qualification Name</Label>
-                                <Input
-                                    id="name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="e.g. Bachelor of Science"
-                                    required
-                                    className="rounded-xl h-11 border-border bg-muted/30 focus:bg-background transition-all"
-                                />
-                            </div>
-                            <Button type="submit" className="w-full h-11 font-bold rounded-xl bg-primary hover:bg-primary/90 text-white shadow-md transition-all active:scale-[0.98]" disabled={isSubmitting}>
-                                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                {editingQualification ? "Update Qualification" : "Create Qualification"}
+                {can("MASTERS", "CREATE") && (
+                    <Sheet open={isSheetOpen} onOpenChange={handleSheetOpenChange}>
+                        <SheetTrigger asChild>
+                            <Button className="gap-2 bg-primary hover:bg-primary/90 text-white font-bold rounded-xl shadow-sm px-6">
+                                <Plus className="h-4 w-4" /> Add Qualification
                             </Button>
-                        </form>
-                    </SheetContent>
-                </Sheet>
+                        </SheetTrigger>
+                        <SheetContent className="sm:max-w-md">
+                            <SheetHeader className="pb-4">
+                                <SheetTitle className="text-xl font-bold">{editingQualification ? "Edit Qualification" : "Add Qualification"}</SheetTitle>
+                                <SheetDescription>
+                                    {editingQualification ? "Update the name of the qualification." : "Enter the name for the new academic qualification."}
+                                </SheetDescription>
+                            </SheetHeader>
+                            <form onSubmit={handleSubmit} className="space-y-6 py-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="name" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Qualification Name</Label>
+                                    <Input
+                                        id="name"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="e.g. Bachelor of Science"
+                                        required
+                                        className="rounded-xl h-11 border-border bg-muted/30 focus:bg-background transition-all"
+                                    />
+                                </div>
+                                <Button type="submit" className="w-full h-11 font-bold rounded-xl bg-primary hover:bg-primary/90 text-white shadow-md transition-all active:scale-[0.98]" disabled={isSubmitting}>
+                                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {editingQualification ? "Update Qualification" : "Create Qualification"}
+                                </Button>
+                            </form>
+                        </SheetContent>
+                    </Sheet>
+                )}
             </div>
 
             <div className="bg-card rounded-2xl border border-border/50 shadow-sm overflow-hidden">
@@ -195,22 +194,26 @@ export default function QualificationsPage() {
                                     </TableCell>
                                     <TableCell className="text-right py-4 px-6">
                                         <div className="flex justify-end gap-1">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleEdit(q)}
-                                                className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all"
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleDelete(q.id)}
-                                                className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-all"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                                            {can("MASTERS", "EDIT") && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleEdit(q)}
+                                                    className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all"
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                            {can("MASTERS", "DELETE") && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleDelete(q.id)}
+                                                    className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-all"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </TableCell>
                                 </TableRow>

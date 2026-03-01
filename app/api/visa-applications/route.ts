@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { VisaStatus, VisaType } from '@prisma/client';
 import { AuditLogService } from '@/lib/auditLog';
+import { notifyVisaStarted } from '@/lib/lifecycle-notifications';
 
 export async function GET(req: Request) {
     try {
@@ -159,6 +160,11 @@ export async function POST(req: Request) {
             newValues: visaApplication,
             metadata: { studentId, countryId }
         });
+
+        // Step 3 Lifecycle Notification — Visa Process Started (fire-and-forget)
+        notifyVisaStarted(visaApplication.id, session.user.id).catch(
+            (err) => console.error('[Lifecycle] notifyVisaStarted (direct) failed:', err)
+        );
 
         return NextResponse.json(visaApplication, { status: 201 });
     } catch (error) {

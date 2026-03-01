@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePermissions } from "@/hooks/use-permissions";
 import {
     Table,
     TableBody,
@@ -31,6 +32,7 @@ interface Country {
 }
 
 export default function CountriesPage() {
+    const { can } = usePermissions();
     const [countries, setCountries] = useState<Country[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -120,56 +122,58 @@ export default function CountriesPage() {
     return (
         <div className="flex flex-col gap-6">
             <div className="flex justify-end items-center">
-                <Sheet open={isSheetOpen} onOpenChange={(open) => {
-                    setIsSheetOpen(open);
-                    if (!open) {
-                        setEditingCountry(null);
-                        setName("");
-                        setCode("");
-                    }
-                }}>
-                    <SheetTrigger asChild>
-                        <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl h-10 px-5 text-sm font-bold shadow-sm flex items-center gap-2">
-                            <Plus className="h-4 w-4" /> Add Country
-                        </Button>
-                    </SheetTrigger>
-                    <SheetContent className="sm:max-w-[425px] border-l border-border bg-card">
-                        <SheetHeader className="mb-6">
-                            <SheetTitle className="text-xl font-bold text-foreground">
-                                {editingCountry ? "Edit Country" : "Add New Country"}
-                            </SheetTitle>
-                            <SheetDescription className="text-muted-foreground">
-                                {editingCountry ? "Update the details of the existing country." : "Create a new country entry for the system."}
-                            </SheetDescription>
-                        </SheetHeader>
-                        <form onSubmit={handleSubmit} className="space-y-5">
-                            <div className="space-y-2">
-                                <Label htmlFor="name" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Country Name</Label>
-                                <Input
-                                    id="name"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="e.g. United Kingdom"
-                                    required
-                                    className="rounded-xl border-border bg-background focus:ring-primary/20 h-10"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="code" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Country Code (Optional)</Label>
-                                <Input
-                                    id="code"
-                                    value={code}
-                                    onChange={(e) => setCode(e.target.value)}
-                                    placeholder="e.g. UK or GBR"
-                                    className="rounded-xl border-border bg-background focus:ring-primary/20 h-10"
-                                />
-                            </div>
-                            <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl h-11 font-bold transition-all shadow-md">
-                                {isSubmitting ? "Processing..." : (editingCountry ? "Update Country" : "Save Country")}
+                {can("MASTERS", "CREATE") && (
+                    <Sheet open={isSheetOpen} onOpenChange={(open) => {
+                        setIsSheetOpen(open);
+                        if (!open) {
+                            setEditingCountry(null);
+                            setName("");
+                            setCode("");
+                        }
+                    }}>
+                        <SheetTrigger asChild>
+                            <Button className="bg-primary hover:bg-primary/90 text-white rounded-xl h-10 px-5 text-sm font-bold shadow-sm flex items-center gap-2">
+                                <Plus className="h-4 w-4" /> Add Country
                             </Button>
-                        </form>
-                    </SheetContent>
-                </Sheet>
+                        </SheetTrigger>
+                        <SheetContent className="sm:max-w-[425px] border-l border-border bg-card">
+                            <SheetHeader className="mb-6">
+                                <SheetTitle className="text-xl font-bold text-foreground">
+                                    {editingCountry ? "Edit Country" : "Add New Country"}
+                                </SheetTitle>
+                                <SheetDescription className="text-muted-foreground">
+                                    {editingCountry ? "Update the details of the existing country." : "Create a new country entry for the system."}
+                                </SheetDescription>
+                            </SheetHeader>
+                            <form onSubmit={handleSubmit} className="space-y-5">
+                                <div className="space-y-2">
+                                    <Label htmlFor="name" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Country Name</Label>
+                                    <Input
+                                        id="name"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="e.g. United Kingdom"
+                                        required
+                                        className="rounded-xl border-border bg-background focus:ring-primary/20 h-10"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="code" className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Country Code (Optional)</Label>
+                                    <Input
+                                        id="code"
+                                        value={code}
+                                        onChange={(e) => setCode(e.target.value)}
+                                        placeholder="e.g. UK or GBR"
+                                        className="rounded-xl border-border bg-background focus:ring-primary/20 h-10"
+                                    />
+                                </div>
+                                <Button type="submit" disabled={isSubmitting} className="w-full bg-primary hover:bg-primary/90 text-white rounded-xl h-11 font-bold transition-all shadow-md">
+                                    {isSubmitting ? "Processing..." : (editingCountry ? "Update Country" : "Save Country")}
+                                </Button>
+                            </form>
+                        </SheetContent>
+                    </Sheet>
+                )}
             </div>
 
             <div className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden">
@@ -212,22 +216,26 @@ export default function CountriesPage() {
                                     </TableCell>
                                     <TableCell className="text-right py-4 px-6">
                                         <div className="flex justify-end gap-1">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleEdit(c)}
-                                                className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all"
-                                            >
-                                                <Pencil className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleDelete(c.id)}
-                                                className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-all"
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
+                                            {can("MASTERS", "EDIT") && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleEdit(c)}
+                                                    className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-all"
+                                                >
+                                                    <Pencil className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                            {can("MASTERS", "DELETE") && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleDelete(c.id)}
+                                                    className="h-8 w-8 rounded-lg hover:bg-destructive/10 hover:text-destructive transition-all"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </TableCell>
                                 </TableRow>

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { AuditLogService } from "@/lib/auditLog";
 import { withPermission } from "@/lib/permissions";
+import { notifyApplicationCreated } from "@/lib/lifecycle-notifications";
 
 export const dynamic = 'force-dynamic';
 
@@ -361,6 +362,11 @@ export const POST = withPermission('APPLICATIONS', 'CREATE', async (req, { permi
                 }
 
                 results.push(app);
+
+                // Lifecycle notification (Step 2) — fire-and-forget outside transaction
+                notifyApplicationCreated(app.id, (session.user as any).id).catch(
+                    (err) => console.error("[Lifecycle] notifyApplicationCreated failed:", err)
+                );
             }
             return results;
         });

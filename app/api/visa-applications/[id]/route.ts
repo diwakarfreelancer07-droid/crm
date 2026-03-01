@@ -3,6 +3,10 @@ import { prisma } from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { VisaStatus, VisaType } from '@prisma/client';
+import {
+    notifyApplicationDeferred,
+    notifyEnrollmentConfirmed,
+} from '@/lib/lifecycle-notifications';
 
 export async function GET(
     req: Request,
@@ -75,6 +79,19 @@ export async function PATCH(
                 where: { id: visaApplication.universityApplicationId },
                 data: { status: visaApplication.status as any }
             });
+
+            // Steps 4 & 5: Notify based on final status
+            if (visaApplication.status === "DEFERRED") {
+                notifyApplicationDeferred(
+                    visaApplication.universityApplicationId,
+                    session.user.id
+                ).catch((err) => console.error('[Lifecycle] notifyApplicationDeferred (visa) failed:', err));
+            } else if (visaApplication.status === "ENROLLED") {
+                notifyEnrollmentConfirmed(
+                    visaApplication.universityApplicationId,
+                    session.user.id
+                ).catch((err) => console.error('[Lifecycle] notifyEnrollmentConfirmed (visa) failed:', err));
+            }
         }
 
         // Log activity

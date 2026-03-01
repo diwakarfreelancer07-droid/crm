@@ -18,7 +18,7 @@ import { MoreHorizontal, Eye, Pencil, Trash2, Mail, Phone, Briefcase, ChevronLef
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import EmployeeForm from "@/components/forms/EmployeeForm";
 import { Employee } from "@/types/api";
 
@@ -309,7 +309,7 @@ export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagin
 
 
             <Sheet open={editSheetOpen} onOpenChange={setEditSheetOpen}>
-                <SheetContent className="overflow-y-auto w-full sm:max-w-sm">
+                <SheetContent className="overflow-y-auto w-full sm:max-w-sm flex flex-col">
                     <SheetHeader>
                         <SheetTitle>Edit {title}</SheetTitle>
                         <SheetDescription>
@@ -317,9 +317,10 @@ export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagin
                         </SheetDescription>
                     </SheetHeader>
                     {editingEmployee && (
-                        <div className="mt-6">
+                        <div className="mt-6 flex-1 overflow-y-auto">
                             <EmployeeForm
                                 employee={editingEmployee}
+                                formId="edit-employee-form"
                                 onSuccess={() => {
                                     setEditSheetOpen(false);
                                     onUpdate();
@@ -327,6 +328,20 @@ export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagin
                             />
                         </div>
                     )}
+                    <SheetFooter className="pt-4 border-t gap-2 flex-row justify-end">
+                        <Button
+                            variant="outline"
+                            onClick={() => setEditSheetOpen(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            type="submit"
+                            form="edit-employee-form"
+                        >
+                            Save Changes
+                        </Button>
+                    </SheetFooter>
                 </SheetContent>
             </Sheet>
         </div >

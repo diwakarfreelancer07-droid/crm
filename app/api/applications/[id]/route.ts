@@ -5,6 +5,11 @@ import { prisma } from "@/lib/prisma";
 import { AuditLogService } from "@/lib/auditLog";
 import { VisaType, VisaStatus } from "@prisma/client";
 import { withPermission } from "@/lib/permissions";
+import {
+    notifyVisaStarted,
+    notifyApplicationDeferred,
+    notifyEnrollmentConfirmed,
+} from "@/lib/lifecycle-notifications";
 
 // GET /api/applications/[id] - Get university application details
 export const GET = withPermission('APPLICATIONS', 'VIEW', async (req, { params, permission }) => {
@@ -141,6 +146,18 @@ export const PUT = withPermission('APPLICATIONS', 'EDIT', async (req, { params, 
                     }
                 });
             }
+
+            // ── Lifecycle Notifications ────────────────────────────────────────
+            if (status === "DEFERRED") {
+                notifyApplicationDeferred(id, (session.user as any).id, updated.notes ?? undefined).catch(
+                    (err) => console.error("[Lifecycle] notifyApplicationDeferred (PUT) failed:", err)
+                );
+            }
+            if (status === "ENROLLED") {
+                notifyEnrollmentConfirmed(id, (session.user as any).id).catch(
+                    (err) => console.error("[Lifecycle] notifyEnrollmentConfirmed (PUT) failed:", err)
+                );
+            }
         }
 
         return NextResponse.json(updated);
@@ -255,6 +272,11 @@ export const POST = withPermission('APPLICATIONS', 'EDIT', async (req, { params,
                     content: `Application for ${application.universityId || 'institution'} moved to Visa stage.`,
                 }
             });
+
+            // Step 3 Lifecycle Notification — fire-and-forget before returning
+            notifyVisaStarted(updatedVisaApp.id, (session.user as any).id).catch(
+                (err) => console.error("[Lifecycle] notifyVisaStarted (ready-for-visa) failed:", err)
+            );
 
             return NextResponse.json(updatedVisaApp);
         }

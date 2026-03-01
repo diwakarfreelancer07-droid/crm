@@ -4,6 +4,13 @@ import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import { AuditLogService } from "@/lib/auditLog";
+import { notifyLeadConverted } from "@/lib/lifecycle-notifications";
+import { sendStudentWelcomeEmail } from "@/lib/mail";
+
+/** Generates a random 6-digit numeric password string, e.g. "482901" */
+function generateSixDigitPassword(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+}
 
 export async function POST(
     req: NextRequest,
@@ -50,7 +57,9 @@ export async function POST(
         const {
             name, email, phone, alternateNo, dateOfBirth, gender,
             nationality, passportNo, passportIssueDate, passportExpiryDate,
-            highestQualification, address, imageUrl
+            highestQualification, address, imageUrl,
+            agentId: bodyAgentId,
+            counselorId: bodyCounselorId,
         } = body;
 
         const studentName = name || lead.name;
@@ -129,13 +138,15 @@ export async function POST(
                 student = await tx.student.update({
                     where: { id: student.id },
                     data: {
-                        leadId: leadId, // Ensure it's linked to this leadId (if it was linked to another or null)
+                        leadId: leadId,
                         name: studentName,
                         email: studentEmail,
                         phone: studentPhone,
                         passportNo: passportNo || lead.passportNo || undefined,
                         passportIssueDate: parseDate(passportIssueDate) || parseDate(lead.passportIssueDate) || undefined,
                         passportExpiryDate: parseDate(passportExpiryDate) || parseDate(lead.passportExpiryDate) || undefined,
+                        ...(bodyAgentId ? { agentId: bodyAgentId } : {}),
+                        ...(bodyCounselorId ? { counselorId: bodyCounselorId } : {}),
                     }
                 });
             } else {
@@ -153,6 +164,8 @@ export async function POST(
                         passportNo: passportNo || lead.passportNo,
                         passportIssueDate: parseDate(passportIssueDate) || parseDate(lead.passportIssueDate),
                         passportExpiryDate: parseDate(passportExpiryDate) || parseDate(lead.passportExpiryDate),
+                        ...(bodyAgentId ? { agentId: bodyAgentId } : {}),
+                        ...(bodyCounselorId ? { counselorId: bodyCounselorId } : {}),
                     }
                 });
             }
@@ -216,6 +229,34 @@ export async function POST(
                 newValues: result.student,
                 metadata: { studentId: result.student.id, action: "LEAD_CONVERTED" }
             });
+        }
+
+        // 10. Lifecycle Notification (non-blocking)
+        notifyLeadConverted(leadId, result.student.id, session.user.id).catch(
+            (err) => console.error("[Lifecycle] notifyLeadConverted failed:", err)
+        );
+
+        // 11. Generate a fresh 6-digit password, update the student user account, and send welcome email
+        if (result.student.studentUserId) {
+            try {
+                const rawPassword = generateSixDigitPassword();
+                const passwordHash = await bcrypt.hash(rawPassword, 10);
+
+                // Update user's password to the newly generated one
+                await prisma.user.update({
+                    where: { id: result.student.studentUserId },
+                    data: { passwordHash },
+                });
+
+                const loginEmail = studentEmail || `student+${result.student.id.slice(0, 8)}@intered.app`;
+                const loginUrl = `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/login`;
+
+                await sendStudentWelcomeEmail(loginEmail, studentName, rawPassword, loginUrl);
+                console.log(`[ConvertToStudent] Welcome email sent to ${loginEmail}`);
+            } catch (emailErr) {
+                // Non-fatal — log but don't break the API response
+                console.warn("[ConvertToStudent] Welcome email failed (non-fatal):", emailErr);
+            }
         }
 
         console.error(">>> CONVERSION API: Success");

@@ -33,14 +33,13 @@ import {
     Loader2
 } from "lucide-react";
 import { toast } from "sonner";
-import { useSession } from "next-auth/react";
+import { usePermissions } from "@/hooks/use-permissions";
 import { AddCourseModal } from "@/components/masters/AddCourseModal";
 import { ManageIntakesModal } from "@/components/masters/ManageIntakesModal";
 import { ImportCoursesModal } from "@/components/masters/ImportCoursesModal";
 
 export default function CoursesPage() {
-    const { data: session } = useSession() as any;
-    const isAdminOrManager = ["ADMIN", "MANAGER"].includes(session?.user?.role);
+    const { can } = usePermissions();
 
     // Modals State
     const [isAddOpen, setIsAddOpen] = useState(false);
@@ -184,7 +183,7 @@ export default function CoursesPage() {
                     <p className="text-gray-500 text-sm">Manage university courses, intakes, and requirements.</p>
                 </div>
                 <div className="flex items-center gap-3">
-                    {isAdminOrManager && (
+                    {can("MASTERS", "CREATE") && (
                         <>
                             <Button
                                 variant="outline"
@@ -365,22 +364,26 @@ export default function CoursesPage() {
                                     <TableRow key={course.id} className="hover:bg-gray-50/50 border-b border-gray-100 items-start">
                                         <TableCell className="border-x border-gray-100 p-2">
                                             <div className="flex items-center justify-center gap-2">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-blue-600 hover:bg-blue-50 rounded-none border border-transparent hover:border-blue-200"
-                                                    onClick={() => handleEdit(course)}
-                                                >
-                                                    <Pencil className="w-4 h-4" />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    className="h-8 w-8 text-red-600 hover:bg-red-50 rounded-none border border-transparent hover:border-red-200"
-                                                    onClick={() => handleDelete(course.id)}
-                                                >
-                                                    <Trash2 className="w-4 h-4" />
-                                                </Button>
+                                                {can("MASTERS", "EDIT") && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-blue-600 hover:bg-blue-50 rounded-none border border-transparent hover:border-blue-200"
+                                                        onClick={() => handleEdit(course)}
+                                                    >
+                                                        <Pencil className="w-4 h-4" />
+                                                    </Button>
+                                                )}
+                                                {can("MASTERS", "DELETE") && (
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 text-red-600 hover:bg-red-50 rounded-none border border-transparent hover:border-red-200"
+                                                        onClick={() => handleDelete(course.id)}
+                                                    >
+                                                        <Trash2 className="w-4 h-4" />
+                                                    </Button>
+                                                )}
                                             </div>
                                         </TableCell>
                                         <TableCell className="border-r border-gray-100 font-medium text-gray-700">{course.country.name}</TableCell>
@@ -454,7 +457,7 @@ export default function CoursesPage() {
                 currentCourse={selectedCourse}
             />
 
-            {isAdminOrManager && selectedCourse && (
+            {can("MASTERS", "EDIT") && selectedCourse && (
                 <ManageIntakesModal
                     isOpen={isIntakeOpen}
                     onClose={() => setIsIntakeOpen(false)}
@@ -463,7 +466,7 @@ export default function CoursesPage() {
                 />
             )}
 
-            {isAdminOrManager && (
+            {can("MASTERS", "CREATE") && (
                 <ImportCoursesModal
                     isOpen={isImportOpen}
                     onClose={() => setIsImportOpen(false)}

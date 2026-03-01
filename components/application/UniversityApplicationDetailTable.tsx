@@ -44,6 +44,7 @@ export function UniversityApplicationDetailTable({
             case "NEW": return "bg-blue-500/10 text-blue-600 border-blue-200";
             case "SUBMITTED": return "bg-amber-500/10 text-amber-600 border-amber-200";
             case "FINALIZED": return "bg-emerald-500/10 text-emerald-600 border-emerald-200";
+            case "DEFERRED": return "bg-pink-500/10 text-pink-600 border-pink-200";
             default: return "bg-slate-500/10 text-slate-600 border-slate-200";
         }
     };

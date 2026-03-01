@@ -143,11 +143,11 @@ export const useBulkDeleteApplications = () => {
 };
 
 // Visa Applications
-export const useVisaApplications = (studentId?: string, page = 1, limit = 10) => {
+export const useVisaApplications = (studentId?: string, page = 1, limit = 10, search = "", status = "") => {
     return useQuery({
-        queryKey: ['visa-applications', studentId, page, limit],
+        queryKey: ['visa-applications', studentId, page, limit, search, status],
         queryFn: async () => {
-            return await getVisaApplications(studentId, page, limit);
+            return await getVisaApplications(studentId, page, limit, search, status);
         },
     });
 };

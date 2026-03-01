@@ -93,10 +93,29 @@ export async function GET(req: NextRequest) {
 
         // Base where clause for STUDENTS
         const studentWhere: Record<string, any> = {
-            applications: {
-                some: appWhere
-            }
+            OR: [
+                {
+                    applications: {
+                        some: appWhere
+                    }
+                },
+                {
+                    visaApplications: {
+                        some: {
+                            status: status as any,
+                            ...(userRole === 'COUNSELOR' && { assignedOfficerId: userId }),
+                            ...(['SUPPORT_AGENT', 'SALES_REP'].includes(userRole) && { assignedOfficerId: userId })
+                        }
+                    }
+                }
+            ]
         };
+
+        // If not filtering for specifically DEFERRED/ENROLLED, stick to university apps matching filters
+        if (!["DEFERRED", "ENROLLED"].includes(status || "")) {
+            delete (studentWhere as any).OR;
+            studentWhere.applications = { some: appWhere };
+        }
 
         if (search) {
             studentWhere.AND = [
@@ -156,8 +175,18 @@ export async function GET(req: NextRequest) {
                         orderBy: { createdAt: 'desc' },
                         take: 1
                     },
+                    visaApplications: {
+                        where: { status: status as any },
+                        include: {
+                            country: { select: { id: true, name: true } },
+                            university: { select: { id: true, name: true } },
+                            course: { select: { id: true, name: true } },
+                        },
+                        orderBy: { createdAt: 'desc' },
+                        take: 1
+                    },
                     _count: {
-                        select: { applications: true }
+                        select: { applications: true, visaApplications: true }
                     }
                 },
                 orderBy: { createdAt: 'desc' },
@@ -168,13 +197,26 @@ export async function GET(req: NextRequest) {
         ]);
 
         const mappedApplications = students.map(student => {
-            const latestApp = student.applications[0];
-            if (!latestApp) return null;
+            const latestUniApp = student.applications[0];
+            const latestVisaApp = student.visaApplications?.[0];
 
-            const { _count, ...appDetails } = latestApp;
+            // Prioritize status match. If we are filtering by status, find the one that matches.
+            let displayApp = latestUniApp;
+            if (status && latestVisaApp?.status === status) {
+                displayApp = {
+                    ...latestVisaApp,
+                    status: latestVisaApp.status,
+                    universityApplication: latestUniApp // keep ref if exists
+                };
+            }
+
+            if (!displayApp) return null;
+
+            const isVisaStage = !!latestVisaApp;
 
             return {
-                ...appDetails,
+                ...displayApp,
+                isVisaStage,
                 student: {
                     id: student.id,
                     name: student.name,
@@ -184,11 +226,12 @@ export async function GET(req: NextRequest) {
                     status: student.status,
                     passportNo: student.passportNo,
                     _count: {
-                        applications: student._count.applications
+                        applications: student._count.applications,
+                        visaApplications: student._count.visaApplications
                     }
                 },
                 _count: {
-                    notes: _count?.applicationNotes || 0
+                    notes: (displayApp as any)._count?.applicationNotes || 0
                 }
             };
         }).filter(Boolean);

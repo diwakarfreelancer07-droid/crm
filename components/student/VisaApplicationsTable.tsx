@@ -17,6 +17,8 @@ import {
 import { MoreHorizontal, Eye, Trash2, Calendar, Globe, School, User, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
 import { VisaStatus, VisaType } from "@prisma/client";
 import { useUpdateVisaApplication } from "@/hooks/useApi";
+import { useRouter } from "next/navigation";
+import { useRolePath } from "@/hooks/use-role-path";
 
 interface VisaApplicationsTableProps {
     data: any[];
@@ -25,81 +27,137 @@ interface VisaApplicationsTableProps {
 }
 
 export function VisaApplicationsTable({ data, onUpdate, onDelete }: VisaApplicationsTableProps) {
+    const router = useRouter();
+    const { prefixPath } = useRolePath();
     const updateMutation = useUpdateVisaApplication();
 
     const getStatusStyle = (status: VisaStatus) => {
         switch (status) {
-            case "PENDING": return "bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-200";
-            case "DOCUMENTS_COLLECTED": return "bg-sky-100 text-sky-700 hover:bg-sky-200 border-sky-200";
-            case "SUBMITTED": return "bg-amber-100 text-amber-700 hover:bg-amber-200 border-amber-200";
-            case "UNDER_REVIEW": return "bg-purple-100 text-purple-700 hover:bg-purple-200 border-purple-200";
-            case "APPROVED": return "bg-emerald-100 text-emerald-700 hover:bg-emerald-200 border-emerald-200";
-            case "REJECTED": return "bg-red-100 text-red-700 hover:bg-red-200 border-red-200";
-            case "WITHDRAWN": return "bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200";
-            default: return "bg-gray-100 text-gray-700";
+            case "VISA_APPROVED":
+            case "VISA_GRANTED":
+                return "bg-emerald-100 text-emerald-700 border-emerald-200";
+            case "VISA_REJECTED":
+            case "VISA_REFUSED":
+                return "bg-red-100 text-red-700 border-red-200";
+            case "VISA_WITHDRAWN":
+                return "bg-slate-100 text-slate-700 border-slate-200";
+            case "VISA_APPLICATION_SUBMITTED":
+            case "BIOMETRICS_SCHEDULED":
+            case "INTERVIEW_SCHEDULED":
+                return "bg-amber-100 text-amber-700 border-amber-200";
+            case "UNDER_REVIEW":
+            case "VISA_APPLICATION_IN_PROGRESS":
+                return "bg-purple-100 text-purple-700 border-purple-200";
+            case "DOCUMENTS_RECEIVED":
+            case "DOCUMENTS_VERIFIED":
+            case "BIOMETRICS_COMPLETED":
+            case "INTERVIEW_COMPLETED":
+                return "bg-cyan-100 text-cyan-700 border-cyan-200";
+            case "DOCUMENTS_PENDING":
+            case "FINANCIAL_DOCUMENTS_PENDING":
+            case "SPONSORSHIP_DOCUMENTS_PENDING":
+            case "ADDITIONAL_DOCUMENTS_REQUESTED":
+                return "bg-rose-50 text-rose-600 border-rose-100";
+            case "VISA_GUIDANCE_GIVEN":
+            case "DOCUMENTS_CHECKLIST_SHARED":
+                return "bg-indigo-50 text-indigo-600 border-indigo-100";
+            default:
+                return "bg-blue-50 text-blue-600 border-blue-100";
         }
     };
 
     const statusOptions: { value: VisaStatus; label: string }[] = [
-        { value: "PENDING", label: "Pending" },
-        { value: "DOCUMENTS_COLLECTED", label: "Docs Collected" },
-        { value: "SUBMITTED", label: "Submitted" },
+        { value: "VISA_GUIDANCE_GIVEN", label: "Visa Guidance Given" },
+        { value: "DOCUMENTS_CHECKLIST_SHARED", label: "Documents Checklist Shared" },
+        { value: "DOCUMENTS_PENDING", label: "Documents Pending" },
+        { value: "DOCUMENTS_RECEIVED", label: "Documents Received" },
+        { value: "DOCUMENTS_VERIFIED", label: "Documents Verified" },
+        { value: "FINANCIAL_DOCUMENTS_PENDING", label: "Financial Documents Pending" },
+        { value: "SPONSORSHIP_DOCUMENTS_PENDING", label: "Sponsorship Documents Pending" },
+        { value: "VISA_APPLICATION_IN_PROGRESS", label: "Visa Application In Progress" },
+        { value: "VISA_APPLICATION_SUBMITTED", label: "Visa Application Submitted" },
+        { value: "BIOMETRICS_SCHEDULED", label: "Biometrics Scheduled" },
+        { value: "BIOMETRICS_COMPLETED", label: "Biometrics Completed" },
         { value: "UNDER_REVIEW", label: "Under Review" },
-        { value: "APPROVED", label: "Approved" },
-        { value: "REJECTED", label: "Rejected" },
-        { value: "WITHDRAWN", label: "Withdrawn" },
+        { value: "ADDITIONAL_DOCUMENTS_REQUESTED", label: "Additional Documents Requested" },
+        { value: "INTERVIEW_SCHEDULED", label: "Interview Scheduled" },
+        { value: "INTERVIEW_COMPLETED", label: "Interview Completed" },
+        { value: "VISA_APPROVED", label: "Visa Approved" },
+        { value: "VISA_GRANTED", label: "Visa Granted" },
+        { value: "VISA_REFUSED", label: "Visa Refused" },
+        { value: "VISA_REJECTED", label: "Visa Rejected" },
+        { value: "VISA_WITHDRAWN", label: "Visa Withdrawn" },
+        { value: "PENDING", label: "Pending" },
     ];
 
     const columns: ColumnDef<any>[] = [
         {
-            accessorKey: "visaType",
-            header: "Visa Type",
+            accessorKey: "timestamps",
+            header: "Created - Updated",
             cell: ({ row }) => (
-                <div className="flex flex-col">
-                    <span className="font-bold text-foreground capitalize">{row.original.visaType.toLowerCase().replace(/_/g, ' ')}</span>
-                    <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">{row.original.country?.name}</span>
+                <div className="flex flex-col text-[11px] font-medium text-muted-foreground">
+                    <span>{new Date(row.original.createdAt).toLocaleString()}</span>
+                    <span>{new Date(row.original.updatedAt).toLocaleString()}</span>
                 </div>
             ),
         },
         {
-            accessorKey: "university",
-            header: "University & Intake",
-            cell: ({ row }) => (
-                <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-sm font-semibold">
-                        <School className="h-3.5 w-3.5 text-primary" />
-                        {row.original.university?.name || "N/A"}
-                    </div>
-                    {row.original.intake && (
-                        <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground uppercase">
-                            <Calendar className="h-3 w-3" />
-                            {row.original.intake}
-                        </div>
-                    )}
-                </div>
-            ),
-        },
-        {
-            accessorKey: "dates",
-            header: "Key Dates",
+            accessorKey: "student",
+            header: "Name",
             cell: ({ row }) => (
                 <div className="flex flex-col gap-1">
-                    <div className="text-xs font-semibold flex items-center gap-1.5">
-                        <Clock className="h-3 w-3 text-blue-500" />
-                        Applied: {new Date(row.original.applicationDate).toLocaleDateString()}
-                    </div>
-                    {row.original.appointmentDate && (
-                        <div className="text-xs font-semibold flex items-center gap-1.5">
-                            <Calendar className="h-3 w-3 text-amber-500" />
-                            Appt: {new Date(row.original.appointmentDate).toLocaleDateString()}
-                        </div>
-                    )}
+                    <span className="font-bold text-slate-700">{row.original.student?.name}</span>
+                    <Button variant="outline" size="xs" className="h-6 w-fit px-2 text-[10px] font-bold rounded-md bg-slate-50 border-slate-200">
+                        + Notes
+                    </Button>
                 </div>
+            ),
+        },
+        {
+            accessorKey: "contact",
+            header: "Email / Mobile",
+            cell: ({ row }) => (
+                <div className="flex flex-col text-xs font-medium text-slate-600">
+                    <span className="text-primary">{row.original.student?.email || "-"}</span>
+                    <span>{row.original.student?.phone || "-"}</span>
+                </div>
+            ),
+        },
+        {
+            accessorKey: "appliedAt",
+            header: "Applied Country / University",
+            cell: ({ row }) => (
+                <div className="flex flex-col gap-1">
+                    <Badge variant="outline" className="w-fit h-5 px-1.5 text-[9px] font-bold uppercase rounded bg-slate-100 border-slate-200 text-slate-600">
+                        {row.original.country?.name}
+                    </Badge>
+                    <span className="text-xs font-semibold text-slate-700">
+                        {row.original.university?.name || row.original.universityApplication?.university?.name || "-"}
+                    </span>
+                </div>
+            ),
+        },
+        {
+            accessorKey: "course",
+            header: "Course",
+            cell: ({ row }) => (
+                <span className="text-xs font-semibold text-slate-700">
+                    {row.original.course?.name || row.original.courseName || row.original.universityApplication?.courseName || "-"}
+                </span>
+            ),
+        },
+        {
+            accessorKey: "intake",
+            header: "Intake",
+            cell: ({ row }) => (
+                <span className="text-xs font-semibold text-slate-600">
+                    {row.original.intake || row.original.universityApplication?.intake || "-"}
+                </span>
             ),
         },
         {
             accessorKey: "status",
-            header: "Status",
+            header: "Visa Status",
             cell: ({ row }) => {
                 const status = row.original.status as VisaStatus;
                 const visaId = row.original.id;
@@ -120,16 +178,19 @@ export function VisaApplicationsTable({ data, onUpdate, onDelete }: VisaApplicat
                 return (
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Badge variant="outline" className={`cursor-pointer rounded-lg font-bold px-3 py-1 border ${getStatusStyle(status)}`}>
-                                {status.replace(/_/g, ' ')}
-                            </Badge>
+                            <div className={`flex items-center justify-between w-52 h-9 px-3 py-1 border rounded-md cursor-pointer transition-colors shadow-sm font-bold ${getStatusStyle(status)}`}>
+                                <span className="text-[11px]">
+                                    {statusOptions.find(o => o.value === status)?.label || status.replace(/_/g, ' ')}
+                                </span>
+                                <MoreHorizontal className="h-3 w-3 opacity-50 rotate-90" />
+                            </div>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-56 rounded-xl shadow-xl p-1 border-none bg-white">
+                        <DropdownMenuContent align="start" className="w-56 h-[300px] overflow-y-auto rounded-md shadow-xl p-0 border-slate-200 bg-white">
                             {statusOptions.map((s) => (
                                 <DropdownMenuItem
                                     key={s.value}
                                     onClick={() => handleStatusChange(s.value)}
-                                    className={`cursor-pointer py-2 rounded-lg m-1 ${status === s.value ? "bg-primary/5 font-bold text-primary" : ""}`}
+                                    className={`cursor-pointer py-2 px-3 text-xs leading-none transition-colors ${status === s.value ? "bg-[#3e3a8e] text-white" : "hover:bg-slate-50 text-slate-700"}`}
                                 >
                                     {s.label}
                                 </DropdownMenuItem>
@@ -140,12 +201,19 @@ export function VisaApplicationsTable({ data, onUpdate, onDelete }: VisaApplicat
             }
         },
         {
-            accessorKey: "assignedOfficer",
-            header: "Officer",
+            accessorKey: "reason",
+            header: "Reason",
             cell: ({ row }) => (
-                <div className="flex items-center gap-2 text-sm font-medium">
-                    <User className="h-3.5 w-3.5 text-muted-foreground" />
-                    {row.original.assignedOfficer?.name || "Unassigned"}
+                <div className="w-32 h-9 border border-slate-200 rounded bg-white" />
+            ),
+        },
+        {
+            accessorKey: "assignedOfficer",
+            header: "Created By",
+            cell: ({ row }) => (
+                <div className="flex flex-col text-[11px] font-medium leading-tight">
+                    <span className="text-slate-800 font-bold">{row.original.assignedOfficer?.name || "System"}</span>
+                    <span className="text-muted-foreground">({row.original.assignedOfficer?.role || "Admin"})</span>
                 </div>
             ),
         },
@@ -155,17 +223,28 @@ export function VisaApplicationsTable({ data, onUpdate, onDelete }: VisaApplicat
                 <div className="flex items-center justify-end">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0 rounded-lg">
-                                <MoreHorizontal className="h-4 w-4" />
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 rounded-lg group-hover:bg-white transition-colors"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                <MoreHorizontal className="h-4 w-4 text-slate-400" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-none p-1 bg-white">
-                            <DropdownMenuItem className="cursor-pointer py-2 rounded-lg">
+                            <DropdownMenuItem
+                                className="cursor-pointer py-2 rounded-lg"
+                                onClick={() => router.push(prefixPath(`/visa-applications/${row.original.id}`))}
+                            >
                                 <Eye className="mr-2 h-4 w-4 text-primary" /> View Details
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 className="text-destructive cursor-pointer py-2 rounded-lg hover:bg-destructive/5"
-                                onClick={() => onDelete(row.original.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDelete(row.original.id);
+                                }}
                             >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                             </DropdownMenuItem>
@@ -210,7 +289,11 @@ export function VisaApplicationsTable({ data, onUpdate, onDelete }: VisaApplicat
                             </tr>
                         ) : (
                             table.getRowModel().rows.map((row) => (
-                                <tr key={row.id} className="group hover:bg-primary/5 transition-colors duration-200">
+                                <tr
+                                    key={row.id}
+                                    className="group hover:bg-primary/5 transition-colors duration-200 cursor-pointer"
+                                    onClick={() => router.push(prefixPath(`/visa-applications/${row.original.id}`))}
+                                >
                                     {row.getVisibleCells().map((cell, index) => (
                                         <td
                                             key={cell.id}

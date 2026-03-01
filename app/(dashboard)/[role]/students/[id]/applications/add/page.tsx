@@ -57,7 +57,7 @@ export default function AddApplicationPage() {
                 studentPhone={student.phone}
                 onSuccess={() => {
                     toast.success("Applications added successfully");
-                    router.push(prefixPath(`/students/${student.id}?tab=applications`));
+                    router.push(prefixPath(`/students/${params.id}?tab=applications`));
                 }}
                 onCancel={() => router.back()}
             />

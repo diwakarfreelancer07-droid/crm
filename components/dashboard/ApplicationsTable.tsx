@@ -323,6 +323,7 @@ export function ApplicationsTable({
                         case "OFFER_RECEIVED": return "bg-indigo-50 text-indigo-700 border-indigo-100 hover:bg-indigo-100";
                         case "READY_FOR_VISA": return "bg-orange-50 text-orange-700 border-orange-100 hover:bg-orange-100";
                         case "ENROLLED": return "bg-cyan-50 text-cyan-700 border-cyan-100 hover:bg-cyan-100";
+                        case "DEFERRED": return "bg-pink-50 text-pink-700 border-pink-100 hover:bg-pink-100";
                         case "REJECTED": return "bg-rose-50 text-rose-700 border-rose-100 hover:bg-rose-100";
                         case "WITHDRAWN": return "bg-slate-50 text-slate-700 border-slate-100 hover:bg-slate-100";
                         default: return "bg-gray-50 text-gray-700 border-gray-100";
@@ -355,7 +356,7 @@ export function ApplicationsTable({
                             </Badge>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="start" className="w-48 p-1 rounded-xl shadow-xl border-slate-100 bg-white">
-                            {["PENDING", "SUBMITTED", "FINALIZED", "UNDER_REVIEW", "OFFER_RECEIVED", "READY_FOR_VISA", "ENROLLED", "REJECTED", "WITHDRAWN"].map((s) => (
+                            {["PENDING", "SUBMITTED", "FINALIZED", "UNDER_REVIEW", "OFFER_RECEIVED", "READY_FOR_VISA", "ENROLLED", "DEFERRED", "REJECTED", "WITHDRAWN"].map((s) => (
                                 <DropdownMenuItem
                                     key={s}
                                     onClick={(e) => {
@@ -390,16 +391,20 @@ export function ApplicationsTable({
     });
 
     return (
-        <div className="w-full bg-white shadow-sm border border-slate-200 overflow-hidden">
+        <div className="w-full overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
                         {table.getHeaderGroups().map((headerGroup) => (
-                            <tr key={headerGroup.id} className="bg-slate-50 border-b border-slate-200">
-                                {headerGroup.headers.map((header) => (
+                            <tr key={headerGroup.id} className="border-b border-border">
+                                {headerGroup.headers.map((header, index) => (
                                     <th
                                         key={header.id}
-                                        className="py-3 px-3 text-center text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-x border-slate-200"
+                                        className={`
+                                            py-2 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground
+                                            ${index === 0 ? "pl-6" : ""}
+                                            ${index === headerGroup.headers.length - 1 ? "pr-6" : ""}
+                                        `}
                                     >
                                         {flexRender(header.column.columnDef.header, header.getContext())}
                                     </th>
@@ -407,7 +412,7 @@ export function ApplicationsTable({
                             </tr>
                         ))}
                     </thead>
-                    <tbody className="divide-y divide-slate-200">
+                    <tbody>
                         {data.length === 0 ? (
                             <tr>
                                 <td colSpan={columns.length} className="py-24 text-center">
@@ -418,21 +423,26 @@ export function ApplicationsTable({
                             table.getRowModel().rows.map((row) => (
                                 <tr
                                     key={row.id}
-                                    className="hover:bg-slate-50 transition-colors cursor-pointer group"
+                                    className="group hover:bg-muted/50 transition-colors border-b border-border last:border-0 cursor-pointer"
                                     onClick={() => {
-                                        const target = prefixPath(`/applications/${row.original.id}`);
-                                        console.log("Navigating to:", target);
-                                        router.push(target);
+                                        router.push(prefixPath(`/applications/${row.original.id}`));
                                     }}
                                 >
-                                    {row.getVisibleCells().map((cell) => (
+                                    {row.getVisibleCells().map((cell, index) => (
                                         <td
                                             key={cell.id}
-                                            className="py-3 px-3 align-middle border-x border-slate-200 h-full"
+                                            className={`
+                                                py-3 px-4 align-middle 
+                                                ${index === 0 ? "pl-6" : ""}
+                                                ${index === row.getVisibleCells().length - 1 ? "pr-6" : ""}
+                                            `}
+                                            onClick={(e) => {
+                                                if ((e.target as HTMLElement).closest('button, a, [role="menuitem"], [role="button"]')) {
+                                                    e.stopPropagation();
+                                                }
+                                            }}
                                         >
-                                            <div className="flex justify-center w-full">
-                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                            </div>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </td>
                                     ))}
                                 </tr>
@@ -443,13 +453,13 @@ export function ApplicationsTable({
             </div>
 
             {pagination && (
-                <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-white">
-                    <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">Rows per page</span>
+                <div className="flex items-center justify-between px-4 py-4 border-t border-border mt-auto">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Rows per page</span>
                         <select
                             value={pagination.pageSize}
                             onChange={(e) => pagination.onPageSizeChange(Number(e.target.value))}
-                            className="h-8 w-16 rounded border border-slate-200 bg-white px-2 text-xs font-bold focus:ring-2 focus:ring-primary/20 transition-all outline-none cursor-pointer"
+                            className="h-8 w-16 rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         >
                             {[10, 20, 50, 100].map((size) => (
                                 <option key={size} value={size}>{size}</option>
@@ -457,11 +467,11 @@ export function ApplicationsTable({
                         </select>
                     </div>
 
-                    <div className="flex items-center gap-6">
-                        <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-widest">
-                            Page <span className="text-slate-900">{pagination.page}</span> of <span className="text-slate-900">{pagination.totalPages}</span>
+                    <div className="flex items-center gap-2">
+                        <div className="text-xs font-medium text-muted-foreground">
+                            Page {pagination.page} of {pagination.totalPages}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                             <Button
                                 variant="outline"
                                 size="icon"
@@ -470,7 +480,7 @@ export function ApplicationsTable({
                                     pagination.onPageChange(Math.max(1, pagination.page - 1));
                                 }}
                                 disabled={pagination.page <= 1}
-                                className="rounded h-8 w-8 border-slate-200 hover:bg-slate-100 transition-colors"
+                                className="rounded-xl h-8 w-8 border-primary/20 text-primary hover:bg-primary/5 shadow-sm"
                             >
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
@@ -482,7 +492,7 @@ export function ApplicationsTable({
                                     pagination.onPageChange(Math.min(pagination.totalPages, pagination.page + 1));
                                 }}
                                 disabled={pagination.page >= pagination.totalPages}
-                                className="rounded h-8 w-8 border-slate-200 hover:bg-slate-100 transition-colors"
+                                className="rounded-xl h-8 w-8 border-primary/20 text-primary hover:bg-primary/5 shadow-sm"
                             >
                                 <ChevronRight className="h-4 w-4" />
                             </Button>

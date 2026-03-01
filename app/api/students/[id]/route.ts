@@ -48,6 +48,12 @@ export async function GET(
                         workExperience: true,
                     },
                 },
+                loginDetails: {
+                    orderBy: { createdAt: "desc" },
+                },
+                accountDetails: {
+                    orderBy: { createdAt: "desc" },
+                },
             },
         });
 

@@ -36,17 +36,30 @@ function getNamespace(pathname: string): string | null {
     return null;
 }
 
+// Shorthand paths that should redirect to role-prefixed equivalents
+const SHORTHAND_PATHS = [
+    "leads", "students", "agents", "employees", "applications",
+    "visa-applications", "master", "roles", "profile", "file-manager", "addstudent",
+];
+
 export default withAuth(
     function middleware(req) {
         try {
             const pathname = req.nextUrl.pathname;
             const token = req.nextauth.token as any;
             const role = token?.role as string | undefined;
+            const prefix = (role && ROLE_PREFIX[role]) || "/admin";
 
             // Redirect root to role-appropriate dashboard
             if (pathname === "/" || pathname === "/dashboard") {
-                const prefix = (role && ROLE_PREFIX[role]) || "/admin";
                 return NextResponse.redirect(new URL(`${prefix}/dashboard`, req.url));
+            }
+
+            // Redirect shorthand paths like /leads → /admin/leads (or /agent/leads)
+            const shortSegment = pathname.split("/")[1]; // e.g. "leads" from "/leads"
+            if (SHORTHAND_PATHS.includes(shortSegment) && !pathname.startsWith("/admin") && !pathname.startsWith("/agent") && !pathname.startsWith("/student")) {
+                const rest = pathname.slice(shortSegment.length + 1); // preserve sub-paths e.g. /leads/123
+                return NextResponse.redirect(new URL(`${prefix}/${shortSegment}${rest}`, req.url));
             }
 
             const namespace = getNamespace(pathname);
@@ -62,15 +75,6 @@ export default withAuth(
                     return NextResponse.redirect(new URL(`${correctPrefix}/dashboard`, req.url));
                 }
 
-                // DISABLED REWRITE: We now use the actual /admin/..., /agent/... structure in the app directory.
-                // The rewrites were causing role-prefixed login pages to be treated as root login pages.
-                /*
-                const strippedPath = pathname.replace(namespace, "") || "/dashboard";
-                const rewriteUrl = new URL(strippedPath, req.url);
-                rewriteUrl.search = req.nextUrl.search;
-                console.log('Middleware rewriting (DISABLED):', { pathname, rewriteUrl: rewriteUrl.toString() });
-                return NextResponse.rewrite(rewriteUrl);
-                */
                 console.log('Middleware allowing namespaced path without rewrite:', { pathname });
             }
 

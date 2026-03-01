@@ -55,10 +55,9 @@ export const deleteApplicationsBulk = async (ids: string[]): Promise<void> => {
 };
 
 // Visa Applications
-export const getVisaApplications = async (studentId?: string, page = 1, limit = 10): Promise<{ visaApplications: any[], pagination: any }> => {
-    const url = studentId
-        ? `/visa-applications?studentId=${studentId}&page=${page}&limit=${limit}`
-        : `/visa-applications?page=${page}&limit=${limit}`;
+export const getVisaApplications = async (studentId?: string, page = 1, limit = 10, search = "", status = ""): Promise<{ visaApplications: any[], pagination: any }> => {
+    let url = `/visa-applications?page=${page}&limit=${limit}&search=${search}&status=${status}`;
+    if (studentId) url += `&studentId=${studentId}`;
     return api.get(url);
 };
 

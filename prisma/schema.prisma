@@ -42,6 +42,7 @@ model User {
   assignedApplications   UniversityApplication[] @relation("ApplicationAssignedTo")
   createdApplications    UniversityApplication[] @relation("ApplicationAssignedBy")
   applicationNotes       ApplicationNote[]
+  managedEmployees       EmployeeProfile[] @relation("EmployeeManager")
 }
 
 model Notification {
@@ -89,6 +90,8 @@ model EmployeeProfile {
   designation String?
   salary      Float?
   joiningDate DateTime?
+  managerId   String?
+  manager     User?      @relation("EmployeeManager", fields: [managerId], references: [id])
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -275,6 +278,8 @@ model Student {
   user               User              @relation(fields: [onboardedBy], references: [id])
   studentUser        User?             @relation("StudentUser", fields: [studentUserId], references: [id])
   documents          StudentDocument[]
+  loginDetails       LoginDetail[]
+  accountDetails     AccountDetail[]
 
   @@index([onboardedBy])
   @@index([status])
@@ -548,6 +553,7 @@ enum ApplicationStatus {
   OFFER_RECEIVED
   READY_FOR_VISA
   ENROLLED
+  DEFERRED
   REJECTED
   WITHDRAWN
 }
@@ -641,13 +647,29 @@ enum VisaType {
 }
 
 enum VisaStatus {
-  PENDING
-  DOCUMENTS_COLLECTED
-  SUBMITTED
+  VISA_GUIDANCE_GIVEN
+  DOCUMENTS_CHECKLIST_SHARED
+  DOCUMENTS_PENDING
+  DOCUMENTS_RECEIVED
+  DOCUMENTS_VERIFIED
+  FINANCIAL_DOCUMENTS_PENDING
+  SPONSORSHIP_DOCUMENTS_PENDING
+  VISA_APPLICATION_IN_PROGRESS
+  VISA_APPLICATION_SUBMITTED
+  BIOMETRICS_SCHEDULED
+  BIOMETRICS_COMPLETED
   UNDER_REVIEW
-  APPROVED
-  REJECTED
-  WITHDRAWN
+  ADDITIONAL_DOCUMENTS_REQUESTED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_COMPLETED
+  VISA_APPROVED
+  VISA_GRANTED
+  VISA_REFUSED
+  VISA_REJECTED
+  VISA_WITHDRAWN
+  DEFERRED
+  ENROLLED
+  PENDING
 }
 
 enum AuditModule {
@@ -660,4 +682,34 @@ enum AuditModule {
   COURSES
   VISA
   MASTERS
+}
+
+model LoginDetail {
+  id        String   @id @default(uuid())
+  studentId String
+  portalName String
+  username   String
+  password   String
+  url        String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+}
+
+model AccountDetail {
+  id        String   @id @default(uuid())
+  studentId String
+  bankName  String
+  accountNo String
+  ifscCode  String?
+  branch    String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
 }

@@ -214,7 +214,7 @@ export function AddUniversityApplicationForm({
 
             toast.success("Applications saved successfully!");
             if (onSuccess) onSuccess();
-            else router.push(prefixPath(`/students/${studentId}?tab=applications`));
+            else router.push(prefixPath("/applications"));
         } catch (error: any) {
             console.error("Failed to save applications", error);
             toast.error(error.response?.data?.error || "Failed to save applications");

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -11,6 +11,8 @@ import { menuItems } from "./menuItems";
 export function Sidebar() {
     const pathname = usePathname();
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const currentStatus = searchParams.get("status");
     const { data: session, status } = useSession() as any;
     const [expandedMenu, setExpandedMenu] = useState<string | null>(null);
 
@@ -38,7 +40,7 @@ export function Sidebar() {
     // Auto-expand parent menu on initial load if current path matches a submenu item
     useEffect(() => {
         const parentMenu = filteredMenuItems.find(item =>
-            item.submenu?.some(sub => pathname === sub.href)
+            item.submenu?.some(sub => pathname === prefixHref(sub.href).split('?')[0])
         );
         if (parentMenu && expandedMenu === null) {
             setExpandedMenu(parentMenu.label);
@@ -67,8 +69,20 @@ export function Sidebar() {
     };
 
     const isActive = (href?: string, submenu?: { href: string }[]) => {
-        if (href) return pathname === prefixHref(href);
-        if (submenu) return submenu.some((item) => pathname === prefixHref(item.href));
+        if (href) {
+            const [base, query] = href.split('?');
+            const urlParams = new URLSearchParams(query);
+            const hrefStatus = urlParams.get("status");
+
+            const isPathMatch = pathname === prefixHref(base);
+            const isStatusMatch = currentStatus === hrefStatus;
+
+            return isPathMatch && isStatusMatch;
+        }
+        if (submenu) return submenu.some((item) => {
+            const [base] = item.href.split('?');
+            return pathname === prefixHref(base);
+        });
         return false;
     };
 
@@ -145,10 +159,10 @@ export function Sidebar() {
                                                     <div className="absolute inset-0 bg-white/20 w-[2px]"></div>
 
                                                     {/* Active Green Line (calculated height) */}
-                                                    {item.submenu.some(sub => sub.href === pathname) && (
+                                                    {item.submenu.some(sub => prefixHref(sub.href).split('?')[0] === pathname) && (
                                                         <motion.div
                                                             animate={{
-                                                                height: `${item.submenu.findIndex(sub => sub.href === pathname) * 36 + 18}px`
+                                                                height: `${item.submenu.findIndex(sub => prefixHref(sub.href).split('?')[0] === pathname) * 36 + 18}px`
                                                             }}
                                                             transition={{
                                                                 type: "spring",
@@ -162,10 +176,10 @@ export function Sidebar() {
 
                                                 <ul className="space-y-0 pl-[19px] relative">
                                                     {/* Single Dot Indicator - animates position */}
-                                                    {item.submenu.some(sub => sub.href === pathname) && (
+                                                    {item.submenu.some(sub => prefixHref(sub.href).split('?')[0] === pathname) && (
                                                         <motion.div
                                                             animate={{
-                                                                y: item.submenu.findIndex(sub => sub.href === pathname) * 36
+                                                                y: item.submenu.findIndex(sub => prefixHref(sub.href).split('?')[0] === pathname) * 36
                                                             }}
                                                             transition={{
                                                                 type: "spring",
@@ -211,7 +225,7 @@ export function Sidebar() {
                                         <Link
                                             href={prefixHref(item.href!)}
                                             onClick={() => setExpandedMenu(null)}
-                                            className={`flex items-center justify-center group-hover:justify-start xl:justify-start gap-2.5 px-3 h-[41px] text-sm font-semibold rounded-lg transition-all duration-300 ${pathname === prefixHref(item.href!)
+                                            className={`flex items-center justify-center group-hover:justify-start xl:justify-start gap-2.5 px-3 h-[41px] text-sm font-semibold rounded-lg transition-all duration-300 ${isActive(item.href)
                                                 ? "bg-primary/10 text-primary font-bold"
                                                 : "text-white hover:bg-white/5 hover:text-white"
                                                 }`}

@@ -7,8 +7,6 @@ import {
     User,
     FolderOpen,
     Database,
-    Lock,
-    Wallet,
     ArrowLeft,
     Mail,
     Phone,
@@ -97,12 +95,7 @@ export function ApplicationDetailView({ application, onUpdate }: ApplicationDeta
                     <TabsTrigger value="university" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md text-xs font-bold gap-2 transition-all">
                         <Database className="h-4 w-4" /> University Application
                     </TabsTrigger>
-                    <TabsTrigger value="login" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md text-xs font-bold gap-2 transition-all">
-                        <Lock className="h-4 w-4" /> Login Details
-                    </TabsTrigger>
-                    <TabsTrigger value="account" className="flex-1 rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-md text-xs font-bold gap-2 transition-all">
-                        <Wallet className="h-4 w-4" /> Account Details
-                    </TabsTrigger>
+
                 </TabsList>
 
                 {/* --- PERSONAL DETAILS TAB --- */}
@@ -176,42 +169,7 @@ export function ApplicationDetailView({ application, onUpdate }: ApplicationDeta
                     />
                 </TabsContent>
 
-                {/* --- LOGIN DETAILS TAB --- */}
-                <TabsContent value="login" className="focus-visible:ring-0">
-                    <Card className="rounded-2xl border-none shadow-sm max-w-2xl">
-                        <CardContent className="p-6 space-y-6">
-                            <h4 className="text-sm font-bold text-foreground/80 flex items-center gap-2 border-b pb-3 border-slate-100">
-                                <Lock className="h-4 w-4 text-primary" /> System Access Details
-                            </h4>
-                            <div className="grid grid-cols-2 gap-8">
-                                <InfoField label="Username / Email" value={student?.user?.email} icon={Mail} />
-                                <InfoField label="Role" value={student?.user?.role} />
-                                <InfoField label="Account Status" value={student?.user?.isActive ? "Active" : "Inactive"} />
-                                <InfoField label="Password" value="••••••••" />
-                            </div>
-                            <div className="pt-2">
-                                <Button variant="outline" className="rounded-xl h-9 text-xs font-bold text-primary border-primary/20 hover:bg-primary/5">
-                                    Reset Password
-                                </Button>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
 
-                {/* --- ACCOUNT DETAILS TAB --- */}
-                <TabsContent value="account" className="focus-visible:ring-0">
-                    <Card className="rounded-2xl border-none shadow-sm">
-                        <CardContent className="p-12 flex flex-col items-center justify-center text-center">
-                            <div className="h-16 w-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-4 border border-border">
-                                <Wallet className="h-8 w-8" />
-                            </div>
-                            <h4 className="text-sm font-bold text-foreground/70">No Financial Records Found</h4>
-                            <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-                                This section will display application fees, deposits, and other financial records once they are processed.
-                            </p>
-                        </CardContent>
-                    </Card>
-                </TabsContent>
             </Tabs>
         </div>
     );

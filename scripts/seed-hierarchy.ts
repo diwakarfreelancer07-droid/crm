@@ -34,7 +34,11 @@ async function main() {
 
     // 2. Create Counselor (Subordinate)
     const counselorEmail = 'counselor.sub@example.com';
-    let counselor = await prisma.user.findUnique({ where: { email: counselorEmail } });
+    let counselor = await prisma.user.findUnique({
+        where: { email: counselorEmail },
+        include: { employeeProfile: true }
+    }) as any;
+
     if (!counselor) {
         counselor = await prisma.user.create({
             data: {
@@ -46,20 +50,20 @@ async function main() {
                     create: {
                         department: 'Sales',
                         designation: 'Junior Counselor',
-                        managerId: agent!.id // Assign to Agent
+                        managerId: (agent as any).id // Assign to Agent
                     }
                 }
             },
             include: { employeeProfile: true }
         });
-        console.log('Created Counselor:', counselor.name, 'reporting to', agent!.name);
+        console.log('Created Counselor:', counselor.name, 'reporting to', (agent as any).name);
     } else {
         console.log('Counselor already exists:', counselor.name);
         // Ensure hierarchy
-        if (counselor.employeeProfile?.managerId !== agent!.id) {
+        if (counselor.employeeProfile?.managerId !== (agent as any).id) {
             await prisma.employeeProfile.update({
                 where: { userId: counselor.id },
-                data: { managerId: agent!.id }
+                data: { managerId: (agent as any).id }
             });
             console.log('Updated Counselor manager to Agent');
         }
@@ -71,6 +75,7 @@ async function main() {
             name: 'Test Lead Hierarchy',
             email: 'test.lead.hierarchy@example.com',
             phone: '555-0199',
+            source: 'WEB_FORM',
             status: 'NEW',
             assignments: {
                 create: {

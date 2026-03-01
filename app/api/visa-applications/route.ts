@@ -16,11 +16,27 @@ export async function GET(req: Request) {
         const studentId = searchParams.get('studentId');
         const page = parseInt(searchParams.get('page') || '1');
         const limit = parseInt(searchParams.get('limit') || '10');
+        const search = searchParams.get('search') || '';
+        const status = searchParams.get('status');
         const skip = (page - 1) * limit;
 
         const where: any = {};
         if (studentId) {
             where.studentId = studentId;
+        }
+
+        if (status && status !== "ALL") {
+            where.status = status as VisaStatus;
+        }
+
+        if (search) {
+            where.OR = [
+                { student: { name: { contains: search, mode: 'insensitive' } } },
+                { student: { email: { contains: search, mode: 'insensitive' } } },
+                { student: { phone: { contains: search, mode: 'insensitive' } } },
+                { country: { name: { contains: search, mode: 'insensitive' } } },
+                { university: { name: { contains: search, mode: 'insensitive' } } },
+            ];
         }
 
         const [visaApplications, total] = await Promise.all([
@@ -38,7 +54,7 @@ export async function GET(req: Request) {
                             _count: { select: { applicationNotes: true } }
                         }
                     },
-                    assignedOfficer: { select: { name: true } },
+                    assignedOfficer: { select: { name: true, role: true } },
                 },
                 orderBy: { createdAt: 'desc' },
                 skip,

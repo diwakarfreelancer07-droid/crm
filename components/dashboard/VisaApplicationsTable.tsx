@@ -32,7 +32,8 @@ import {
     Plus,
     Share2,
     ArrowRightLeft,
-    CheckSquare
+    CheckSquare,
+    StickyNote
 } from "lucide-react";
 import { VisaStatus } from "@prisma/client";
 import { useUpdateVisaApplication } from "@/hooks/useApi";
@@ -82,26 +83,43 @@ export function VisaApplicationsTable({
 
     const getStatusStyle = (status: VisaStatus) => {
         switch (status) {
-            case "PENDING": return "bg-blue-100 text-blue-700 border-blue-200";
-            case "DOCUMENTS_COLLECTED": return "bg-sky-100 text-sky-700 border-sky-200";
-            case "SUBMITTED": return "bg-amber-100 text-amber-700 border-amber-200";
-            case "UNDER_REVIEW": return "bg-purple-100 text-purple-700 border-purple-200";
-            case "APPROVED": return "bg-emerald-100 text-emerald-700 border-emerald-200";
-            case "REJECTED": return "bg-red-100 text-red-700 border-red-200";
-            case "WITHDRAWN": return "bg-slate-100 text-slate-700 border-slate-200";
-            default: return "bg-gray-100 text-gray-700";
+            case "VISA_APPROVED":
+            case "VISA_GRANTED":
+                return "bg-emerald-100 text-emerald-700 border-emerald-200 shadow-sm";
+            case "VISA_REJECTED":
+            case "VISA_REFUSED":
+                return "bg-rose-100 text-rose-700 border-rose-200 shadow-sm";
+            case "VISA_WITHDRAWN":
+                return "bg-slate-100 text-slate-700 border-slate-200";
+            case "VISA_APPLICATION_SUBMITTED":
+            case "BIOMETRICS_SCHEDULED":
+            case "INTERVIEW_SCHEDULED":
+                return "bg-amber-100 text-amber-700 border-amber-200 shadow-sm";
+            case "UNDER_REVIEW":
+            case "VISA_APPLICATION_IN_PROGRESS":
+                return "bg-purple-100 text-purple-700 border-purple-200 shadow-sm";
+            case "DOCUMENTS_RECEIVED":
+            case "DOCUMENTS_VERIFIED":
+            case "BIOMETRICS_COMPLETED":
+            case "INTERVIEW_COMPLETED":
+                return "bg-cyan-100 text-cyan-700 border-cyan-200 shadow-sm";
+            case "DOCUMENTS_PENDING":
+            case "FINANCIAL_DOCUMENTS_PENDING":
+            case "SPONSORSHIP_DOCUMENTS_PENDING":
+            case "ADDITIONAL_DOCUMENTS_REQUESTED":
+                return "bg-orange-50 text-orange-600 border-orange-100 shadow-sm";
+            case "VISA_GUIDANCE_GIVEN":
+            case "DOCUMENTS_CHECKLIST_SHARED":
+                return "bg-indigo-50 text-indigo-600 border-indigo-100 shadow-sm";
+            default:
+                return "bg-blue-50 text-blue-600 border-blue-100";
         }
     };
 
-    const statusOptionsList: { value: VisaStatus; label: string }[] = [
-        { value: "PENDING", label: "Pending" },
-        { value: "DOCUMENTS_COLLECTED", label: "Docs Collected" },
-        { value: "SUBMITTED", label: "Submitted" },
-        { value: "UNDER_REVIEW", label: "Under Review" },
-        { value: "APPROVED", label: "Approved" },
-        { value: "REJECTED", label: "Rejected" },
-        { value: "WITHDRAWN", label: "Withdrawn" },
-    ];
+    const statusOptionsList = Object.values(VisaStatus).map(status => ({
+        value: status,
+        label: status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, c => c.toUpperCase())
+    }));
 
     const toggleAll = (checked: boolean) => {
         if (checked) {
@@ -157,88 +175,176 @@ export function VisaApplicationsTable({
             ),
         },
         {
-            id: "action",
-            header: "Action",
-            cell: ({ row }) => (
-                <div className="flex flex-col gap-1.5 items-center">
-                    <div className="flex gap-1">
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 bg-emerald-500 text-white hover:bg-emerald-600 rounded shadow-sm"
-                            title="Share"
-                        >
-                            <Share2 className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                onDelete(row.original.id);
-                            }}
-                            className="h-7 w-7 bg-rose-500 text-white hover:bg-rose-600 rounded shadow-sm"
-                            title="Delete"
-                        >
-                            <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                    </div>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 px-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg text-[10px] font-bold w-full flex gap-1.5 items-center justify-center shadow-md transition-all active:scale-95"
-                    >
-                        <MessageCircle className="h-3.5 w-3.5" />
-                        Whatsapp
-                    </Button>
-                </div>
-            ),
+            id: "status",
+            header: "Visa Status",
+            cell: ({ row }) => {
+                const status = row.original.status as VisaStatus;
+                const visaId = row.original.id;
+
+                const getStatusStyle = (s: VisaStatus) => {
+                    switch (s) {
+                        case "VISA_GRANTED":
+                        case "VISA_APPROVED":
+                            return "bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100";
+                        case "VISA_REFUSED":
+                        case "VISA_REJECTED":
+                            return "bg-rose-50 text-rose-700 border-rose-100 hover:bg-rose-100";
+                        case "VISA_APPLICATION_SUBMITTED":
+                            return "bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100";
+                        case "UNDER_REVIEW":
+                            return "bg-purple-50 text-purple-700 border-purple-100 hover:bg-purple-100";
+                        case "ENROLLED":
+                            return "bg-cyan-50 text-cyan-700 border-cyan-100 hover:bg-cyan-100";
+                        case "DEFERRED":
+                            return "bg-pink-50 text-pink-700 border-pink-100 hover:bg-pink-100";
+                        default:
+                            return "bg-slate-50 text-slate-700 border-slate-100 hover:bg-slate-100";
+                    }
+                };
+
+                const handleStatusChange = async (newStatus: VisaStatus) => {
+                    if (newStatus === status) return;
+                    try {
+                        await updateMutation.mutateAsync({
+                            id: visaId,
+                            data: { status: newStatus }
+                        });
+                        toast.success("Status updated successfully");
+                        onUpdate();
+                    } catch (error) {
+                        console.error("Failed to update status", error);
+                        toast.error("Failed to update status");
+                    }
+                };
+
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Badge
+                                variant="outline"
+                                className={`cursor-pointer px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all ${getStatusStyle(status)}`}
+                            >
+                                {status.replace(/_/g, ' ')}
+                            </Badge>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="start" className="w-64 p-1 rounded-xl shadow-xl border-border bg-popover max-h-[400px] overflow-y-auto">
+                            {statusOptionsList.map((s) => (
+                                <DropdownMenuItem
+                                    key={s.value}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleStatusChange(s.value as VisaStatus);
+                                    }}
+                                    className={`cursor-pointer py-1.5 rounded-lg m-0.5 text-[10px] font-bold ${status === s.value ? "bg-primary/5 text-primary" : "text-muted-foreground"}`}
+                                >
+                                    {s.label}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            }
         },
         {
-            id: "overview",
-            header: "Overview",
+            id: "actions",
+            header: "Actions",
             cell: ({ row }) => (
-                <div className="grid grid-cols-2 gap-1.5 min-w-[150px]">
+                <div className="flex items-center gap-1.5 justify-end">
                     <Button
-                        variant="outline"
-                        size="sm"
+                        variant="ghost"
+                        size="icon"
                         onClick={(e) => {
                             e.stopPropagation();
-                            onOpenHistory?.(row.original);
+                            router.push(prefixPath(`/visa-applications/${row.original.id}`));
                         }}
-                        className="h-7 px-2 text-[9px] font-bold border-slate-200 flex gap-1 items-center bg-white shadow-sm hover:bg-slate-50 transition-colors"
+                        className="h-8 w-8 text-primary hover:bg-primary/5"
+                        title="View Details"
                     >
-                        <History className="h-3 w-3 text-slate-500" />
-                        History
+                        <Eye className="h-4 w-4" />
                     </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onOpenNotes?.(row.original);
-                        }}
-                        className="h-7 px-2 text-[9px] font-bold border-slate-200 flex gap-1 items-center bg-white shadow-sm hover:bg-slate-50 transition-colors"
-                    >
-                        <Plus className="h-3 w-3 text-slate-500" />
-                        Notes ({row.original.universityApplication?._count?.applicationNotes || 0})
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 px-2 text-[9px] font-bold border-slate-200 flex gap-1 items-center bg-white shadow-sm hover:bg-slate-50 transition-colors"
-                    >
-                        <ArrowRightLeft className="h-3 w-3 text-slate-500" />
-                        Defer
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="h-7 px-2 text-[9px] font-bold border-slate-200 flex gap-1 items-center bg-white shadow-sm hover:bg-slate-50 transition-colors"
-                    >
-                        <CheckSquare className="h-3 w-3 text-slate-500" />
-                        Enrolled
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48 p-1 rounded-xl shadow-xl border-border bg-popover">
+                            <DropdownMenuItem
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    router.push(prefixPath(`/visa-applications/${row.original.id}`));
+                                }}
+                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-medium"
+                            >
+                                <Eye className="mr-2 h-4 w-4" /> View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenHistory?.(row.original);
+                                }}
+                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-medium"
+                            >
+                                <History className="mr-2 h-4 w-4" /> View History
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onOpenNotes?.(row.original);
+                                }}
+                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-medium"
+                            >
+                                <StickyNote className="mr-2 h-4 w-4" /> View Notes
+                            </DropdownMenuItem>
+                            <div className="h-px bg-border my-1" />
+                            <DropdownMenuItem
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                        await updateMutation.mutateAsync({
+                                            id: row.original.id,
+                                            data: { status: "DEFERRED" }
+                                        });
+                                        toast.success("Moved to Defer");
+                                        onUpdate();
+                                    } catch (error) {
+                                        toast.error("Failed to defer");
+                                    }
+                                }}
+                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-semibold text-pink-600 hover:bg-pink-50"
+                            >
+                                <ArrowRightLeft className="mr-2 h-4 w-4" /> Defer Student
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                        await updateMutation.mutateAsync({
+                                            id: row.original.id,
+                                            data: { status: "ENROLLED" }
+                                        });
+                                        toast.success("Moved to Enrolled");
+                                        onUpdate();
+                                    } catch (error) {
+                                        toast.error("Failed to enroll");
+                                    }
+                                }}
+                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-semibold text-cyan-600 hover:bg-cyan-50"
+                            >
+                                <CheckSquare className="mr-2 h-4 w-4" /> Enroll Student
+                            </DropdownMenuItem>
+                            <div className="h-px bg-border my-1" />
+                            <DropdownMenuItem
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDelete(row.original.id);
+                                }}
+                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
+                            >
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             ),
         },
@@ -419,27 +525,31 @@ export function VisaApplicationsTable({
     });
 
     return (
-        <div className="w-full">
-            <div className="overflow-x-auto border border-slate-100 rounded-2xl bg-white shadow-sm">
+        <div className="w-full overflow-hidden">
+            <div className="overflow-x-auto">
                 <table className="w-full border-collapse">
                     <thead>
-                        <tr className="bg-slate-50/80 border-b border-slate-100">
-                            {table.getHeaderGroups().map((headerGroup) =>
-                                headerGroup.headers.map((header, index) => (
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <tr key={headerGroup.id} className="border-b border-border">
+                                {headerGroup.headers.map((header, index) => (
                                     <th
                                         key={header.id}
-                                        className={`py-4 px-3 text-center text-[10px] font-extrabold uppercase tracking-wider text-slate-600 border-x border-slate-200 ${index === 0 ? "pl-6" : ""} ${index === headerGroup.headers.length - 1 ? "pr-6" : ""}`}
+                                        className={`
+                                            py-2 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground
+                                            ${index === 0 ? "pl-6" : ""}
+                                            ${index === headerGroup.headers.length - 1 ? "pr-6" : ""}
+                                        `}
                                     >
                                         {flexRender(header.column.columnDef.header, header.getContext())}
                                     </th>
-                                ))
-                            )}
-                        </tr>
+                                ))}
+                            </tr>
+                        ))}
                     </thead>
-                    <tbody className="divide-y divide-slate-50">
+                    <tbody>
                         {data.length === 0 ? (
                             <tr>
-                                <td colSpan={columns.length} className="py-20 text-center">
+                                <td colSpan={columns.length} className="py-24 text-center">
                                     <div className="flex flex-col items-center justify-center opacity-40">
                                         <Globe className="h-12 w-12 text-slate-400 mb-2" />
                                         <p className="text-xs font-bold text-slate-500 italic">No visa applications found.</p>
@@ -448,15 +558,26 @@ export function VisaApplicationsTable({
                             </tr>
                         ) : (
                             table.getRowModel().rows.map((row) => (
-                                <tr key={row.id} className="group hover:bg-slate-50/50 transition-all duration-200">
+                                <tr
+                                    key={row.id}
+                                    className="group hover:bg-muted/50 transition-colors border-b border-border last:border-0 cursor-pointer"
+                                    onClick={() => router.push(prefixPath(`/visa-applications/${row.original.id}`))}
+                                >
                                     {row.getVisibleCells().map((cell, index) => (
                                         <td
                                             key={cell.id}
-                                            className={`py-3 px-3 align-middle border-x border-slate-200 ${index === 0 ? "pl-6" : ""} ${index === row.getVisibleCells().length - 1 ? "pr-6" : ""}`}
+                                            className={`
+                                                py-3 px-4 align-middle 
+                                                ${index === 0 ? "pl-6" : ""}
+                                                ${index === row.getVisibleCells().length - 1 ? "pr-6" : ""}
+                                            `}
+                                            onClick={(e) => {
+                                                if ((e.target as HTMLElement).closest('button, a, [role="menuitem"], [role="button"]')) {
+                                                    e.stopPropagation();
+                                                }
+                                            }}
                                         >
-                                            <div className="flex justify-center w-full">
-                                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                            </div>
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </td>
                                     ))}
                                 </tr>
@@ -466,15 +587,14 @@ export function VisaApplicationsTable({
                 </table>
             </div>
 
-            {/* Pagination */}
             {pagination && (
-                <div className="flex items-center justify-between px-2 py-6">
-                    <div className="flex items-center gap-3">
-                        <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">Rows per page</span>
+                <div className="flex items-center justify-between px-4 py-4 border-t border-border mt-auto">
+                    <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Rows per page</span>
                         <select
                             value={pagination.pageSize}
                             onChange={(e) => pagination.onPageSizeChange(Number(e.target.value))}
-                            className="h-8 w-16 rounded-lg border border-slate-200 bg-white px-2 text-xs font-bold outline-none focus:ring-2 focus:ring-primary/20"
+                            className="h-8 w-16 rounded-md border border-input bg-background px-2 text-xs focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         >
                             {[10, 25, 50].map((size) => (
                                 <option key={size} value={size}>{size}</option>
@@ -482,26 +602,32 @@ export function VisaApplicationsTable({
                         </select>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <div className="text-[11px] font-bold text-slate-600 uppercase tracking-widest bg-slate-100 px-3 py-1 rounded-full">
-                            Page {pagination.page} / {pagination.totalPages}
+                    <div className="flex items-center gap-2">
+                        <div className="text-xs font-medium text-muted-foreground">
+                            Page {pagination.page} of {pagination.totalPages}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1">
                             <Button
                                 variant="outline"
                                 size="icon"
-                                onClick={() => pagination.onPageChange(Math.max(1, pagination.page - 1))}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    pagination.onPageChange(Math.max(1, pagination.page - 1));
+                                }}
                                 disabled={pagination.page <= 1}
-                                className="rounded-xl h-8 w-8 border-slate-200"
+                                className="rounded-xl h-8 w-8 border-primary/20 text-primary hover:bg-primary/5 shadow-sm"
                             >
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
                             <Button
                                 variant="outline"
                                 size="icon"
-                                onClick={() => pagination.onPageChange(Math.min(pagination.totalPages, pagination.page + 1))}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    pagination.onPageChange(Math.min(pagination.totalPages, pagination.page + 1));
+                                }}
                                 disabled={pagination.page >= pagination.totalPages}
-                                className="rounded-xl h-8 w-8 border-slate-200"
+                                className="rounded-xl h-8 w-8 border-primary/20 text-primary hover:bg-primary/5 shadow-sm"
                             >
                                 <ChevronRight className="h-4 w-4" />
                             </Button>

@@ -163,6 +163,11 @@ export type UserRole = $Result.DefaultSelection<Prisma.$UserRolePayload>
  * 
  */
 export type RolePermission = $Result.DefaultSelection<Prisma.$RolePermissionPayload>
+/**
+ * Model CallLog
+ * 
+ */
+export type CallLog = $Result.DefaultSelection<Prisma.$CallLogPayload>
 
 /**
  * Enums
@@ -841,6 +846,16 @@ export class PrismaClient<
     * ```
     */
   get rolePermission(): Prisma.RolePermissionDelegate<ExtArgs>;
+
+  /**
+   * `prisma.callLog`: Exposes CRUD operations for the **CallLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more CallLogs
+    * const callLogs = await prisma.callLog.findMany()
+    * ```
+    */
+  get callLog(): Prisma.CallLogDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -1311,7 +1326,8 @@ export namespace Prisma {
     ApplicationNote: 'ApplicationNote',
     VisaApplication: 'VisaApplication',
     UserRole: 'UserRole',
-    RolePermission: 'RolePermission'
+    RolePermission: 'RolePermission',
+    CallLog: 'CallLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1327,7 +1343,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "user" | "notification" | "agentProfile" | "counselorProfile" | "employeeProfile" | "lead" | "followUp" | "appointment" | "leadAssignment" | "leadActivity" | "leadTask" | "reminder" | "leadDocument" | "student" | "studentDocument" | "auditLog" | "website" | "qualification" | "country" | "university" | "applicationChecklist" | "academicDetail" | "workExperience" | "course" | "courseIntake" | "universityApplication" | "applicationNote" | "visaApplication" | "userRole" | "rolePermission"
+      modelProps: "user" | "notification" | "agentProfile" | "counselorProfile" | "employeeProfile" | "lead" | "followUp" | "appointment" | "leadAssignment" | "leadActivity" | "leadTask" | "reminder" | "leadDocument" | "student" | "studentDocument" | "auditLog" | "website" | "qualification" | "country" | "university" | "applicationChecklist" | "academicDetail" | "workExperience" | "course" | "courseIntake" | "universityApplication" | "applicationNote" | "visaApplication" | "userRole" | "rolePermission" | "callLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3431,6 +3447,76 @@ export namespace Prisma {
           }
         }
       }
+      CallLog: {
+        payload: Prisma.$CallLogPayload<ExtArgs>
+        fields: Prisma.CallLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CallLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CallLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload>
+          }
+          findFirst: {
+            args: Prisma.CallLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CallLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload>
+          }
+          findMany: {
+            args: Prisma.CallLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload>[]
+          }
+          create: {
+            args: Prisma.CallLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload>
+          }
+          createMany: {
+            args: Prisma.CallLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CallLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload>[]
+          }
+          delete: {
+            args: Prisma.CallLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload>
+          }
+          update: {
+            args: Prisma.CallLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.CallLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CallLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.CallLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CallLogPayload>
+          }
+          aggregate: {
+            args: Prisma.CallLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCallLog>
+          }
+          groupBy: {
+            args: Prisma.CallLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CallLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CallLogCountArgs<ExtArgs>
+            result: $Utils.Optional<CallLogCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3615,6 +3701,7 @@ export namespace Prisma {
     counselorApplications: number
     agentVisaApps: number
     counselorVisaApps: number
+    callLogs: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3641,6 +3728,7 @@ export namespace Prisma {
     counselorApplications?: boolean | UserCountOutputTypeCountCounselorApplicationsArgs
     agentVisaApps?: boolean | UserCountOutputTypeCountAgentVisaAppsArgs
     counselorVisaApps?: boolean | UserCountOutputTypeCountCounselorVisaAppsArgs
+    callLogs?: boolean | UserCountOutputTypeCountCallLogsArgs
   }
 
   // Custom InputTypes
@@ -3815,6 +3903,13 @@ export namespace Prisma {
     where?: VisaApplicationWhereInput
   }
 
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountCallLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CallLogWhereInput
+  }
+
 
   /**
    * Count Type AgentProfileCountOutputType
@@ -3860,6 +3955,7 @@ export namespace Prisma {
     documents: number
     tasks: number
     workExperience: number
+    callLogs: number
   }
 
   export type LeadCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3871,6 +3967,7 @@ export namespace Prisma {
     documents?: boolean | LeadCountOutputTypeCountDocumentsArgs
     tasks?: boolean | LeadCountOutputTypeCountTasksArgs
     workExperience?: boolean | LeadCountOutputTypeCountWorkExperienceArgs
+    callLogs?: boolean | LeadCountOutputTypeCountCallLogsArgs
   }
 
   // Custom InputTypes
@@ -3940,6 +4037,13 @@ export namespace Prisma {
     where?: WorkExperienceWhereInput
   }
 
+  /**
+   * LeadCountOutputType without action
+   */
+  export type LeadCountOutputTypeCountCallLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CallLogWhereInput
+  }
+
 
   /**
    * Count Type LeadTaskCountOutputType
@@ -3980,12 +4084,14 @@ export namespace Prisma {
     applications: number
     visaApplications: number
     documents: number
+    callLogs: number
   }
 
   export type StudentCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     applications?: boolean | StudentCountOutputTypeCountApplicationsArgs
     visaApplications?: boolean | StudentCountOutputTypeCountVisaApplicationsArgs
     documents?: boolean | StudentCountOutputTypeCountDocumentsArgs
+    callLogs?: boolean | StudentCountOutputTypeCountCallLogsArgs
   }
 
   // Custom InputTypes
@@ -4018,6 +4124,13 @@ export namespace Prisma {
    */
   export type StudentCountOutputTypeCountDocumentsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: StudentDocumentWhereInput
+  }
+
+  /**
+   * StudentCountOutputType without action
+   */
+  export type StudentCountOutputTypeCountCallLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CallLogWhereInput
   }
 
 
@@ -4536,6 +4649,7 @@ export namespace Prisma {
     counselorApplications?: boolean | User$counselorApplicationsArgs<ExtArgs>
     agentVisaApps?: boolean | User$agentVisaAppsArgs<ExtArgs>
     counselorVisaApps?: boolean | User$counselorVisaAppsArgs<ExtArgs>
+    callLogs?: boolean | User$callLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -4602,6 +4716,7 @@ export namespace Prisma {
     counselorApplications?: boolean | User$counselorApplicationsArgs<ExtArgs>
     agentVisaApps?: boolean | User$agentVisaAppsArgs<ExtArgs>
     counselorVisaApps?: boolean | User$counselorVisaAppsArgs<ExtArgs>
+    callLogs?: boolean | User$callLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4640,6 +4755,7 @@ export namespace Prisma {
       counselorApplications: Prisma.$UniversityApplicationPayload<ExtArgs>[]
       agentVisaApps: Prisma.$VisaApplicationPayload<ExtArgs>[]
       counselorVisaApps: Prisma.$VisaApplicationPayload<ExtArgs>[]
+      callLogs: Prisma.$CallLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -5048,6 +5164,7 @@ export namespace Prisma {
     counselorApplications<T extends User$counselorApplicationsArgs<ExtArgs> = {}>(args?: Subset<T, User$counselorApplicationsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UniversityApplicationPayload<ExtArgs>, T, "findMany"> | Null>
     agentVisaApps<T extends User$agentVisaAppsArgs<ExtArgs> = {}>(args?: Subset<T, User$agentVisaAppsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VisaApplicationPayload<ExtArgs>, T, "findMany"> | Null>
     counselorVisaApps<T extends User$counselorVisaAppsArgs<ExtArgs> = {}>(args?: Subset<T, User$counselorVisaAppsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$VisaApplicationPayload<ExtArgs>, T, "findMany"> | Null>
+    callLogs<T extends User$callLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$callLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -5955,6 +6072,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: VisaApplicationScalarFieldEnum | VisaApplicationScalarFieldEnum[]
+  }
+
+  /**
+   * User.callLogs
+   */
+  export type User$callLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    where?: CallLogWhereInput
+    orderBy?: CallLogOrderByWithRelationInput | CallLogOrderByWithRelationInput[]
+    cursor?: CallLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CallLogScalarFieldEnum | CallLogScalarFieldEnum[]
   }
 
   /**
@@ -10372,6 +10509,7 @@ export namespace Prisma {
     tasks?: boolean | Lead$tasksArgs<ExtArgs>
     student?: boolean | Lead$studentArgs<ExtArgs>
     workExperience?: boolean | Lead$workExperienceArgs<ExtArgs>
+    callLogs?: boolean | Lead$callLogsArgs<ExtArgs>
     _count?: boolean | LeadCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["lead"]>
 
@@ -10459,6 +10597,7 @@ export namespace Prisma {
     tasks?: boolean | Lead$tasksArgs<ExtArgs>
     student?: boolean | Lead$studentArgs<ExtArgs>
     workExperience?: boolean | Lead$workExperienceArgs<ExtArgs>
+    callLogs?: boolean | Lead$callLogsArgs<ExtArgs>
     _count?: boolean | LeadCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type LeadIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10478,6 +10617,7 @@ export namespace Prisma {
       tasks: Prisma.$LeadTaskPayload<ExtArgs>[]
       student: Prisma.$StudentPayload<ExtArgs> | null
       workExperience: Prisma.$WorkExperiencePayload<ExtArgs>[]
+      callLogs: Prisma.$CallLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10887,6 +11027,7 @@ export namespace Prisma {
     tasks<T extends Lead$tasksArgs<ExtArgs> = {}>(args?: Subset<T, Lead$tasksArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LeadTaskPayload<ExtArgs>, T, "findMany"> | Null>
     student<T extends Lead$studentArgs<ExtArgs> = {}>(args?: Subset<T, Lead$studentArgs<ExtArgs>>): Prisma__StudentClient<$Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     workExperience<T extends Lead$workExperienceArgs<ExtArgs> = {}>(args?: Subset<T, Lead$workExperienceArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkExperiencePayload<ExtArgs>, T, "findMany"> | Null>
+    callLogs<T extends Lead$callLogsArgs<ExtArgs> = {}>(args?: Subset<T, Lead$callLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11454,6 +11595,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: WorkExperienceScalarFieldEnum | WorkExperienceScalarFieldEnum[]
+  }
+
+  /**
+   * Lead.callLogs
+   */
+  export type Lead$callLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    where?: CallLogWhereInput
+    orderBy?: CallLogOrderByWithRelationInput | CallLogOrderByWithRelationInput[]
+    cursor?: CallLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CallLogScalarFieldEnum | CallLogScalarFieldEnum[]
   }
 
   /**
@@ -18562,6 +18723,7 @@ export namespace Prisma {
     counselor?: boolean | Student$counselorArgs<ExtArgs>
     studentUser?: boolean | Student$studentUserArgs<ExtArgs>
     documents?: boolean | Student$documentsArgs<ExtArgs>
+    callLogs?: boolean | Student$callLogsArgs<ExtArgs>
     _count?: boolean | StudentCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["student"]>
 
@@ -18617,6 +18779,7 @@ export namespace Prisma {
     counselor?: boolean | Student$counselorArgs<ExtArgs>
     studentUser?: boolean | Student$studentUserArgs<ExtArgs>
     documents?: boolean | Student$documentsArgs<ExtArgs>
+    callLogs?: boolean | Student$callLogsArgs<ExtArgs>
     _count?: boolean | StudentCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type StudentIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -18638,6 +18801,7 @@ export namespace Prisma {
       counselor: Prisma.$UserPayload<ExtArgs> | null
       studentUser: Prisma.$UserPayload<ExtArgs> | null
       documents: Prisma.$StudentDocumentPayload<ExtArgs>[]
+      callLogs: Prisma.$CallLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -19028,6 +19192,7 @@ export namespace Prisma {
     counselor<T extends Student$counselorArgs<ExtArgs> = {}>(args?: Subset<T, Student$counselorArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     studentUser<T extends Student$studentUserArgs<ExtArgs> = {}>(args?: Subset<T, Student$studentUserArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     documents<T extends Student$documentsArgs<ExtArgs> = {}>(args?: Subset<T, Student$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$StudentDocumentPayload<ExtArgs>, T, "findMany"> | Null>
+    callLogs<T extends Student$callLogsArgs<ExtArgs> = {}>(args?: Subset<T, Student$callLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -19508,6 +19673,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: StudentDocumentScalarFieldEnum | StudentDocumentScalarFieldEnum[]
+  }
+
+  /**
+   * Student.callLogs
+   */
+  export type Student$callLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    where?: CallLogWhereInput
+    orderBy?: CallLogOrderByWithRelationInput | CallLogOrderByWithRelationInput[]
+    cursor?: CallLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: CallLogScalarFieldEnum | CallLogScalarFieldEnum[]
   }
 
   /**
@@ -35958,6 +36143,1150 @@ export namespace Prisma {
 
 
   /**
+   * Model CallLog
+   */
+
+  export type AggregateCallLog = {
+    _count: CallLogCountAggregateOutputType | null
+    _avg: CallLogAvgAggregateOutputType | null
+    _sum: CallLogSumAggregateOutputType | null
+    _min: CallLogMinAggregateOutputType | null
+    _max: CallLogMaxAggregateOutputType | null
+  }
+
+  export type CallLogAvgAggregateOutputType = {
+    duration: number | null
+  }
+
+  export type CallLogSumAggregateOutputType = {
+    duration: number | null
+  }
+
+  export type CallLogMinAggregateOutputType = {
+    id: string | null
+    exotelCallSid: string | null
+    callerId: string | null
+    toNumber: string | null
+    direction: string | null
+    status: string | null
+    duration: number | null
+    recordingUrl: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    createdAt: Date | null
+    employeeId: string | null
+    leadId: string | null
+    studentId: string | null
+    leadActivityId: string | null
+  }
+
+  export type CallLogMaxAggregateOutputType = {
+    id: string | null
+    exotelCallSid: string | null
+    callerId: string | null
+    toNumber: string | null
+    direction: string | null
+    status: string | null
+    duration: number | null
+    recordingUrl: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    createdAt: Date | null
+    employeeId: string | null
+    leadId: string | null
+    studentId: string | null
+    leadActivityId: string | null
+  }
+
+  export type CallLogCountAggregateOutputType = {
+    id: number
+    exotelCallSid: number
+    callerId: number
+    toNumber: number
+    direction: number
+    status: number
+    duration: number
+    recordingUrl: number
+    startedAt: number
+    endedAt: number
+    createdAt: number
+    employeeId: number
+    leadId: number
+    studentId: number
+    leadActivityId: number
+    _all: number
+  }
+
+
+  export type CallLogAvgAggregateInputType = {
+    duration?: true
+  }
+
+  export type CallLogSumAggregateInputType = {
+    duration?: true
+  }
+
+  export type CallLogMinAggregateInputType = {
+    id?: true
+    exotelCallSid?: true
+    callerId?: true
+    toNumber?: true
+    direction?: true
+    status?: true
+    duration?: true
+    recordingUrl?: true
+    startedAt?: true
+    endedAt?: true
+    createdAt?: true
+    employeeId?: true
+    leadId?: true
+    studentId?: true
+    leadActivityId?: true
+  }
+
+  export type CallLogMaxAggregateInputType = {
+    id?: true
+    exotelCallSid?: true
+    callerId?: true
+    toNumber?: true
+    direction?: true
+    status?: true
+    duration?: true
+    recordingUrl?: true
+    startedAt?: true
+    endedAt?: true
+    createdAt?: true
+    employeeId?: true
+    leadId?: true
+    studentId?: true
+    leadActivityId?: true
+  }
+
+  export type CallLogCountAggregateInputType = {
+    id?: true
+    exotelCallSid?: true
+    callerId?: true
+    toNumber?: true
+    direction?: true
+    status?: true
+    duration?: true
+    recordingUrl?: true
+    startedAt?: true
+    endedAt?: true
+    createdAt?: true
+    employeeId?: true
+    leadId?: true
+    studentId?: true
+    leadActivityId?: true
+    _all?: true
+  }
+
+  export type CallLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CallLog to aggregate.
+     */
+    where?: CallLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CallLogs to fetch.
+     */
+    orderBy?: CallLogOrderByWithRelationInput | CallLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CallLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CallLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CallLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned CallLogs
+    **/
+    _count?: true | CallLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: CallLogAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CallLogSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CallLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CallLogMaxAggregateInputType
+  }
+
+  export type GetCallLogAggregateType<T extends CallLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateCallLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCallLog[P]>
+      : GetScalarType<T[P], AggregateCallLog[P]>
+  }
+
+
+
+
+  export type CallLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CallLogWhereInput
+    orderBy?: CallLogOrderByWithAggregationInput | CallLogOrderByWithAggregationInput[]
+    by: CallLogScalarFieldEnum[] | CallLogScalarFieldEnum
+    having?: CallLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CallLogCountAggregateInputType | true
+    _avg?: CallLogAvgAggregateInputType
+    _sum?: CallLogSumAggregateInputType
+    _min?: CallLogMinAggregateInputType
+    _max?: CallLogMaxAggregateInputType
+  }
+
+  export type CallLogGroupByOutputType = {
+    id: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration: number | null
+    recordingUrl: string | null
+    startedAt: Date | null
+    endedAt: Date | null
+    createdAt: Date
+    employeeId: string | null
+    leadId: string | null
+    studentId: string | null
+    leadActivityId: string | null
+    _count: CallLogCountAggregateOutputType | null
+    _avg: CallLogAvgAggregateOutputType | null
+    _sum: CallLogSumAggregateOutputType | null
+    _min: CallLogMinAggregateOutputType | null
+    _max: CallLogMaxAggregateOutputType | null
+  }
+
+  type GetCallLogGroupByPayload<T extends CallLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CallLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CallLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CallLogGroupByOutputType[P]>
+            : GetScalarType<T[P], CallLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CallLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    exotelCallSid?: boolean
+    callerId?: boolean
+    toNumber?: boolean
+    direction?: boolean
+    status?: boolean
+    duration?: boolean
+    recordingUrl?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    createdAt?: boolean
+    employeeId?: boolean
+    leadId?: boolean
+    studentId?: boolean
+    leadActivityId?: boolean
+    employee?: boolean | CallLog$employeeArgs<ExtArgs>
+    lead?: boolean | CallLog$leadArgs<ExtArgs>
+    student?: boolean | CallLog$studentArgs<ExtArgs>
+  }, ExtArgs["result"]["callLog"]>
+
+  export type CallLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    exotelCallSid?: boolean
+    callerId?: boolean
+    toNumber?: boolean
+    direction?: boolean
+    status?: boolean
+    duration?: boolean
+    recordingUrl?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    createdAt?: boolean
+    employeeId?: boolean
+    leadId?: boolean
+    studentId?: boolean
+    leadActivityId?: boolean
+    employee?: boolean | CallLog$employeeArgs<ExtArgs>
+    lead?: boolean | CallLog$leadArgs<ExtArgs>
+    student?: boolean | CallLog$studentArgs<ExtArgs>
+  }, ExtArgs["result"]["callLog"]>
+
+  export type CallLogSelectScalar = {
+    id?: boolean
+    exotelCallSid?: boolean
+    callerId?: boolean
+    toNumber?: boolean
+    direction?: boolean
+    status?: boolean
+    duration?: boolean
+    recordingUrl?: boolean
+    startedAt?: boolean
+    endedAt?: boolean
+    createdAt?: boolean
+    employeeId?: boolean
+    leadId?: boolean
+    studentId?: boolean
+    leadActivityId?: boolean
+  }
+
+  export type CallLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | CallLog$employeeArgs<ExtArgs>
+    lead?: boolean | CallLog$leadArgs<ExtArgs>
+    student?: boolean | CallLog$studentArgs<ExtArgs>
+  }
+  export type CallLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    employee?: boolean | CallLog$employeeArgs<ExtArgs>
+    lead?: boolean | CallLog$leadArgs<ExtArgs>
+    student?: boolean | CallLog$studentArgs<ExtArgs>
+  }
+
+  export type $CallLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "CallLog"
+    objects: {
+      employee: Prisma.$UserPayload<ExtArgs> | null
+      lead: Prisma.$LeadPayload<ExtArgs> | null
+      student: Prisma.$StudentPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      exotelCallSid: string
+      callerId: string
+      toNumber: string
+      direction: string
+      status: string
+      duration: number | null
+      recordingUrl: string | null
+      startedAt: Date | null
+      endedAt: Date | null
+      createdAt: Date
+      employeeId: string | null
+      leadId: string | null
+      studentId: string | null
+      leadActivityId: string | null
+    }, ExtArgs["result"]["callLog"]>
+    composites: {}
+  }
+
+  type CallLogGetPayload<S extends boolean | null | undefined | CallLogDefaultArgs> = $Result.GetResult<Prisma.$CallLogPayload, S>
+
+  type CallLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<CallLogFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: CallLogCountAggregateInputType | true
+    }
+
+  export interface CallLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['CallLog'], meta: { name: 'CallLog' } }
+    /**
+     * Find zero or one CallLog that matches the filter.
+     * @param {CallLogFindUniqueArgs} args - Arguments to find a CallLog
+     * @example
+     * // Get one CallLog
+     * const callLog = await prisma.callLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CallLogFindUniqueArgs>(args: SelectSubset<T, CallLogFindUniqueArgs<ExtArgs>>): Prisma__CallLogClient<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one CallLog that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {CallLogFindUniqueOrThrowArgs} args - Arguments to find a CallLog
+     * @example
+     * // Get one CallLog
+     * const callLog = await prisma.callLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CallLogFindUniqueOrThrowArgs>(args: SelectSubset<T, CallLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CallLogClient<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first CallLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CallLogFindFirstArgs} args - Arguments to find a CallLog
+     * @example
+     * // Get one CallLog
+     * const callLog = await prisma.callLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CallLogFindFirstArgs>(args?: SelectSubset<T, CallLogFindFirstArgs<ExtArgs>>): Prisma__CallLogClient<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first CallLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CallLogFindFirstOrThrowArgs} args - Arguments to find a CallLog
+     * @example
+     * // Get one CallLog
+     * const callLog = await prisma.callLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CallLogFindFirstOrThrowArgs>(args?: SelectSubset<T, CallLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__CallLogClient<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more CallLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CallLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all CallLogs
+     * const callLogs = await prisma.callLog.findMany()
+     * 
+     * // Get first 10 CallLogs
+     * const callLogs = await prisma.callLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const callLogWithIdOnly = await prisma.callLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CallLogFindManyArgs>(args?: SelectSubset<T, CallLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a CallLog.
+     * @param {CallLogCreateArgs} args - Arguments to create a CallLog.
+     * @example
+     * // Create one CallLog
+     * const CallLog = await prisma.callLog.create({
+     *   data: {
+     *     // ... data to create a CallLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends CallLogCreateArgs>(args: SelectSubset<T, CallLogCreateArgs<ExtArgs>>): Prisma__CallLogClient<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many CallLogs.
+     * @param {CallLogCreateManyArgs} args - Arguments to create many CallLogs.
+     * @example
+     * // Create many CallLogs
+     * const callLog = await prisma.callLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CallLogCreateManyArgs>(args?: SelectSubset<T, CallLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many CallLogs and returns the data saved in the database.
+     * @param {CallLogCreateManyAndReturnArgs} args - Arguments to create many CallLogs.
+     * @example
+     * // Create many CallLogs
+     * const callLog = await prisma.callLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many CallLogs and only return the `id`
+     * const callLogWithIdOnly = await prisma.callLog.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CallLogCreateManyAndReturnArgs>(args?: SelectSubset<T, CallLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a CallLog.
+     * @param {CallLogDeleteArgs} args - Arguments to delete one CallLog.
+     * @example
+     * // Delete one CallLog
+     * const CallLog = await prisma.callLog.delete({
+     *   where: {
+     *     // ... filter to delete one CallLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CallLogDeleteArgs>(args: SelectSubset<T, CallLogDeleteArgs<ExtArgs>>): Prisma__CallLogClient<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one CallLog.
+     * @param {CallLogUpdateArgs} args - Arguments to update one CallLog.
+     * @example
+     * // Update one CallLog
+     * const callLog = await prisma.callLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CallLogUpdateArgs>(args: SelectSubset<T, CallLogUpdateArgs<ExtArgs>>): Prisma__CallLogClient<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more CallLogs.
+     * @param {CallLogDeleteManyArgs} args - Arguments to filter CallLogs to delete.
+     * @example
+     * // Delete a few CallLogs
+     * const { count } = await prisma.callLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CallLogDeleteManyArgs>(args?: SelectSubset<T, CallLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more CallLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CallLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many CallLogs
+     * const callLog = await prisma.callLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CallLogUpdateManyArgs>(args: SelectSubset<T, CallLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one CallLog.
+     * @param {CallLogUpsertArgs} args - Arguments to update or create a CallLog.
+     * @example
+     * // Update or create a CallLog
+     * const callLog = await prisma.callLog.upsert({
+     *   create: {
+     *     // ... data to create a CallLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the CallLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CallLogUpsertArgs>(args: SelectSubset<T, CallLogUpsertArgs<ExtArgs>>): Prisma__CallLogClient<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of CallLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CallLogCountArgs} args - Arguments to filter CallLogs to count.
+     * @example
+     * // Count the number of CallLogs
+     * const count = await prisma.callLog.count({
+     *   where: {
+     *     // ... the filter for the CallLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends CallLogCountArgs>(
+      args?: Subset<T, CallLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CallLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a CallLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CallLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CallLogAggregateArgs>(args: Subset<T, CallLogAggregateArgs>): Prisma.PrismaPromise<GetCallLogAggregateType<T>>
+
+    /**
+     * Group by CallLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CallLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CallLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CallLogGroupByArgs['orderBy'] }
+        : { orderBy?: CallLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CallLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCallLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the CallLog model
+   */
+  readonly fields: CallLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for CallLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CallLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    employee<T extends CallLog$employeeArgs<ExtArgs> = {}>(args?: Subset<T, CallLog$employeeArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    lead<T extends CallLog$leadArgs<ExtArgs> = {}>(args?: Subset<T, CallLog$leadArgs<ExtArgs>>): Prisma__LeadClient<$Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    student<T extends CallLog$studentArgs<ExtArgs> = {}>(args?: Subset<T, CallLog$studentArgs<ExtArgs>>): Prisma__StudentClient<$Result.GetResult<Prisma.$StudentPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the CallLog model
+   */ 
+  interface CallLogFieldRefs {
+    readonly id: FieldRef<"CallLog", 'String'>
+    readonly exotelCallSid: FieldRef<"CallLog", 'String'>
+    readonly callerId: FieldRef<"CallLog", 'String'>
+    readonly toNumber: FieldRef<"CallLog", 'String'>
+    readonly direction: FieldRef<"CallLog", 'String'>
+    readonly status: FieldRef<"CallLog", 'String'>
+    readonly duration: FieldRef<"CallLog", 'Int'>
+    readonly recordingUrl: FieldRef<"CallLog", 'String'>
+    readonly startedAt: FieldRef<"CallLog", 'DateTime'>
+    readonly endedAt: FieldRef<"CallLog", 'DateTime'>
+    readonly createdAt: FieldRef<"CallLog", 'DateTime'>
+    readonly employeeId: FieldRef<"CallLog", 'String'>
+    readonly leadId: FieldRef<"CallLog", 'String'>
+    readonly studentId: FieldRef<"CallLog", 'String'>
+    readonly leadActivityId: FieldRef<"CallLog", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * CallLog findUnique
+   */
+  export type CallLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CallLog to fetch.
+     */
+    where: CallLogWhereUniqueInput
+  }
+
+  /**
+   * CallLog findUniqueOrThrow
+   */
+  export type CallLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CallLog to fetch.
+     */
+    where: CallLogWhereUniqueInput
+  }
+
+  /**
+   * CallLog findFirst
+   */
+  export type CallLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CallLog to fetch.
+     */
+    where?: CallLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CallLogs to fetch.
+     */
+    orderBy?: CallLogOrderByWithRelationInput | CallLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CallLogs.
+     */
+    cursor?: CallLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CallLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CallLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CallLogs.
+     */
+    distinct?: CallLogScalarFieldEnum | CallLogScalarFieldEnum[]
+  }
+
+  /**
+   * CallLog findFirstOrThrow
+   */
+  export type CallLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CallLog to fetch.
+     */
+    where?: CallLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CallLogs to fetch.
+     */
+    orderBy?: CallLogOrderByWithRelationInput | CallLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for CallLogs.
+     */
+    cursor?: CallLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CallLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CallLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of CallLogs.
+     */
+    distinct?: CallLogScalarFieldEnum | CallLogScalarFieldEnum[]
+  }
+
+  /**
+   * CallLog findMany
+   */
+  export type CallLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    /**
+     * Filter, which CallLogs to fetch.
+     */
+    where?: CallLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of CallLogs to fetch.
+     */
+    orderBy?: CallLogOrderByWithRelationInput | CallLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing CallLogs.
+     */
+    cursor?: CallLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` CallLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` CallLogs.
+     */
+    skip?: number
+    distinct?: CallLogScalarFieldEnum | CallLogScalarFieldEnum[]
+  }
+
+  /**
+   * CallLog create
+   */
+  export type CallLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a CallLog.
+     */
+    data: XOR<CallLogCreateInput, CallLogUncheckedCreateInput>
+  }
+
+  /**
+   * CallLog createMany
+   */
+  export type CallLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many CallLogs.
+     */
+    data: CallLogCreateManyInput | CallLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * CallLog createManyAndReturn
+   */
+  export type CallLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many CallLogs.
+     */
+    data: CallLogCreateManyInput | CallLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * CallLog update
+   */
+  export type CallLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a CallLog.
+     */
+    data: XOR<CallLogUpdateInput, CallLogUncheckedUpdateInput>
+    /**
+     * Choose, which CallLog to update.
+     */
+    where: CallLogWhereUniqueInput
+  }
+
+  /**
+   * CallLog updateMany
+   */
+  export type CallLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update CallLogs.
+     */
+    data: XOR<CallLogUpdateManyMutationInput, CallLogUncheckedUpdateManyInput>
+    /**
+     * Filter which CallLogs to update
+     */
+    where?: CallLogWhereInput
+  }
+
+  /**
+   * CallLog upsert
+   */
+  export type CallLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the CallLog to update in case it exists.
+     */
+    where: CallLogWhereUniqueInput
+    /**
+     * In case the CallLog found by the `where` argument doesn't exist, create a new CallLog with this data.
+     */
+    create: XOR<CallLogCreateInput, CallLogUncheckedCreateInput>
+    /**
+     * In case the CallLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CallLogUpdateInput, CallLogUncheckedUpdateInput>
+  }
+
+  /**
+   * CallLog delete
+   */
+  export type CallLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+    /**
+     * Filter which CallLog to delete.
+     */
+    where: CallLogWhereUniqueInput
+  }
+
+  /**
+   * CallLog deleteMany
+   */
+  export type CallLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which CallLogs to delete
+     */
+    where?: CallLogWhereInput
+  }
+
+  /**
+   * CallLog.employee
+   */
+  export type CallLog$employeeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * CallLog.lead
+   */
+  export type CallLog$leadArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Lead
+     */
+    select?: LeadSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LeadInclude<ExtArgs> | null
+    where?: LeadWhereInput
+  }
+
+  /**
+   * CallLog.student
+   */
+  export type CallLog$studentArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Student
+     */
+    select?: StudentSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: StudentInclude<ExtArgs> | null
+    where?: StudentWhereInput
+  }
+
+  /**
+   * CallLog without action
+   */
+  export type CallLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the CallLog
+     */
+    select?: CallLogSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CallLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -36452,6 +37781,27 @@ export namespace Prisma {
   export type RolePermissionScalarFieldEnum = (typeof RolePermissionScalarFieldEnum)[keyof typeof RolePermissionScalarFieldEnum]
 
 
+  export const CallLogScalarFieldEnum: {
+    id: 'id',
+    exotelCallSid: 'exotelCallSid',
+    callerId: 'callerId',
+    toNumber: 'toNumber',
+    direction: 'direction',
+    status: 'status',
+    duration: 'duration',
+    recordingUrl: 'recordingUrl',
+    startedAt: 'startedAt',
+    endedAt: 'endedAt',
+    createdAt: 'createdAt',
+    employeeId: 'employeeId',
+    leadId: 'leadId',
+    studentId: 'studentId',
+    leadActivityId: 'leadActivityId'
+  };
+
+  export type CallLogScalarFieldEnum = (typeof CallLogScalarFieldEnum)[keyof typeof CallLogScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -36813,6 +38163,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationListRelationFilter
     agentVisaApps?: VisaApplicationListRelationFilter
     counselorVisaApps?: VisaApplicationListRelationFilter
+    callLogs?: CallLogListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -36858,6 +38209,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationOrderByRelationAggregateInput
     agentVisaApps?: VisaApplicationOrderByRelationAggregateInput
     counselorVisaApps?: VisaApplicationOrderByRelationAggregateInput
+    callLogs?: CallLogOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -36906,6 +38258,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationListRelationFilter
     agentVisaApps?: VisaApplicationListRelationFilter
     counselorVisaApps?: VisaApplicationListRelationFilter
+    callLogs?: CallLogListRelationFilter
   }, "id" | "email">
 
   export type UserOrderByWithAggregationInput = {
@@ -37273,6 +38626,7 @@ export namespace Prisma {
     tasks?: LeadTaskListRelationFilter
     student?: XOR<StudentNullableRelationFilter, StudentWhereInput> | null
     workExperience?: WorkExperienceListRelationFilter
+    callLogs?: CallLogListRelationFilter
   }
 
   export type LeadOrderByWithRelationInput = {
@@ -37319,6 +38673,7 @@ export namespace Prisma {
     tasks?: LeadTaskOrderByRelationAggregateInput
     student?: StudentOrderByWithRelationInput
     workExperience?: WorkExperienceOrderByRelationAggregateInput
+    callLogs?: CallLogOrderByRelationAggregateInput
   }
 
   export type LeadWhereUniqueInput = Prisma.AtLeast<{
@@ -37368,6 +38723,7 @@ export namespace Prisma {
     tasks?: LeadTaskListRelationFilter
     student?: XOR<StudentNullableRelationFilter, StudentWhereInput> | null
     workExperience?: WorkExperienceListRelationFilter
+    callLogs?: CallLogListRelationFilter
   }, "id" | "userId">
 
   export type LeadOrderByWithAggregationInput = {
@@ -37985,6 +39341,7 @@ export namespace Prisma {
     counselor?: XOR<UserNullableRelationFilter, UserWhereInput> | null
     studentUser?: XOR<UserNullableRelationFilter, UserWhereInput> | null
     documents?: StudentDocumentListRelationFilter
+    callLogs?: CallLogListRelationFilter
   }
 
   export type StudentOrderByWithRelationInput = {
@@ -38012,6 +39369,7 @@ export namespace Prisma {
     counselor?: UserOrderByWithRelationInput
     studentUser?: UserOrderByWithRelationInput
     documents?: StudentDocumentOrderByRelationAggregateInput
+    callLogs?: CallLogOrderByRelationAggregateInput
   }
 
   export type StudentWhereUniqueInput = Prisma.AtLeast<{
@@ -38042,6 +39400,7 @@ export namespace Prisma {
     counselor?: XOR<UserNullableRelationFilter, UserWhereInput> | null
     studentUser?: XOR<UserNullableRelationFilter, UserWhereInput> | null
     documents?: StudentDocumentListRelationFilter
+    callLogs?: CallLogListRelationFilter
   }, "id" | "leadId" | "studentUserId">
 
   export type StudentOrderByWithAggregationInput = {
@@ -39439,6 +40798,119 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"RolePermission"> | Date | string
   }
 
+  export type CallLogWhereInput = {
+    AND?: CallLogWhereInput | CallLogWhereInput[]
+    OR?: CallLogWhereInput[]
+    NOT?: CallLogWhereInput | CallLogWhereInput[]
+    id?: StringFilter<"CallLog"> | string
+    exotelCallSid?: StringFilter<"CallLog"> | string
+    callerId?: StringFilter<"CallLog"> | string
+    toNumber?: StringFilter<"CallLog"> | string
+    direction?: StringFilter<"CallLog"> | string
+    status?: StringFilter<"CallLog"> | string
+    duration?: IntNullableFilter<"CallLog"> | number | null
+    recordingUrl?: StringNullableFilter<"CallLog"> | string | null
+    startedAt?: DateTimeNullableFilter<"CallLog"> | Date | string | null
+    endedAt?: DateTimeNullableFilter<"CallLog"> | Date | string | null
+    createdAt?: DateTimeFilter<"CallLog"> | Date | string
+    employeeId?: StringNullableFilter<"CallLog"> | string | null
+    leadId?: StringNullableFilter<"CallLog"> | string | null
+    studentId?: StringNullableFilter<"CallLog"> | string | null
+    leadActivityId?: StringNullableFilter<"CallLog"> | string | null
+    employee?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    lead?: XOR<LeadNullableRelationFilter, LeadWhereInput> | null
+    student?: XOR<StudentNullableRelationFilter, StudentWhereInput> | null
+  }
+
+  export type CallLogOrderByWithRelationInput = {
+    id?: SortOrder
+    exotelCallSid?: SortOrder
+    callerId?: SortOrder
+    toNumber?: SortOrder
+    direction?: SortOrder
+    status?: SortOrder
+    duration?: SortOrderInput | SortOrder
+    recordingUrl?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    employeeId?: SortOrderInput | SortOrder
+    leadId?: SortOrderInput | SortOrder
+    studentId?: SortOrderInput | SortOrder
+    leadActivityId?: SortOrderInput | SortOrder
+    employee?: UserOrderByWithRelationInput
+    lead?: LeadOrderByWithRelationInput
+    student?: StudentOrderByWithRelationInput
+  }
+
+  export type CallLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    exotelCallSid?: string
+    leadActivityId?: string
+    AND?: CallLogWhereInput | CallLogWhereInput[]
+    OR?: CallLogWhereInput[]
+    NOT?: CallLogWhereInput | CallLogWhereInput[]
+    callerId?: StringFilter<"CallLog"> | string
+    toNumber?: StringFilter<"CallLog"> | string
+    direction?: StringFilter<"CallLog"> | string
+    status?: StringFilter<"CallLog"> | string
+    duration?: IntNullableFilter<"CallLog"> | number | null
+    recordingUrl?: StringNullableFilter<"CallLog"> | string | null
+    startedAt?: DateTimeNullableFilter<"CallLog"> | Date | string | null
+    endedAt?: DateTimeNullableFilter<"CallLog"> | Date | string | null
+    createdAt?: DateTimeFilter<"CallLog"> | Date | string
+    employeeId?: StringNullableFilter<"CallLog"> | string | null
+    leadId?: StringNullableFilter<"CallLog"> | string | null
+    studentId?: StringNullableFilter<"CallLog"> | string | null
+    employee?: XOR<UserNullableRelationFilter, UserWhereInput> | null
+    lead?: XOR<LeadNullableRelationFilter, LeadWhereInput> | null
+    student?: XOR<StudentNullableRelationFilter, StudentWhereInput> | null
+  }, "id" | "exotelCallSid" | "leadActivityId">
+
+  export type CallLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    exotelCallSid?: SortOrder
+    callerId?: SortOrder
+    toNumber?: SortOrder
+    direction?: SortOrder
+    status?: SortOrder
+    duration?: SortOrderInput | SortOrder
+    recordingUrl?: SortOrderInput | SortOrder
+    startedAt?: SortOrderInput | SortOrder
+    endedAt?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    employeeId?: SortOrderInput | SortOrder
+    leadId?: SortOrderInput | SortOrder
+    studentId?: SortOrderInput | SortOrder
+    leadActivityId?: SortOrderInput | SortOrder
+    _count?: CallLogCountOrderByAggregateInput
+    _avg?: CallLogAvgOrderByAggregateInput
+    _max?: CallLogMaxOrderByAggregateInput
+    _min?: CallLogMinOrderByAggregateInput
+    _sum?: CallLogSumOrderByAggregateInput
+  }
+
+  export type CallLogScalarWhereWithAggregatesInput = {
+    AND?: CallLogScalarWhereWithAggregatesInput | CallLogScalarWhereWithAggregatesInput[]
+    OR?: CallLogScalarWhereWithAggregatesInput[]
+    NOT?: CallLogScalarWhereWithAggregatesInput | CallLogScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"CallLog"> | string
+    exotelCallSid?: StringWithAggregatesFilter<"CallLog"> | string
+    callerId?: StringWithAggregatesFilter<"CallLog"> | string
+    toNumber?: StringWithAggregatesFilter<"CallLog"> | string
+    direction?: StringWithAggregatesFilter<"CallLog"> | string
+    status?: StringWithAggregatesFilter<"CallLog"> | string
+    duration?: IntNullableWithAggregatesFilter<"CallLog"> | number | null
+    recordingUrl?: StringNullableWithAggregatesFilter<"CallLog"> | string | null
+    startedAt?: DateTimeNullableWithAggregatesFilter<"CallLog"> | Date | string | null
+    endedAt?: DateTimeNullableWithAggregatesFilter<"CallLog"> | Date | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"CallLog"> | Date | string
+    employeeId?: StringNullableWithAggregatesFilter<"CallLog"> | string | null
+    leadId?: StringNullableWithAggregatesFilter<"CallLog"> | string | null
+    studentId?: StringNullableWithAggregatesFilter<"CallLog"> | string | null
+    leadActivityId?: StringNullableWithAggregatesFilter<"CallLog"> | string | null
+  }
+
   export type UserCreateInput = {
     id?: string
     name: string
@@ -39481,6 +40953,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -39525,6 +40998,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUpdateInput = {
@@ -39569,6 +41043,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -39613,6 +41088,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -39990,6 +41466,7 @@ export namespace Prisma {
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateInput = {
@@ -40035,6 +41512,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUpdateInput = {
@@ -40080,6 +41558,7 @@ export namespace Prisma {
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateInput = {
@@ -40125,6 +41604,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadCreateManyInput = {
@@ -40776,6 +42256,7 @@ export namespace Prisma {
     counselor?: UserCreateNestedOneWithoutCounselorStudentsInput
     studentUser?: UserCreateNestedOneWithoutStudentProfileInput
     documents?: StudentDocumentCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUncheckedCreateInput = {
@@ -40798,6 +42279,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput
     visaApplications?: VisaApplicationUncheckedCreateNestedManyWithoutStudentInput
     documents?: StudentDocumentUncheckedCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUpdateInput = {
@@ -40820,6 +42302,7 @@ export namespace Prisma {
     counselor?: UserUpdateOneWithoutCounselorStudentsNestedInput
     studentUser?: UserUpdateOneWithoutStudentProfileNestedInput
     documents?: StudentDocumentUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateInput = {
@@ -40842,6 +42325,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput
     visaApplications?: VisaApplicationUncheckedUpdateManyWithoutStudentNestedInput
     documents?: StudentDocumentUncheckedUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentCreateManyInput = {
@@ -42350,6 +43834,129 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CallLogCreateInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    leadActivityId?: string | null
+    employee?: UserCreateNestedOneWithoutCallLogsInput
+    lead?: LeadCreateNestedOneWithoutCallLogsInput
+    student?: StudentCreateNestedOneWithoutCallLogsInput
+  }
+
+  export type CallLogUncheckedCreateInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    employeeId?: string | null
+    leadId?: string | null
+    studentId?: string | null
+    leadActivityId?: string | null
+  }
+
+  export type CallLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+    employee?: UserUpdateOneWithoutCallLogsNestedInput
+    lead?: LeadUpdateOneWithoutCallLogsNestedInput
+    student?: StudentUpdateOneWithoutCallLogsNestedInput
+  }
+
+  export type CallLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CallLogCreateManyInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    employeeId?: string | null
+    leadId?: string | null
+    studentId?: string | null
+    leadActivityId?: string | null
+  }
+
+  export type CallLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CallLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -42528,6 +44135,12 @@ export namespace Prisma {
     none?: EmployeeProfileWhereInput
   }
 
+  export type CallLogListRelationFilter = {
+    every?: CallLogWhereInput
+    some?: CallLogWhereInput
+    none?: CallLogWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -42586,6 +44199,10 @@ export namespace Prisma {
   }
 
   export type EmployeeProfileOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type CallLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -44365,6 +45982,68 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type CallLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    exotelCallSid?: SortOrder
+    callerId?: SortOrder
+    toNumber?: SortOrder
+    direction?: SortOrder
+    status?: SortOrder
+    duration?: SortOrder
+    recordingUrl?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    createdAt?: SortOrder
+    employeeId?: SortOrder
+    leadId?: SortOrder
+    studentId?: SortOrder
+    leadActivityId?: SortOrder
+  }
+
+  export type CallLogAvgOrderByAggregateInput = {
+    duration?: SortOrder
+  }
+
+  export type CallLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    exotelCallSid?: SortOrder
+    callerId?: SortOrder
+    toNumber?: SortOrder
+    direction?: SortOrder
+    status?: SortOrder
+    duration?: SortOrder
+    recordingUrl?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    createdAt?: SortOrder
+    employeeId?: SortOrder
+    leadId?: SortOrder
+    studentId?: SortOrder
+    leadActivityId?: SortOrder
+  }
+
+  export type CallLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    exotelCallSid?: SortOrder
+    callerId?: SortOrder
+    toNumber?: SortOrder
+    direction?: SortOrder
+    status?: SortOrder
+    duration?: SortOrder
+    recordingUrl?: SortOrder
+    startedAt?: SortOrder
+    endedAt?: SortOrder
+    createdAt?: SortOrder
+    employeeId?: SortOrder
+    leadId?: SortOrder
+    studentId?: SortOrder
+    leadActivityId?: SortOrder
+  }
+
+  export type CallLogSumOrderByAggregateInput = {
+    duration?: SortOrder
+  }
+
   export type UserRoleCreateNestedOneWithoutUsersInput = {
     create?: XOR<UserRoleCreateWithoutUsersInput, UserRoleUncheckedCreateWithoutUsersInput>
     connectOrCreate?: UserRoleCreateOrConnectWithoutUsersInput
@@ -44562,6 +46241,13 @@ export namespace Prisma {
     connect?: VisaApplicationWhereUniqueInput | VisaApplicationWhereUniqueInput[]
   }
 
+  export type CallLogCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<CallLogCreateWithoutEmployeeInput, CallLogUncheckedCreateWithoutEmployeeInput> | CallLogCreateWithoutEmployeeInput[] | CallLogUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutEmployeeInput | CallLogCreateOrConnectWithoutEmployeeInput[]
+    createMany?: CallLogCreateManyEmployeeInputEnvelope
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+  }
+
   export type AgentProfileUncheckedCreateNestedOneWithoutUserInput = {
     create?: XOR<AgentProfileCreateWithoutUserInput, AgentProfileUncheckedCreateWithoutUserInput>
     connectOrCreate?: AgentProfileCreateOrConnectWithoutUserInput
@@ -44751,6 +46437,13 @@ export namespace Prisma {
     connectOrCreate?: VisaApplicationCreateOrConnectWithoutCounselorInput | VisaApplicationCreateOrConnectWithoutCounselorInput[]
     createMany?: VisaApplicationCreateManyCounselorInputEnvelope
     connect?: VisaApplicationWhereUniqueInput | VisaApplicationWhereUniqueInput[]
+  }
+
+  export type CallLogUncheckedCreateNestedManyWithoutEmployeeInput = {
+    create?: XOR<CallLogCreateWithoutEmployeeInput, CallLogUncheckedCreateWithoutEmployeeInput> | CallLogCreateWithoutEmployeeInput[] | CallLogUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutEmployeeInput | CallLogCreateOrConnectWithoutEmployeeInput[]
+    createMany?: CallLogCreateManyEmployeeInputEnvelope
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -45159,6 +46852,20 @@ export namespace Prisma {
     deleteMany?: VisaApplicationScalarWhereInput | VisaApplicationScalarWhereInput[]
   }
 
+  export type CallLogUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<CallLogCreateWithoutEmployeeInput, CallLogUncheckedCreateWithoutEmployeeInput> | CallLogCreateWithoutEmployeeInput[] | CallLogUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutEmployeeInput | CallLogCreateOrConnectWithoutEmployeeInput[]
+    upsert?: CallLogUpsertWithWhereUniqueWithoutEmployeeInput | CallLogUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: CallLogCreateManyEmployeeInputEnvelope
+    set?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    disconnect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    delete?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    update?: CallLogUpdateWithWhereUniqueWithoutEmployeeInput | CallLogUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: CallLogUpdateManyWithWhereWithoutEmployeeInput | CallLogUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: CallLogScalarWhereInput | CallLogScalarWhereInput[]
+  }
+
   export type AgentProfileUncheckedUpdateOneWithoutUserNestedInput = {
     create?: XOR<AgentProfileCreateWithoutUserInput, AgentProfileUncheckedCreateWithoutUserInput>
     connectOrCreate?: AgentProfileCreateOrConnectWithoutUserInput
@@ -45531,6 +47238,20 @@ export namespace Prisma {
     deleteMany?: VisaApplicationScalarWhereInput | VisaApplicationScalarWhereInput[]
   }
 
+  export type CallLogUncheckedUpdateManyWithoutEmployeeNestedInput = {
+    create?: XOR<CallLogCreateWithoutEmployeeInput, CallLogUncheckedCreateWithoutEmployeeInput> | CallLogCreateWithoutEmployeeInput[] | CallLogUncheckedCreateWithoutEmployeeInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutEmployeeInput | CallLogCreateOrConnectWithoutEmployeeInput[]
+    upsert?: CallLogUpsertWithWhereUniqueWithoutEmployeeInput | CallLogUpsertWithWhereUniqueWithoutEmployeeInput[]
+    createMany?: CallLogCreateManyEmployeeInputEnvelope
+    set?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    disconnect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    delete?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    update?: CallLogUpdateWithWhereUniqueWithoutEmployeeInput | CallLogUpdateWithWhereUniqueWithoutEmployeeInput[]
+    updateMany?: CallLogUpdateManyWithWhereWithoutEmployeeInput | CallLogUpdateManyWithWhereWithoutEmployeeInput[]
+    deleteMany?: CallLogScalarWhereInput | CallLogScalarWhereInput[]
+  }
+
   export type UserCreateNestedOneWithoutNotificationsInput = {
     create?: XOR<UserCreateWithoutNotificationsInput, UserUncheckedCreateWithoutNotificationsInput>
     connectOrCreate?: UserCreateOrConnectWithoutNotificationsInput
@@ -45741,6 +47462,13 @@ export namespace Prisma {
     connect?: WorkExperienceWhereUniqueInput | WorkExperienceWhereUniqueInput[]
   }
 
+  export type CallLogCreateNestedManyWithoutLeadInput = {
+    create?: XOR<CallLogCreateWithoutLeadInput, CallLogUncheckedCreateWithoutLeadInput> | CallLogCreateWithoutLeadInput[] | CallLogUncheckedCreateWithoutLeadInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutLeadInput | CallLogCreateOrConnectWithoutLeadInput[]
+    createMany?: CallLogCreateManyLeadInputEnvelope
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+  }
+
   export type AcademicDetailUncheckedCreateNestedManyWithoutLeadInput = {
     create?: XOR<AcademicDetailCreateWithoutLeadInput, AcademicDetailUncheckedCreateWithoutLeadInput> | AcademicDetailCreateWithoutLeadInput[] | AcademicDetailUncheckedCreateWithoutLeadInput[]
     connectOrCreate?: AcademicDetailCreateOrConnectWithoutLeadInput | AcademicDetailCreateOrConnectWithoutLeadInput[]
@@ -45801,6 +47529,13 @@ export namespace Prisma {
     connectOrCreate?: WorkExperienceCreateOrConnectWithoutLeadInput | WorkExperienceCreateOrConnectWithoutLeadInput[]
     createMany?: WorkExperienceCreateManyLeadInputEnvelope
     connect?: WorkExperienceWhereUniqueInput | WorkExperienceWhereUniqueInput[]
+  }
+
+  export type CallLogUncheckedCreateNestedManyWithoutLeadInput = {
+    create?: XOR<CallLogCreateWithoutLeadInput, CallLogUncheckedCreateWithoutLeadInput> | CallLogCreateWithoutLeadInput[] | CallLogUncheckedCreateWithoutLeadInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutLeadInput | CallLogCreateOrConnectWithoutLeadInput[]
+    createMany?: CallLogCreateManyLeadInputEnvelope
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
   }
 
   export type EnumLeadStatusFieldUpdateOperationsInput = {
@@ -45943,6 +47678,20 @@ export namespace Prisma {
     deleteMany?: WorkExperienceScalarWhereInput | WorkExperienceScalarWhereInput[]
   }
 
+  export type CallLogUpdateManyWithoutLeadNestedInput = {
+    create?: XOR<CallLogCreateWithoutLeadInput, CallLogUncheckedCreateWithoutLeadInput> | CallLogCreateWithoutLeadInput[] | CallLogUncheckedCreateWithoutLeadInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutLeadInput | CallLogCreateOrConnectWithoutLeadInput[]
+    upsert?: CallLogUpsertWithWhereUniqueWithoutLeadInput | CallLogUpsertWithWhereUniqueWithoutLeadInput[]
+    createMany?: CallLogCreateManyLeadInputEnvelope
+    set?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    disconnect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    delete?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    update?: CallLogUpdateWithWhereUniqueWithoutLeadInput | CallLogUpdateWithWhereUniqueWithoutLeadInput[]
+    updateMany?: CallLogUpdateManyWithWhereWithoutLeadInput | CallLogUpdateManyWithWhereWithoutLeadInput[]
+    deleteMany?: CallLogScalarWhereInput | CallLogScalarWhereInput[]
+  }
+
   export type AcademicDetailUncheckedUpdateManyWithoutLeadNestedInput = {
     create?: XOR<AcademicDetailCreateWithoutLeadInput, AcademicDetailUncheckedCreateWithoutLeadInput> | AcademicDetailCreateWithoutLeadInput[] | AcademicDetailUncheckedCreateWithoutLeadInput[]
     connectOrCreate?: AcademicDetailCreateOrConnectWithoutLeadInput | AcademicDetailCreateOrConnectWithoutLeadInput[]
@@ -46063,6 +47812,20 @@ export namespace Prisma {
     update?: WorkExperienceUpdateWithWhereUniqueWithoutLeadInput | WorkExperienceUpdateWithWhereUniqueWithoutLeadInput[]
     updateMany?: WorkExperienceUpdateManyWithWhereWithoutLeadInput | WorkExperienceUpdateManyWithWhereWithoutLeadInput[]
     deleteMany?: WorkExperienceScalarWhereInput | WorkExperienceScalarWhereInput[]
+  }
+
+  export type CallLogUncheckedUpdateManyWithoutLeadNestedInput = {
+    create?: XOR<CallLogCreateWithoutLeadInput, CallLogUncheckedCreateWithoutLeadInput> | CallLogCreateWithoutLeadInput[] | CallLogUncheckedCreateWithoutLeadInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutLeadInput | CallLogCreateOrConnectWithoutLeadInput[]
+    upsert?: CallLogUpsertWithWhereUniqueWithoutLeadInput | CallLogUpsertWithWhereUniqueWithoutLeadInput[]
+    createMany?: CallLogCreateManyLeadInputEnvelope
+    set?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    disconnect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    delete?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    update?: CallLogUpdateWithWhereUniqueWithoutLeadInput | CallLogUpdateWithWhereUniqueWithoutLeadInput[]
+    updateMany?: CallLogUpdateManyWithWhereWithoutLeadInput | CallLogUpdateManyWithWhereWithoutLeadInput[]
+    deleteMany?: CallLogScalarWhereInput | CallLogScalarWhereInput[]
   }
 
   export type LeadCreateNestedOneWithoutFollowUpsInput = {
@@ -46366,6 +48129,13 @@ export namespace Prisma {
     connect?: StudentDocumentWhereUniqueInput | StudentDocumentWhereUniqueInput[]
   }
 
+  export type CallLogCreateNestedManyWithoutStudentInput = {
+    create?: XOR<CallLogCreateWithoutStudentInput, CallLogUncheckedCreateWithoutStudentInput> | CallLogCreateWithoutStudentInput[] | CallLogUncheckedCreateWithoutStudentInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutStudentInput | CallLogCreateOrConnectWithoutStudentInput[]
+    createMany?: CallLogCreateManyStudentInputEnvelope
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+  }
+
   export type UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput = {
     create?: XOR<UniversityApplicationCreateWithoutStudentInput, UniversityApplicationUncheckedCreateWithoutStudentInput> | UniversityApplicationCreateWithoutStudentInput[] | UniversityApplicationUncheckedCreateWithoutStudentInput[]
     connectOrCreate?: UniversityApplicationCreateOrConnectWithoutStudentInput | UniversityApplicationCreateOrConnectWithoutStudentInput[]
@@ -46385,6 +48155,13 @@ export namespace Prisma {
     connectOrCreate?: StudentDocumentCreateOrConnectWithoutStudentInput | StudentDocumentCreateOrConnectWithoutStudentInput[]
     createMany?: StudentDocumentCreateManyStudentInputEnvelope
     connect?: StudentDocumentWhereUniqueInput | StudentDocumentWhereUniqueInput[]
+  }
+
+  export type CallLogUncheckedCreateNestedManyWithoutStudentInput = {
+    create?: XOR<CallLogCreateWithoutStudentInput, CallLogUncheckedCreateWithoutStudentInput> | CallLogCreateWithoutStudentInput[] | CallLogUncheckedCreateWithoutStudentInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutStudentInput | CallLogCreateOrConnectWithoutStudentInput[]
+    createMany?: CallLogCreateManyStudentInputEnvelope
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
   }
 
   export type EnumStudentStatusFieldUpdateOperationsInput = {
@@ -46481,6 +48258,20 @@ export namespace Prisma {
     deleteMany?: StudentDocumentScalarWhereInput | StudentDocumentScalarWhereInput[]
   }
 
+  export type CallLogUpdateManyWithoutStudentNestedInput = {
+    create?: XOR<CallLogCreateWithoutStudentInput, CallLogUncheckedCreateWithoutStudentInput> | CallLogCreateWithoutStudentInput[] | CallLogUncheckedCreateWithoutStudentInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutStudentInput | CallLogCreateOrConnectWithoutStudentInput[]
+    upsert?: CallLogUpsertWithWhereUniqueWithoutStudentInput | CallLogUpsertWithWhereUniqueWithoutStudentInput[]
+    createMany?: CallLogCreateManyStudentInputEnvelope
+    set?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    disconnect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    delete?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    update?: CallLogUpdateWithWhereUniqueWithoutStudentInput | CallLogUpdateWithWhereUniqueWithoutStudentInput[]
+    updateMany?: CallLogUpdateManyWithWhereWithoutStudentInput | CallLogUpdateManyWithWhereWithoutStudentInput[]
+    deleteMany?: CallLogScalarWhereInput | CallLogScalarWhereInput[]
+  }
+
   export type UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput = {
     create?: XOR<UniversityApplicationCreateWithoutStudentInput, UniversityApplicationUncheckedCreateWithoutStudentInput> | UniversityApplicationCreateWithoutStudentInput[] | UniversityApplicationUncheckedCreateWithoutStudentInput[]
     connectOrCreate?: UniversityApplicationCreateOrConnectWithoutStudentInput | UniversityApplicationCreateOrConnectWithoutStudentInput[]
@@ -46521,6 +48312,20 @@ export namespace Prisma {
     update?: StudentDocumentUpdateWithWhereUniqueWithoutStudentInput | StudentDocumentUpdateWithWhereUniqueWithoutStudentInput[]
     updateMany?: StudentDocumentUpdateManyWithWhereWithoutStudentInput | StudentDocumentUpdateManyWithWhereWithoutStudentInput[]
     deleteMany?: StudentDocumentScalarWhereInput | StudentDocumentScalarWhereInput[]
+  }
+
+  export type CallLogUncheckedUpdateManyWithoutStudentNestedInput = {
+    create?: XOR<CallLogCreateWithoutStudentInput, CallLogUncheckedCreateWithoutStudentInput> | CallLogCreateWithoutStudentInput[] | CallLogUncheckedCreateWithoutStudentInput[]
+    connectOrCreate?: CallLogCreateOrConnectWithoutStudentInput | CallLogCreateOrConnectWithoutStudentInput[]
+    upsert?: CallLogUpsertWithWhereUniqueWithoutStudentInput | CallLogUpsertWithWhereUniqueWithoutStudentInput[]
+    createMany?: CallLogCreateManyStudentInputEnvelope
+    set?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    disconnect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    delete?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    connect?: CallLogWhereUniqueInput | CallLogWhereUniqueInput[]
+    update?: CallLogUpdateWithWhereUniqueWithoutStudentInput | CallLogUpdateWithWhereUniqueWithoutStudentInput[]
+    updateMany?: CallLogUpdateManyWithWhereWithoutStudentInput | CallLogUpdateManyWithWhereWithoutStudentInput[]
+    deleteMany?: CallLogScalarWhereInput | CallLogScalarWhereInput[]
   }
 
   export type CountryCreateNestedOneWithoutStudentDocumentsInput = {
@@ -47698,6 +49503,54 @@ export namespace Prisma {
     update?: XOR<XOR<UserRoleUpdateToOneWithWhereWithoutPermissionsInput, UserRoleUpdateWithoutPermissionsInput>, UserRoleUncheckedUpdateWithoutPermissionsInput>
   }
 
+  export type UserCreateNestedOneWithoutCallLogsInput = {
+    create?: XOR<UserCreateWithoutCallLogsInput, UserUncheckedCreateWithoutCallLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCallLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type LeadCreateNestedOneWithoutCallLogsInput = {
+    create?: XOR<LeadCreateWithoutCallLogsInput, LeadUncheckedCreateWithoutCallLogsInput>
+    connectOrCreate?: LeadCreateOrConnectWithoutCallLogsInput
+    connect?: LeadWhereUniqueInput
+  }
+
+  export type StudentCreateNestedOneWithoutCallLogsInput = {
+    create?: XOR<StudentCreateWithoutCallLogsInput, StudentUncheckedCreateWithoutCallLogsInput>
+    connectOrCreate?: StudentCreateOrConnectWithoutCallLogsInput
+    connect?: StudentWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutCallLogsNestedInput = {
+    create?: XOR<UserCreateWithoutCallLogsInput, UserUncheckedCreateWithoutCallLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutCallLogsInput
+    upsert?: UserUpsertWithoutCallLogsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCallLogsInput, UserUpdateWithoutCallLogsInput>, UserUncheckedUpdateWithoutCallLogsInput>
+  }
+
+  export type LeadUpdateOneWithoutCallLogsNestedInput = {
+    create?: XOR<LeadCreateWithoutCallLogsInput, LeadUncheckedCreateWithoutCallLogsInput>
+    connectOrCreate?: LeadCreateOrConnectWithoutCallLogsInput
+    upsert?: LeadUpsertWithoutCallLogsInput
+    disconnect?: LeadWhereInput | boolean
+    delete?: LeadWhereInput | boolean
+    connect?: LeadWhereUniqueInput
+    update?: XOR<XOR<LeadUpdateToOneWithWhereWithoutCallLogsInput, LeadUpdateWithoutCallLogsInput>, LeadUncheckedUpdateWithoutCallLogsInput>
+  }
+
+  export type StudentUpdateOneWithoutCallLogsNestedInput = {
+    create?: XOR<StudentCreateWithoutCallLogsInput, StudentUncheckedCreateWithoutCallLogsInput>
+    connectOrCreate?: StudentCreateOrConnectWithoutCallLogsInput
+    upsert?: StudentUpsertWithoutCallLogsInput
+    disconnect?: StudentWhereInput | boolean
+    delete?: StudentWhereInput | boolean
+    connect?: StudentWhereUniqueInput
+    update?: XOR<XOR<StudentUpdateToOneWithWhereWithoutCallLogsInput, StudentUpdateWithoutCallLogsInput>, StudentUncheckedUpdateWithoutCallLogsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -48506,6 +50359,7 @@ export namespace Prisma {
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutUserInput = {
@@ -48550,6 +50404,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutUserInput = {
@@ -48742,6 +50597,7 @@ export namespace Prisma {
     counselor?: UserCreateNestedOneWithoutCounselorStudentsInput
     studentUser?: UserCreateNestedOneWithoutStudentProfileInput
     documents?: StudentDocumentCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutUserInput = {
@@ -48763,6 +50619,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput
     visaApplications?: VisaApplicationUncheckedCreateNestedManyWithoutStudentInput
     documents?: StudentDocumentUncheckedCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutUserInput = {
@@ -48794,6 +50651,7 @@ export namespace Prisma {
     agent?: UserCreateNestedOneWithoutAgentStudentsInput
     counselor?: UserCreateNestedOneWithoutCounselorStudentsInput
     documents?: StudentDocumentCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutStudentUserInput = {
@@ -48815,6 +50673,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput
     visaApplications?: VisaApplicationUncheckedCreateNestedManyWithoutStudentInput
     documents?: StudentDocumentUncheckedCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutStudentUserInput = {
@@ -49045,6 +50904,7 @@ export namespace Prisma {
     counselor?: UserCreateNestedOneWithoutCounselorStudentsInput
     studentUser?: UserCreateNestedOneWithoutStudentProfileInput
     documents?: StudentDocumentCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutAgentInput = {
@@ -49066,6 +50926,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput
     visaApplications?: VisaApplicationUncheckedCreateNestedManyWithoutStudentInput
     documents?: StudentDocumentUncheckedCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutAgentInput = {
@@ -49097,6 +50958,7 @@ export namespace Prisma {
     agent?: UserCreateNestedOneWithoutAgentStudentsInput
     studentUser?: UserCreateNestedOneWithoutStudentProfileInput
     documents?: StudentDocumentCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutCounselorInput = {
@@ -49118,6 +50980,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput
     visaApplications?: VisaApplicationUncheckedCreateNestedManyWithoutStudentInput
     documents?: StudentDocumentUncheckedCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutCounselorInput = {
@@ -49355,6 +51218,50 @@ export namespace Prisma {
 
   export type VisaApplicationCreateManyCounselorInputEnvelope = {
     data: VisaApplicationCreateManyCounselorInput | VisaApplicationCreateManyCounselorInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CallLogCreateWithoutEmployeeInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    leadActivityId?: string | null
+    lead?: LeadCreateNestedOneWithoutCallLogsInput
+    student?: StudentCreateNestedOneWithoutCallLogsInput
+  }
+
+  export type CallLogUncheckedCreateWithoutEmployeeInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    leadId?: string | null
+    studentId?: string | null
+    leadActivityId?: string | null
+  }
+
+  export type CallLogCreateOrConnectWithoutEmployeeInput = {
+    where: CallLogWhereUniqueInput
+    create: XOR<CallLogCreateWithoutEmployeeInput, CallLogUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type CallLogCreateManyEmployeeInputEnvelope = {
+    data: CallLogCreateManyEmployeeInput | CallLogCreateManyEmployeeInput[]
     skipDuplicates?: boolean
   }
 
@@ -49716,6 +51623,7 @@ export namespace Prisma {
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutUserInput = {
@@ -49760,6 +51668,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadActivityUpsertWithWhereUniqueWithoutUserInput = {
@@ -49991,6 +51900,7 @@ export namespace Prisma {
     agent?: UserUpdateOneWithoutAgentStudentsNestedInput
     counselor?: UserUpdateOneWithoutCounselorStudentsNestedInput
     documents?: StudentDocumentUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutStudentUserInput = {
@@ -50012,6 +51922,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput
     visaApplications?: VisaApplicationUncheckedUpdateManyWithoutStudentNestedInput
     documents?: StudentDocumentUncheckedUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentDocumentUpsertWithWhereUniqueWithoutUploaderInput = {
@@ -50233,6 +52144,43 @@ export namespace Prisma {
     data: XOR<VisaApplicationUpdateManyMutationInput, VisaApplicationUncheckedUpdateManyWithoutCounselorInput>
   }
 
+  export type CallLogUpsertWithWhereUniqueWithoutEmployeeInput = {
+    where: CallLogWhereUniqueInput
+    update: XOR<CallLogUpdateWithoutEmployeeInput, CallLogUncheckedUpdateWithoutEmployeeInput>
+    create: XOR<CallLogCreateWithoutEmployeeInput, CallLogUncheckedCreateWithoutEmployeeInput>
+  }
+
+  export type CallLogUpdateWithWhereUniqueWithoutEmployeeInput = {
+    where: CallLogWhereUniqueInput
+    data: XOR<CallLogUpdateWithoutEmployeeInput, CallLogUncheckedUpdateWithoutEmployeeInput>
+  }
+
+  export type CallLogUpdateManyWithWhereWithoutEmployeeInput = {
+    where: CallLogScalarWhereInput
+    data: XOR<CallLogUpdateManyMutationInput, CallLogUncheckedUpdateManyWithoutEmployeeInput>
+  }
+
+  export type CallLogScalarWhereInput = {
+    AND?: CallLogScalarWhereInput | CallLogScalarWhereInput[]
+    OR?: CallLogScalarWhereInput[]
+    NOT?: CallLogScalarWhereInput | CallLogScalarWhereInput[]
+    id?: StringFilter<"CallLog"> | string
+    exotelCallSid?: StringFilter<"CallLog"> | string
+    callerId?: StringFilter<"CallLog"> | string
+    toNumber?: StringFilter<"CallLog"> | string
+    direction?: StringFilter<"CallLog"> | string
+    status?: StringFilter<"CallLog"> | string
+    duration?: IntNullableFilter<"CallLog"> | number | null
+    recordingUrl?: StringNullableFilter<"CallLog"> | string | null
+    startedAt?: DateTimeNullableFilter<"CallLog"> | Date | string | null
+    endedAt?: DateTimeNullableFilter<"CallLog"> | Date | string | null
+    createdAt?: DateTimeFilter<"CallLog"> | Date | string
+    employeeId?: StringNullableFilter<"CallLog"> | string | null
+    leadId?: StringNullableFilter<"CallLog"> | string | null
+    studentId?: StringNullableFilter<"CallLog"> | string | null
+    leadActivityId?: StringNullableFilter<"CallLog"> | string | null
+  }
+
   export type UserCreateWithoutNotificationsInput = {
     id?: string
     name: string
@@ -50274,6 +52222,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -50317,6 +52266,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -50376,6 +52326,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -50419,6 +52370,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserCreateWithoutAgentProfileInput = {
@@ -50462,6 +52414,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutAgentProfileInput = {
@@ -50505,6 +52458,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutAgentProfileInput = {
@@ -50594,6 +52548,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAgentProfileInput = {
@@ -50637,6 +52592,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type CounselorProfileUpsertWithWhereUniqueWithoutAgentInput = {
@@ -50733,6 +52689,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutCounselorProfileInput = {
@@ -50776,6 +52733,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutCounselorProfileInput = {
@@ -50864,6 +52822,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCounselorProfileInput = {
@@ -50907,6 +52866,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserCreateWithoutManagedEmployeesInput = {
@@ -50950,6 +52910,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutManagedEmployeesInput = {
@@ -50993,6 +52954,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutManagedEmployeesInput = {
@@ -51041,6 +53003,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutEmployeeProfileInput = {
@@ -51084,6 +53047,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutEmployeeProfileInput = {
@@ -51143,6 +53107,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutManagedEmployeesInput = {
@@ -51186,6 +53151,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutEmployeeProfileInput = {
@@ -51240,6 +53206,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEmployeeProfileInput = {
@@ -51283,6 +53250,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type AcademicDetailCreateWithoutLeadInput = {
@@ -51428,6 +53396,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutLeadInput = {
@@ -51471,6 +53440,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutLeadInput = {
@@ -51611,6 +53581,7 @@ export namespace Prisma {
     counselor?: UserCreateNestedOneWithoutCounselorStudentsInput
     studentUser?: UserCreateNestedOneWithoutStudentProfileInput
     documents?: StudentDocumentCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutLeadInput = {
@@ -51632,6 +53603,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput
     visaApplications?: VisaApplicationUncheckedCreateNestedManyWithoutStudentInput
     documents?: StudentDocumentUncheckedCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutLeadInput = {
@@ -51668,6 +53640,50 @@ export namespace Prisma {
 
   export type WorkExperienceCreateManyLeadInputEnvelope = {
     data: WorkExperienceCreateManyLeadInput | WorkExperienceCreateManyLeadInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CallLogCreateWithoutLeadInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    leadActivityId?: string | null
+    employee?: UserCreateNestedOneWithoutCallLogsInput
+    student?: StudentCreateNestedOneWithoutCallLogsInput
+  }
+
+  export type CallLogUncheckedCreateWithoutLeadInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    employeeId?: string | null
+    studentId?: string | null
+    leadActivityId?: string | null
+  }
+
+  export type CallLogCreateOrConnectWithoutLeadInput = {
+    where: CallLogWhereUniqueInput
+    create: XOR<CallLogCreateWithoutLeadInput, CallLogUncheckedCreateWithoutLeadInput>
+  }
+
+  export type CallLogCreateManyLeadInputEnvelope = {
+    data: CallLogCreateManyLeadInput | CallLogCreateManyLeadInput[]
     skipDuplicates?: boolean
   }
 
@@ -51787,6 +53803,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutLeadInput = {
@@ -51830,6 +53847,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type LeadActivityUpsertWithWhereUniqueWithoutLeadInput = {
@@ -51926,6 +53944,7 @@ export namespace Prisma {
     counselor?: UserUpdateOneWithoutCounselorStudentsNestedInput
     studentUser?: UserUpdateOneWithoutStudentProfileNestedInput
     documents?: StudentDocumentUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutLeadInput = {
@@ -51947,6 +53966,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput
     visaApplications?: VisaApplicationUncheckedUpdateManyWithoutStudentNestedInput
     documents?: StudentDocumentUncheckedUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type WorkExperienceUpsertWithWhereUniqueWithoutLeadInput = {
@@ -51978,6 +53998,22 @@ export namespace Prisma {
     totalExperience?: StringNullableFilter<"WorkExperience"> | string | null
     createdAt?: DateTimeFilter<"WorkExperience"> | Date | string
     updatedAt?: DateTimeFilter<"WorkExperience"> | Date | string
+  }
+
+  export type CallLogUpsertWithWhereUniqueWithoutLeadInput = {
+    where: CallLogWhereUniqueInput
+    update: XOR<CallLogUpdateWithoutLeadInput, CallLogUncheckedUpdateWithoutLeadInput>
+    create: XOR<CallLogCreateWithoutLeadInput, CallLogUncheckedCreateWithoutLeadInput>
+  }
+
+  export type CallLogUpdateWithWhereUniqueWithoutLeadInput = {
+    where: CallLogWhereUniqueInput
+    data: XOR<CallLogUpdateWithoutLeadInput, CallLogUncheckedUpdateWithoutLeadInput>
+  }
+
+  export type CallLogUpdateManyWithWhereWithoutLeadInput = {
+    where: CallLogScalarWhereInput
+    data: XOR<CallLogUpdateManyMutationInput, CallLogUncheckedUpdateManyWithoutLeadInput>
   }
 
   export type LeadCreateWithoutFollowUpsInput = {
@@ -52022,6 +54058,7 @@ export namespace Prisma {
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutFollowUpsInput = {
@@ -52066,6 +54103,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutFollowUpsInput = {
@@ -52114,6 +54152,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutFollowUpsInput = {
@@ -52157,6 +54196,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutFollowUpsInput = {
@@ -52217,6 +54257,7 @@ export namespace Prisma {
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutFollowUpsInput = {
@@ -52261,6 +54302,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type UserUpsertWithoutFollowUpsInput = {
@@ -52315,6 +54357,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutFollowUpsInput = {
@@ -52358,6 +54401,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type LeadCreateWithoutAppointmentsInput = {
@@ -52402,6 +54446,7 @@ export namespace Prisma {
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutAppointmentsInput = {
@@ -52446,6 +54491,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutAppointmentsInput = {
@@ -52494,6 +54540,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutAppointmentsInput = {
@@ -52537,6 +54584,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutAppointmentsInput = {
@@ -52597,6 +54645,7 @@ export namespace Prisma {
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutAppointmentsInput = {
@@ -52641,6 +54690,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type UserUpsertWithoutAppointmentsInput = {
@@ -52695,6 +54745,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAppointmentsInput = {
@@ -52738,6 +54789,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserCreateWithoutAssignedByLeadsInput = {
@@ -52781,6 +54833,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutAssignedByLeadsInput = {
@@ -52824,6 +54877,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutAssignedByLeadsInput = {
@@ -52872,6 +54926,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutAssignedLeadsInput = {
@@ -52915,6 +54970,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutAssignedLeadsInput = {
@@ -52964,6 +55020,7 @@ export namespace Prisma {
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutAssignmentsInput = {
@@ -53008,6 +55065,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutAssignmentsInput = {
@@ -53067,6 +55125,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedByLeadsInput = {
@@ -53110,6 +55169,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutAssignedLeadsInput = {
@@ -53164,6 +55224,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedLeadsInput = {
@@ -53207,6 +55268,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type LeadUpsertWithoutAssignmentsInput = {
@@ -53262,6 +55324,7 @@ export namespace Prisma {
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutAssignmentsInput = {
@@ -53306,6 +55369,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadCreateWithoutActivitiesInput = {
@@ -53350,6 +55414,7 @@ export namespace Prisma {
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutActivitiesInput = {
@@ -53394,6 +55459,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutActivitiesInput = {
@@ -53442,6 +55508,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutActivitiesInput = {
@@ -53485,6 +55552,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutActivitiesInput = {
@@ -53545,6 +55613,7 @@ export namespace Prisma {
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutActivitiesInput = {
@@ -53589,6 +55658,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type UserUpsertWithoutActivitiesInput = {
@@ -53643,6 +55713,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutActivitiesInput = {
@@ -53686,6 +55757,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserCreateWithoutTasksInput = {
@@ -53729,6 +55801,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutTasksInput = {
@@ -53772,6 +55845,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutTasksInput = {
@@ -53821,6 +55895,7 @@ export namespace Prisma {
     documents?: LeadDocumentCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutTasksInput = {
@@ -53865,6 +55940,7 @@ export namespace Prisma {
     documents?: LeadDocumentUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutTasksInput = {
@@ -53952,6 +56028,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTasksInput = {
@@ -53995,6 +56072,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type LeadUpsertWithoutTasksInput = {
@@ -54050,6 +56128,7 @@ export namespace Prisma {
     documents?: LeadDocumentUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutTasksInput = {
@@ -54094,6 +56173,7 @@ export namespace Prisma {
     documents?: LeadDocumentUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type ReminderUpsertWithWhereUniqueWithoutTaskInput = {
@@ -54231,6 +56311,7 @@ export namespace Prisma {
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutDocumentsInput = {
@@ -54275,6 +56356,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutDocumentsInput = {
@@ -54323,6 +56405,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutDocumentsInput = {
@@ -54366,6 +56449,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutDocumentsInput = {
@@ -54426,6 +56510,7 @@ export namespace Prisma {
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutDocumentsInput = {
@@ -54470,6 +56555,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type UserUpsertWithoutDocumentsInput = {
@@ -54524,6 +56610,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutDocumentsInput = {
@@ -54567,6 +56654,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UniversityApplicationCreateWithoutStudentInput = {
@@ -54725,6 +56813,7 @@ export namespace Prisma {
     documents?: LeadDocumentCreateNestedManyWithoutLeadInput
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutStudentInput = {
@@ -54769,6 +56858,7 @@ export namespace Prisma {
     documents?: LeadDocumentUncheckedCreateNestedManyWithoutLeadInput
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutStudentInput = {
@@ -54817,6 +56907,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutOnboardedStudentsInput = {
@@ -54860,6 +56951,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutOnboardedStudentsInput = {
@@ -54908,6 +57000,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutAgentStudentsInput = {
@@ -54951,6 +57044,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutAgentStudentsInput = {
@@ -54999,6 +57093,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutCounselorStudentsInput = {
@@ -55042,6 +57137,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutCounselorStudentsInput = {
@@ -55090,6 +57186,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutStudentProfileInput = {
@@ -55133,6 +57230,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutStudentProfileInput = {
@@ -55169,6 +57267,50 @@ export namespace Prisma {
 
   export type StudentDocumentCreateManyStudentInputEnvelope = {
     data: StudentDocumentCreateManyStudentInput | StudentDocumentCreateManyStudentInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type CallLogCreateWithoutStudentInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    leadActivityId?: string | null
+    employee?: UserCreateNestedOneWithoutCallLogsInput
+    lead?: LeadCreateNestedOneWithoutCallLogsInput
+  }
+
+  export type CallLogUncheckedCreateWithoutStudentInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    employeeId?: string | null
+    leadId?: string | null
+    leadActivityId?: string | null
+  }
+
+  export type CallLogCreateOrConnectWithoutStudentInput = {
+    where: CallLogWhereUniqueInput
+    create: XOR<CallLogCreateWithoutStudentInput, CallLogUncheckedCreateWithoutStudentInput>
+  }
+
+  export type CallLogCreateManyStudentInputEnvelope = {
+    data: CallLogCreateManyStudentInput | CallLogCreateManyStudentInput[]
     skipDuplicates?: boolean
   }
 
@@ -55257,6 +57399,7 @@ export namespace Prisma {
     documents?: LeadDocumentUpdateManyWithoutLeadNestedInput
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutStudentInput = {
@@ -55301,6 +57444,7 @@ export namespace Prisma {
     documents?: LeadDocumentUncheckedUpdateManyWithoutLeadNestedInput
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type UserUpsertWithoutOnboardedStudentsInput = {
@@ -55355,6 +57499,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutOnboardedStudentsInput = {
@@ -55398,6 +57543,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutAgentStudentsInput = {
@@ -55452,6 +57598,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAgentStudentsInput = {
@@ -55495,6 +57642,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutCounselorStudentsInput = {
@@ -55549,6 +57697,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCounselorStudentsInput = {
@@ -55592,6 +57741,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutStudentProfileInput = {
@@ -55646,6 +57796,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutStudentProfileInput = {
@@ -55689,6 +57840,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type StudentDocumentUpsertWithWhereUniqueWithoutStudentInput = {
@@ -55705,6 +57857,22 @@ export namespace Prisma {
   export type StudentDocumentUpdateManyWithWhereWithoutStudentInput = {
     where: StudentDocumentScalarWhereInput
     data: XOR<StudentDocumentUpdateManyMutationInput, StudentDocumentUncheckedUpdateManyWithoutStudentInput>
+  }
+
+  export type CallLogUpsertWithWhereUniqueWithoutStudentInput = {
+    where: CallLogWhereUniqueInput
+    update: XOR<CallLogUpdateWithoutStudentInput, CallLogUncheckedUpdateWithoutStudentInput>
+    create: XOR<CallLogCreateWithoutStudentInput, CallLogUncheckedCreateWithoutStudentInput>
+  }
+
+  export type CallLogUpdateWithWhereUniqueWithoutStudentInput = {
+    where: CallLogWhereUniqueInput
+    data: XOR<CallLogUpdateWithoutStudentInput, CallLogUncheckedUpdateWithoutStudentInput>
+  }
+
+  export type CallLogUpdateManyWithWhereWithoutStudentInput = {
+    where: CallLogScalarWhereInput
+    data: XOR<CallLogUpdateManyMutationInput, CallLogUncheckedUpdateManyWithoutStudentInput>
   }
 
   export type CountryCreateWithoutStudentDocumentsInput = {
@@ -55759,6 +57927,7 @@ export namespace Prisma {
     agent?: UserCreateNestedOneWithoutAgentStudentsInput
     counselor?: UserCreateNestedOneWithoutCounselorStudentsInput
     studentUser?: UserCreateNestedOneWithoutStudentProfileInput
+    callLogs?: CallLogCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutDocumentsInput = {
@@ -55780,6 +57949,7 @@ export namespace Prisma {
     counselorId?: string | null
     applications?: UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput
     visaApplications?: VisaApplicationUncheckedCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutDocumentsInput = {
@@ -55828,6 +57998,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutStudentDocumentsInput = {
@@ -55871,6 +58042,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutStudentDocumentsInput = {
@@ -55947,6 +58119,7 @@ export namespace Prisma {
     agent?: UserUpdateOneWithoutAgentStudentsNestedInput
     counselor?: UserUpdateOneWithoutCounselorStudentsNestedInput
     studentUser?: UserUpdateOneWithoutStudentProfileNestedInput
+    callLogs?: CallLogUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutDocumentsInput = {
@@ -55968,6 +58141,7 @@ export namespace Prisma {
     counselorId?: NullableStringFieldUpdateOperationsInput | string | null
     applications?: UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput
     visaApplications?: VisaApplicationUncheckedUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type UserUpsertWithoutStudentDocumentsInput = {
@@ -56022,6 +58196,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutStudentDocumentsInput = {
@@ -56065,6 +58240,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserCreateWithoutAuditLogsInput = {
@@ -56108,6 +58284,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutAuditLogsInput = {
@@ -56151,6 +58328,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutAuditLogsInput = {
@@ -56210,6 +58388,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAuditLogsInput = {
@@ -56253,6 +58432,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UniversityApplicationCreateWithoutCountryInput = {
@@ -57068,6 +59248,7 @@ export namespace Prisma {
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutAcademicDetailsInput = {
@@ -57112,6 +59293,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
     workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutAcademicDetailsInput = {
@@ -57172,6 +59354,7 @@ export namespace Prisma {
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutAcademicDetailsInput = {
@@ -57216,6 +59399,7 @@ export namespace Prisma {
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
     workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadCreateWithoutWorkExperienceInput = {
@@ -57260,6 +59444,7 @@ export namespace Prisma {
     documents?: LeadDocumentCreateNestedManyWithoutLeadInput
     tasks?: LeadTaskCreateNestedManyWithoutLeadInput
     student?: StudentCreateNestedOneWithoutLeadInput
+    callLogs?: CallLogCreateNestedManyWithoutLeadInput
   }
 
   export type LeadUncheckedCreateWithoutWorkExperienceInput = {
@@ -57304,6 +59489,7 @@ export namespace Prisma {
     documents?: LeadDocumentUncheckedCreateNestedManyWithoutLeadInput
     tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
     student?: StudentUncheckedCreateNestedOneWithoutLeadInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutLeadInput
   }
 
   export type LeadCreateOrConnectWithoutWorkExperienceInput = {
@@ -57364,6 +59550,7 @@ export namespace Prisma {
     documents?: LeadDocumentUpdateManyWithoutLeadNestedInput
     tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
     student?: StudentUpdateOneWithoutLeadNestedInput
+    callLogs?: CallLogUpdateManyWithoutLeadNestedInput
   }
 
   export type LeadUncheckedUpdateWithoutWorkExperienceInput = {
@@ -57408,6 +59595,7 @@ export namespace Prisma {
     documents?: LeadDocumentUncheckedUpdateManyWithoutLeadNestedInput
     tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
     student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutLeadNestedInput
   }
 
   export type UniversityCreateWithoutCoursesInput = {
@@ -57867,6 +60055,7 @@ export namespace Prisma {
     counselor?: UserCreateNestedOneWithoutCounselorStudentsInput
     studentUser?: UserCreateNestedOneWithoutStudentProfileInput
     documents?: StudentDocumentCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutApplicationsInput = {
@@ -57888,6 +60077,7 @@ export namespace Prisma {
     counselorId?: string | null
     visaApplications?: VisaApplicationUncheckedCreateNestedManyWithoutStudentInput
     documents?: StudentDocumentUncheckedCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutApplicationsInput = {
@@ -58049,6 +60239,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutApplicationsInput = {
@@ -58092,6 +60283,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutApplicationsInput = {
@@ -58140,6 +60332,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutCreatedApplicationsInput = {
@@ -58183,6 +60376,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutCreatedApplicationsInput = {
@@ -58231,6 +60425,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutAssignedApplicationsInput = {
@@ -58274,6 +60469,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutAssignedApplicationsInput = {
@@ -58322,6 +60518,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutAgentApplicationsInput = {
@@ -58365,6 +60562,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutAgentApplicationsInput = {
@@ -58413,6 +60611,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationCreateNestedManyWithoutAgentInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutCounselorApplicationsInput = {
@@ -58456,6 +60655,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutAgentInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutCounselorApplicationsInput = {
@@ -58581,6 +60781,7 @@ export namespace Prisma {
     counselor?: UserUpdateOneWithoutCounselorStudentsNestedInput
     studentUser?: UserUpdateOneWithoutStudentProfileNestedInput
     documents?: StudentDocumentUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutApplicationsInput = {
@@ -58602,6 +60803,7 @@ export namespace Prisma {
     counselorId?: NullableStringFieldUpdateOperationsInput | string | null
     visaApplications?: VisaApplicationUncheckedUpdateManyWithoutStudentNestedInput
     documents?: StudentDocumentUncheckedUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type CountryUpsertWithoutApplicationsInput = {
@@ -58787,6 +60989,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApplicationsInput = {
@@ -58830,6 +61033,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutCreatedApplicationsInput = {
@@ -58884,6 +61088,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCreatedApplicationsInput = {
@@ -58927,6 +61132,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutAssignedApplicationsInput = {
@@ -58981,6 +61187,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssignedApplicationsInput = {
@@ -59024,6 +61231,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutAgentApplicationsInput = {
@@ -59078,6 +61286,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAgentApplicationsInput = {
@@ -59121,6 +61330,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutCounselorApplicationsInput = {
@@ -59175,6 +61385,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationUpdateManyWithoutAgentNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCounselorApplicationsInput = {
@@ -59218,6 +61429,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationUncheckedUpdateManyWithoutAgentNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type VisaApplicationUpsertWithWhereUniqueWithoutUniversityApplicationInput = {
@@ -59344,6 +61556,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutApplicationNotesInput = {
@@ -59387,6 +61600,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutApplicationNotesInput = {
@@ -59503,6 +61717,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApplicationNotesInput = {
@@ -59546,6 +61761,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type StudentCreateWithoutVisaApplicationsInput = {
@@ -59567,6 +61783,7 @@ export namespace Prisma {
     counselor?: UserCreateNestedOneWithoutCounselorStudentsInput
     studentUser?: UserCreateNestedOneWithoutStudentProfileInput
     documents?: StudentDocumentCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogCreateNestedManyWithoutStudentInput
   }
 
   export type StudentUncheckedCreateWithoutVisaApplicationsInput = {
@@ -59588,6 +61805,7 @@ export namespace Prisma {
     counselorId?: string | null
     applications?: UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput
     documents?: StudentDocumentUncheckedCreateNestedManyWithoutStudentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutStudentInput
   }
 
   export type StudentCreateOrConnectWithoutVisaApplicationsInput = {
@@ -59800,6 +62018,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutVisaOfficerApplicationsInput = {
@@ -59843,6 +62062,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutVisaOfficerApplicationsInput = {
@@ -59891,6 +62111,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationCreateNestedManyWithoutAgentInput
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutAgentVisaAppsInput = {
@@ -59934,6 +62155,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutAgentVisaAppsInput = {
@@ -59982,6 +62204,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationCreateNestedManyWithoutAgentInput
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutCounselorVisaAppsInput = {
@@ -60025,6 +62248,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutCounselorVisaAppsInput = {
@@ -60062,6 +62286,7 @@ export namespace Prisma {
     counselor?: UserUpdateOneWithoutCounselorStudentsNestedInput
     studentUser?: UserUpdateOneWithoutStudentProfileNestedInput
     documents?: StudentDocumentUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutVisaApplicationsInput = {
@@ -60083,6 +62308,7 @@ export namespace Prisma {
     counselorId?: NullableStringFieldUpdateOperationsInput | string | null
     applications?: UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput
     documents?: StudentDocumentUncheckedUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type UniversityApplicationUpsertWithoutVisaApplicationsInput = {
@@ -60325,6 +62551,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutVisaOfficerApplicationsInput = {
@@ -60368,6 +62595,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutAgentVisaAppsInput = {
@@ -60422,6 +62650,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationUpdateManyWithoutAgentNestedInput
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAgentVisaAppsInput = {
@@ -60465,6 +62694,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUpsertWithoutCounselorVisaAppsInput = {
@@ -60519,6 +62749,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationUpdateManyWithoutAgentNestedInput
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutCounselorVisaAppsInput = {
@@ -60562,6 +62793,7 @@ export namespace Prisma {
     agentApplications?: UniversityApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type RolePermissionCreateWithoutRoleInput = {
@@ -60633,6 +62865,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserUncheckedCreateWithoutRoleProfileInput = {
@@ -60676,6 +62909,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
     agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
     counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    callLogs?: CallLogUncheckedCreateNestedManyWithoutEmployeeInput
   }
 
   export type UserCreateOrConnectWithoutRoleProfileInput = {
@@ -60810,6 +63044,498 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutRoleProfileNestedInput
+  }
+
+  export type UserCreateWithoutCallLogsInput = {
+    id?: string
+    name: string
+    email: string
+    passwordHash?: string | null
+    role: $Enums.Role
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otp?: string | null
+    otpExpiresAt?: Date | string | null
+    emailVerified?: Date | string | null
+    imageUrl?: string | null
+    roleProfile?: UserRoleCreateNestedOneWithoutUsersInput
+    agentProfile?: AgentProfileCreateNestedOneWithoutUserInput
+    applications?: UniversityApplicationCreateNestedManyWithoutAssociateInput
+    visaOfficerApplications?: VisaApplicationCreateNestedManyWithoutAssignedOfficerInput
+    appointments?: AppointmentCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogCreateNestedManyWithoutUserInput
+    counselorProfile?: CounselorProfileCreateNestedOneWithoutUserInput
+    employeeProfile?: EmployeeProfileCreateNestedOneWithoutUserInput
+    followUps?: FollowUpCreateNestedManyWithoutUserInput
+    lead?: LeadCreateNestedOneWithoutUserInput
+    activities?: LeadActivityCreateNestedManyWithoutUserInput
+    assignedByLeads?: LeadAssignmentCreateNestedManyWithoutAdminInput
+    assignedLeads?: LeadAssignmentCreateNestedManyWithoutEmployeeInput
+    documents?: LeadDocumentCreateNestedManyWithoutUserInput
+    tasks?: LeadTaskCreateNestedManyWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    onboardedStudents?: StudentCreateNestedManyWithoutUserInput
+    studentProfile?: StudentCreateNestedOneWithoutStudentUserInput
+    studentDocuments?: StudentDocumentCreateNestedManyWithoutUploaderInput
+    assignedApplications?: UniversityApplicationCreateNestedManyWithoutAssignedToInput
+    createdApplications?: UniversityApplicationCreateNestedManyWithoutAssignedByInput
+    applicationNotes?: ApplicationNoteCreateNestedManyWithoutUserInput
+    managedEmployees?: EmployeeProfileCreateNestedManyWithoutManagerInput
+    agentStudents?: StudentCreateNestedManyWithoutAgentInput
+    counselorStudents?: StudentCreateNestedManyWithoutCounselorInput
+    agentApplications?: UniversityApplicationCreateNestedManyWithoutAgentInput
+    counselorApplications?: UniversityApplicationCreateNestedManyWithoutCounselorInput
+    agentVisaApps?: VisaApplicationCreateNestedManyWithoutAgentInput
+    counselorVisaApps?: VisaApplicationCreateNestedManyWithoutCounselorInput
+  }
+
+  export type UserUncheckedCreateWithoutCallLogsInput = {
+    id?: string
+    name: string
+    email: string
+    passwordHash?: string | null
+    role: $Enums.Role
+    isActive?: boolean
+    roleId?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    otp?: string | null
+    otpExpiresAt?: Date | string | null
+    emailVerified?: Date | string | null
+    imageUrl?: string | null
+    agentProfile?: AgentProfileUncheckedCreateNestedOneWithoutUserInput
+    applications?: UniversityApplicationUncheckedCreateNestedManyWithoutAssociateInput
+    visaOfficerApplications?: VisaApplicationUncheckedCreateNestedManyWithoutAssignedOfficerInput
+    appointments?: AppointmentUncheckedCreateNestedManyWithoutUserInput
+    auditLogs?: AuditLogUncheckedCreateNestedManyWithoutUserInput
+    counselorProfile?: CounselorProfileUncheckedCreateNestedOneWithoutUserInput
+    employeeProfile?: EmployeeProfileUncheckedCreateNestedOneWithoutUserInput
+    followUps?: FollowUpUncheckedCreateNestedManyWithoutUserInput
+    lead?: LeadUncheckedCreateNestedOneWithoutUserInput
+    activities?: LeadActivityUncheckedCreateNestedManyWithoutUserInput
+    assignedByLeads?: LeadAssignmentUncheckedCreateNestedManyWithoutAdminInput
+    assignedLeads?: LeadAssignmentUncheckedCreateNestedManyWithoutEmployeeInput
+    documents?: LeadDocumentUncheckedCreateNestedManyWithoutUserInput
+    tasks?: LeadTaskUncheckedCreateNestedManyWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    onboardedStudents?: StudentUncheckedCreateNestedManyWithoutUserInput
+    studentProfile?: StudentUncheckedCreateNestedOneWithoutStudentUserInput
+    studentDocuments?: StudentDocumentUncheckedCreateNestedManyWithoutUploaderInput
+    assignedApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutAssignedToInput
+    createdApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutAssignedByInput
+    applicationNotes?: ApplicationNoteUncheckedCreateNestedManyWithoutUserInput
+    managedEmployees?: EmployeeProfileUncheckedCreateNestedManyWithoutManagerInput
+    agentStudents?: StudentUncheckedCreateNestedManyWithoutAgentInput
+    counselorStudents?: StudentUncheckedCreateNestedManyWithoutCounselorInput
+    agentApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutAgentInput
+    counselorApplications?: UniversityApplicationUncheckedCreateNestedManyWithoutCounselorInput
+    agentVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutAgentInput
+    counselorVisaApps?: VisaApplicationUncheckedCreateNestedManyWithoutCounselorInput
+  }
+
+  export type UserCreateOrConnectWithoutCallLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutCallLogsInput, UserUncheckedCreateWithoutCallLogsInput>
+  }
+
+  export type LeadCreateWithoutCallLogsInput = {
+    id?: string
+    name: string
+    firstName?: string | null
+    lastName?: string | null
+    email?: string | null
+    phone: string
+    alternateNo?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
+    address?: string | null
+    highestQualification?: string | null
+    interestedCourse?: string | null
+    testName?: string | null
+    testScore?: string | null
+    interestedCountry?: string | null
+    intake?: string | null
+    applyLevel?: string | null
+    message?: string | null
+    source: string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.LeadStatus
+    temperature?: $Enums.LeadTemperature
+    remark?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    passportNo?: string | null
+    passportIssueDate?: Date | string | null
+    passportExpiryDate?: Date | string | null
+    proficiencyExams?: NullableJsonNullValueInput | InputJsonValue
+    academicDetails?: AcademicDetailCreateNestedManyWithoutLeadInput
+    appointments?: AppointmentCreateNestedManyWithoutLeadInput
+    followUps?: FollowUpCreateNestedManyWithoutLeadInput
+    user?: UserCreateNestedOneWithoutLeadInput
+    activities?: LeadActivityCreateNestedManyWithoutLeadInput
+    assignments?: LeadAssignmentCreateNestedManyWithoutLeadInput
+    documents?: LeadDocumentCreateNestedManyWithoutLeadInput
+    tasks?: LeadTaskCreateNestedManyWithoutLeadInput
+    student?: StudentCreateNestedOneWithoutLeadInput
+    workExperience?: WorkExperienceCreateNestedManyWithoutLeadInput
+  }
+
+  export type LeadUncheckedCreateWithoutCallLogsInput = {
+    id?: string
+    name: string
+    firstName?: string | null
+    lastName?: string | null
+    email?: string | null
+    phone: string
+    alternateNo?: string | null
+    dateOfBirth?: Date | string | null
+    gender?: string | null
+    nationality?: string | null
+    maritalStatus?: string | null
+    address?: string | null
+    highestQualification?: string | null
+    interestedCourse?: string | null
+    testName?: string | null
+    testScore?: string | null
+    interestedCountry?: string | null
+    intake?: string | null
+    applyLevel?: string | null
+    message?: string | null
+    source: string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    status?: $Enums.LeadStatus
+    temperature?: $Enums.LeadTemperature
+    remark?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    imageUrl?: string | null
+    userId?: string | null
+    passportNo?: string | null
+    passportIssueDate?: Date | string | null
+    passportExpiryDate?: Date | string | null
+    proficiencyExams?: NullableJsonNullValueInput | InputJsonValue
+    academicDetails?: AcademicDetailUncheckedCreateNestedManyWithoutLeadInput
+    appointments?: AppointmentUncheckedCreateNestedManyWithoutLeadInput
+    followUps?: FollowUpUncheckedCreateNestedManyWithoutLeadInput
+    activities?: LeadActivityUncheckedCreateNestedManyWithoutLeadInput
+    assignments?: LeadAssignmentUncheckedCreateNestedManyWithoutLeadInput
+    documents?: LeadDocumentUncheckedCreateNestedManyWithoutLeadInput
+    tasks?: LeadTaskUncheckedCreateNestedManyWithoutLeadInput
+    student?: StudentUncheckedCreateNestedOneWithoutLeadInput
+    workExperience?: WorkExperienceUncheckedCreateNestedManyWithoutLeadInput
+  }
+
+  export type LeadCreateOrConnectWithoutCallLogsInput = {
+    where: LeadWhereUniqueInput
+    create: XOR<LeadCreateWithoutCallLogsInput, LeadUncheckedCreateWithoutCallLogsInput>
+  }
+
+  export type StudentCreateWithoutCallLogsInput = {
+    id?: string
+    name: string
+    email?: string | null
+    phone: string
+    status?: $Enums.StudentStatus
+    createdAt?: Date | string
+    imageUrl?: string | null
+    savedAddresses?: NullableJsonNullValueInput | InputJsonValue
+    passportExpiryDate?: Date | string | null
+    passportIssueDate?: Date | string | null
+    passportNo?: string | null
+    applications?: UniversityApplicationCreateNestedManyWithoutStudentInput
+    visaApplications?: VisaApplicationCreateNestedManyWithoutStudentInput
+    lead?: LeadCreateNestedOneWithoutStudentInput
+    user: UserCreateNestedOneWithoutOnboardedStudentsInput
+    agent?: UserCreateNestedOneWithoutAgentStudentsInput
+    counselor?: UserCreateNestedOneWithoutCounselorStudentsInput
+    studentUser?: UserCreateNestedOneWithoutStudentProfileInput
+    documents?: StudentDocumentCreateNestedManyWithoutStudentInput
+  }
+
+  export type StudentUncheckedCreateWithoutCallLogsInput = {
+    id?: string
+    leadId?: string | null
+    name: string
+    email?: string | null
+    phone: string
+    onboardedBy: string
+    status?: $Enums.StudentStatus
+    createdAt?: Date | string
+    imageUrl?: string | null
+    savedAddresses?: NullableJsonNullValueInput | InputJsonValue
+    studentUserId?: string | null
+    passportExpiryDate?: Date | string | null
+    passportIssueDate?: Date | string | null
+    passportNo?: string | null
+    agentId?: string | null
+    counselorId?: string | null
+    applications?: UniversityApplicationUncheckedCreateNestedManyWithoutStudentInput
+    visaApplications?: VisaApplicationUncheckedCreateNestedManyWithoutStudentInput
+    documents?: StudentDocumentUncheckedCreateNestedManyWithoutStudentInput
+  }
+
+  export type StudentCreateOrConnectWithoutCallLogsInput = {
+    where: StudentWhereUniqueInput
+    create: XOR<StudentCreateWithoutCallLogsInput, StudentUncheckedCreateWithoutCallLogsInput>
+  }
+
+  export type UserUpsertWithoutCallLogsInput = {
+    update: XOR<UserUpdateWithoutCallLogsInput, UserUncheckedUpdateWithoutCallLogsInput>
+    create: XOR<UserCreateWithoutCallLogsInput, UserUncheckedCreateWithoutCallLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutCallLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutCallLogsInput, UserUncheckedUpdateWithoutCallLogsInput>
+  }
+
+  export type UserUpdateWithoutCallLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otp?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    roleProfile?: UserRoleUpdateOneWithoutUsersNestedInput
+    agentProfile?: AgentProfileUpdateOneWithoutUserNestedInput
+    applications?: UniversityApplicationUpdateManyWithoutAssociateNestedInput
+    visaOfficerApplications?: VisaApplicationUpdateManyWithoutAssignedOfficerNestedInput
+    appointments?: AppointmentUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUpdateManyWithoutUserNestedInput
+    counselorProfile?: CounselorProfileUpdateOneWithoutUserNestedInput
+    employeeProfile?: EmployeeProfileUpdateOneWithoutUserNestedInput
+    followUps?: FollowUpUpdateManyWithoutUserNestedInput
+    lead?: LeadUpdateOneWithoutUserNestedInput
+    activities?: LeadActivityUpdateManyWithoutUserNestedInput
+    assignedByLeads?: LeadAssignmentUpdateManyWithoutAdminNestedInput
+    assignedLeads?: LeadAssignmentUpdateManyWithoutEmployeeNestedInput
+    documents?: LeadDocumentUpdateManyWithoutUserNestedInput
+    tasks?: LeadTaskUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    onboardedStudents?: StudentUpdateManyWithoutUserNestedInput
+    studentProfile?: StudentUpdateOneWithoutStudentUserNestedInput
+    studentDocuments?: StudentDocumentUpdateManyWithoutUploaderNestedInput
+    assignedApplications?: UniversityApplicationUpdateManyWithoutAssignedToNestedInput
+    createdApplications?: UniversityApplicationUpdateManyWithoutAssignedByNestedInput
+    applicationNotes?: ApplicationNoteUpdateManyWithoutUserNestedInput
+    managedEmployees?: EmployeeProfileUpdateManyWithoutManagerNestedInput
+    agentStudents?: StudentUpdateManyWithoutAgentNestedInput
+    counselorStudents?: StudentUpdateManyWithoutCounselorNestedInput
+    agentApplications?: UniversityApplicationUpdateManyWithoutAgentNestedInput
+    counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
+    agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
+    counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutCallLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    role?: EnumRoleFieldUpdateOperationsInput | $Enums.Role
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    roleId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    otp?: NullableStringFieldUpdateOperationsInput | string | null
+    otpExpiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    emailVerified?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    agentProfile?: AgentProfileUncheckedUpdateOneWithoutUserNestedInput
+    applications?: UniversityApplicationUncheckedUpdateManyWithoutAssociateNestedInput
+    visaOfficerApplications?: VisaApplicationUncheckedUpdateManyWithoutAssignedOfficerNestedInput
+    appointments?: AppointmentUncheckedUpdateManyWithoutUserNestedInput
+    auditLogs?: AuditLogUncheckedUpdateManyWithoutUserNestedInput
+    counselorProfile?: CounselorProfileUncheckedUpdateOneWithoutUserNestedInput
+    employeeProfile?: EmployeeProfileUncheckedUpdateOneWithoutUserNestedInput
+    followUps?: FollowUpUncheckedUpdateManyWithoutUserNestedInput
+    lead?: LeadUncheckedUpdateOneWithoutUserNestedInput
+    activities?: LeadActivityUncheckedUpdateManyWithoutUserNestedInput
+    assignedByLeads?: LeadAssignmentUncheckedUpdateManyWithoutAdminNestedInput
+    assignedLeads?: LeadAssignmentUncheckedUpdateManyWithoutEmployeeNestedInput
+    documents?: LeadDocumentUncheckedUpdateManyWithoutUserNestedInput
+    tasks?: LeadTaskUncheckedUpdateManyWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
+    onboardedStudents?: StudentUncheckedUpdateManyWithoutUserNestedInput
+    studentProfile?: StudentUncheckedUpdateOneWithoutStudentUserNestedInput
+    studentDocuments?: StudentDocumentUncheckedUpdateManyWithoutUploaderNestedInput
+    assignedApplications?: UniversityApplicationUncheckedUpdateManyWithoutAssignedToNestedInput
+    createdApplications?: UniversityApplicationUncheckedUpdateManyWithoutAssignedByNestedInput
+    applicationNotes?: ApplicationNoteUncheckedUpdateManyWithoutUserNestedInput
+    managedEmployees?: EmployeeProfileUncheckedUpdateManyWithoutManagerNestedInput
+    agentStudents?: StudentUncheckedUpdateManyWithoutAgentNestedInput
+    counselorStudents?: StudentUncheckedUpdateManyWithoutCounselorNestedInput
+    agentApplications?: UniversityApplicationUncheckedUpdateManyWithoutAgentNestedInput
+    counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
+    counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+  }
+
+  export type LeadUpsertWithoutCallLogsInput = {
+    update: XOR<LeadUpdateWithoutCallLogsInput, LeadUncheckedUpdateWithoutCallLogsInput>
+    create: XOR<LeadCreateWithoutCallLogsInput, LeadUncheckedCreateWithoutCallLogsInput>
+    where?: LeadWhereInput
+  }
+
+  export type LeadUpdateToOneWithWhereWithoutCallLogsInput = {
+    where?: LeadWhereInput
+    data: XOR<LeadUpdateWithoutCallLogsInput, LeadUncheckedUpdateWithoutCallLogsInput>
+  }
+
+  export type LeadUpdateWithoutCallLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: StringFieldUpdateOperationsInput | string
+    alternateNo?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    highestQualification?: NullableStringFieldUpdateOperationsInput | string | null
+    interestedCourse?: NullableStringFieldUpdateOperationsInput | string | null
+    testName?: NullableStringFieldUpdateOperationsInput | string | null
+    testScore?: NullableStringFieldUpdateOperationsInput | string | null
+    interestedCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    applyLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumLeadStatusFieldUpdateOperationsInput | $Enums.LeadStatus
+    temperature?: EnumLeadTemperatureFieldUpdateOperationsInput | $Enums.LeadTemperature
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    passportNo?: NullableStringFieldUpdateOperationsInput | string | null
+    passportIssueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passportExpiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proficiencyExams?: NullableJsonNullValueInput | InputJsonValue
+    academicDetails?: AcademicDetailUpdateManyWithoutLeadNestedInput
+    appointments?: AppointmentUpdateManyWithoutLeadNestedInput
+    followUps?: FollowUpUpdateManyWithoutLeadNestedInput
+    user?: UserUpdateOneWithoutLeadNestedInput
+    activities?: LeadActivityUpdateManyWithoutLeadNestedInput
+    assignments?: LeadAssignmentUpdateManyWithoutLeadNestedInput
+    documents?: LeadDocumentUpdateManyWithoutLeadNestedInput
+    tasks?: LeadTaskUpdateManyWithoutLeadNestedInput
+    student?: StudentUpdateOneWithoutLeadNestedInput
+    workExperience?: WorkExperienceUpdateManyWithoutLeadNestedInput
+  }
+
+  export type LeadUncheckedUpdateWithoutCallLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    firstName?: NullableStringFieldUpdateOperationsInput | string | null
+    lastName?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: StringFieldUpdateOperationsInput | string
+    alternateNo?: NullableStringFieldUpdateOperationsInput | string | null
+    dateOfBirth?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    gender?: NullableStringFieldUpdateOperationsInput | string | null
+    nationality?: NullableStringFieldUpdateOperationsInput | string | null
+    maritalStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    highestQualification?: NullableStringFieldUpdateOperationsInput | string | null
+    interestedCourse?: NullableStringFieldUpdateOperationsInput | string | null
+    testName?: NullableStringFieldUpdateOperationsInput | string | null
+    testScore?: NullableStringFieldUpdateOperationsInput | string | null
+    interestedCountry?: NullableStringFieldUpdateOperationsInput | string | null
+    intake?: NullableStringFieldUpdateOperationsInput | string | null
+    applyLevel?: NullableStringFieldUpdateOperationsInput | string | null
+    message?: NullableStringFieldUpdateOperationsInput | string | null
+    source?: StringFieldUpdateOperationsInput | string
+    data?: NullableJsonNullValueInput | InputJsonValue
+    status?: EnumLeadStatusFieldUpdateOperationsInput | $Enums.LeadStatus
+    temperature?: EnumLeadTemperatureFieldUpdateOperationsInput | $Enums.LeadTemperature
+    remark?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    passportNo?: NullableStringFieldUpdateOperationsInput | string | null
+    passportIssueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passportExpiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    proficiencyExams?: NullableJsonNullValueInput | InputJsonValue
+    academicDetails?: AcademicDetailUncheckedUpdateManyWithoutLeadNestedInput
+    appointments?: AppointmentUncheckedUpdateManyWithoutLeadNestedInput
+    followUps?: FollowUpUncheckedUpdateManyWithoutLeadNestedInput
+    activities?: LeadActivityUncheckedUpdateManyWithoutLeadNestedInput
+    assignments?: LeadAssignmentUncheckedUpdateManyWithoutLeadNestedInput
+    documents?: LeadDocumentUncheckedUpdateManyWithoutLeadNestedInput
+    tasks?: LeadTaskUncheckedUpdateManyWithoutLeadNestedInput
+    student?: StudentUncheckedUpdateOneWithoutLeadNestedInput
+    workExperience?: WorkExperienceUncheckedUpdateManyWithoutLeadNestedInput
+  }
+
+  export type StudentUpsertWithoutCallLogsInput = {
+    update: XOR<StudentUpdateWithoutCallLogsInput, StudentUncheckedUpdateWithoutCallLogsInput>
+    create: XOR<StudentCreateWithoutCallLogsInput, StudentUncheckedCreateWithoutCallLogsInput>
+    where?: StudentWhereInput
+  }
+
+  export type StudentUpdateToOneWithWhereWithoutCallLogsInput = {
+    where?: StudentWhereInput
+    data: XOR<StudentUpdateWithoutCallLogsInput, StudentUncheckedUpdateWithoutCallLogsInput>
+  }
+
+  export type StudentUpdateWithoutCallLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: StringFieldUpdateOperationsInput | string
+    status?: EnumStudentStatusFieldUpdateOperationsInput | $Enums.StudentStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    savedAddresses?: NullableJsonNullValueInput | InputJsonValue
+    passportExpiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passportIssueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passportNo?: NullableStringFieldUpdateOperationsInput | string | null
+    applications?: UniversityApplicationUpdateManyWithoutStudentNestedInput
+    visaApplications?: VisaApplicationUpdateManyWithoutStudentNestedInput
+    lead?: LeadUpdateOneWithoutStudentNestedInput
+    user?: UserUpdateOneRequiredWithoutOnboardedStudentsNestedInput
+    agent?: UserUpdateOneWithoutAgentStudentsNestedInput
+    counselor?: UserUpdateOneWithoutCounselorStudentsNestedInput
+    studentUser?: UserUpdateOneWithoutStudentProfileNestedInput
+    documents?: StudentDocumentUpdateManyWithoutStudentNestedInput
+  }
+
+  export type StudentUncheckedUpdateWithoutCallLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    name?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    phone?: StringFieldUpdateOperationsInput | string
+    onboardedBy?: StringFieldUpdateOperationsInput | string
+    status?: EnumStudentStatusFieldUpdateOperationsInput | $Enums.StudentStatus
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    imageUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    savedAddresses?: NullableJsonNullValueInput | InputJsonValue
+    studentUserId?: NullableStringFieldUpdateOperationsInput | string | null
+    passportExpiryDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passportIssueDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    passportNo?: NullableStringFieldUpdateOperationsInput | string | null
+    agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    counselorId?: NullableStringFieldUpdateOperationsInput | string | null
+    applications?: UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput
+    visaApplications?: VisaApplicationUncheckedUpdateManyWithoutStudentNestedInput
+    documents?: StudentDocumentUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type UniversityApplicationCreateManyAssociateInput = {
@@ -61160,6 +63886,23 @@ export namespace Prisma {
     status?: $Enums.VisaStatus
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type CallLogCreateManyEmployeeInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    leadId?: string | null
+    studentId?: string | null
+    leadActivityId?: string | null
   }
 
   export type UniversityApplicationUpdateWithoutAssociateInput = {
@@ -61586,6 +64329,7 @@ export namespace Prisma {
     counselor?: UserUpdateOneWithoutCounselorStudentsNestedInput
     studentUser?: UserUpdateOneWithoutStudentProfileNestedInput
     documents?: StudentDocumentUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutUserInput = {
@@ -61607,6 +64351,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput
     visaApplications?: VisaApplicationUncheckedUpdateManyWithoutStudentNestedInput
     documents?: StudentDocumentUncheckedUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateManyWithoutUserInput = {
@@ -61873,6 +64618,7 @@ export namespace Prisma {
     counselor?: UserUpdateOneWithoutCounselorStudentsNestedInput
     studentUser?: UserUpdateOneWithoutStudentProfileNestedInput
     documents?: StudentDocumentUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutAgentInput = {
@@ -61894,6 +64640,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput
     visaApplications?: VisaApplicationUncheckedUpdateManyWithoutStudentNestedInput
     documents?: StudentDocumentUncheckedUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateManyWithoutAgentInput = {
@@ -61933,6 +64680,7 @@ export namespace Prisma {
     agent?: UserUpdateOneWithoutAgentStudentsNestedInput
     studentUser?: UserUpdateOneWithoutStudentProfileNestedInput
     documents?: StudentDocumentUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateWithoutCounselorInput = {
@@ -61954,6 +64702,7 @@ export namespace Prisma {
     applications?: UniversityApplicationUncheckedUpdateManyWithoutStudentNestedInput
     visaApplications?: VisaApplicationUncheckedUpdateManyWithoutStudentNestedInput
     documents?: StudentDocumentUncheckedUpdateManyWithoutStudentNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutStudentNestedInput
   }
 
   export type StudentUncheckedUpdateManyWithoutCounselorInput = {
@@ -62252,6 +65001,57 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CallLogUpdateWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+    lead?: LeadUpdateOneWithoutCallLogsNestedInput
+    student?: StudentUpdateOneWithoutCallLogsNestedInput
+  }
+
+  export type CallLogUncheckedUpdateWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CallLogUncheckedUpdateManyWithoutEmployeeInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type CounselorProfileCreateManyAgentInput = {
     id?: string
     userId: string
@@ -62373,6 +65173,23 @@ export namespace Prisma {
     totalExperience?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+  }
+
+  export type CallLogCreateManyLeadInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    employeeId?: string | null
+    studentId?: string | null
+    leadActivityId?: string | null
   }
 
   export type AcademicDetailUpdateWithoutLeadInput = {
@@ -62626,6 +65443,57 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type CallLogUpdateWithoutLeadInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+    employee?: UserUpdateOneWithoutCallLogsNestedInput
+    student?: StudentUpdateOneWithoutCallLogsNestedInput
+  }
+
+  export type CallLogUncheckedUpdateWithoutLeadInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CallLogUncheckedUpdateManyWithoutLeadInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    studentId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
   export type ReminderCreateManyTaskInput = {
     id?: string
     remindAt: Date | string
@@ -62716,6 +65584,23 @@ export namespace Prisma {
     countryId?: string | null
     checklistId?: string | null
     createdAt?: Date | string
+  }
+
+  export type CallLogCreateManyStudentInput = {
+    id?: string
+    exotelCallSid: string
+    callerId: string
+    toNumber: string
+    direction: string
+    status: string
+    duration?: number | null
+    recordingUrl?: string | null
+    startedAt?: Date | string | null
+    endedAt?: Date | string | null
+    createdAt?: Date | string
+    employeeId?: string | null
+    leadId?: string | null
+    leadActivityId?: string | null
   }
 
   export type UniversityApplicationUpdateWithoutStudentInput = {
@@ -62888,6 +65773,57 @@ export namespace Prisma {
     countryId?: NullableStringFieldUpdateOperationsInput | string | null
     checklistId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type CallLogUpdateWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+    employee?: UserUpdateOneWithoutCallLogsNestedInput
+    lead?: LeadUpdateOneWithoutCallLogsNestedInput
+  }
+
+  export type CallLogUncheckedUpdateWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type CallLogUncheckedUpdateManyWithoutStudentInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    exotelCallSid?: StringFieldUpdateOperationsInput | string
+    callerId?: StringFieldUpdateOperationsInput | string
+    toNumber?: StringFieldUpdateOperationsInput | string
+    direction?: StringFieldUpdateOperationsInput | string
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    recordingUrl?: NullableStringFieldUpdateOperationsInput | string | null
+    startedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    endedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    employeeId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadId?: NullableStringFieldUpdateOperationsInput | string | null
+    leadActivityId?: NullableStringFieldUpdateOperationsInput | string | null
   }
 
   export type UniversityApplicationCreateManyCountryInput = {
@@ -63984,6 +66920,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRoleProfileInput = {
@@ -64027,6 +66964,7 @@ export namespace Prisma {
     counselorApplications?: UniversityApplicationUncheckedUpdateManyWithoutCounselorNestedInput
     agentVisaApps?: VisaApplicationUncheckedUpdateManyWithoutAgentNestedInput
     counselorVisaApps?: VisaApplicationUncheckedUpdateManyWithoutCounselorNestedInput
+    callLogs?: CallLogUncheckedUpdateManyWithoutEmployeeNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutRoleProfileInput = {
@@ -64209,6 +67147,10 @@ export namespace Prisma {
      * @deprecated Use RolePermissionDefaultArgs instead
      */
     export type RolePermissionArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = RolePermissionDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use CallLogDefaultArgs instead
+     */
+    export type CallLogArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = CallLogDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

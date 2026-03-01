@@ -513,6 +513,24 @@ exports.Prisma.RolePermissionScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.CallLogScalarFieldEnum = {
+  id: 'id',
+  exotelCallSid: 'exotelCallSid',
+  callerId: 'callerId',
+  toNumber: 'toNumber',
+  direction: 'direction',
+  status: 'status',
+  duration: 'duration',
+  recordingUrl: 'recordingUrl',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  createdAt: 'createdAt',
+  employeeId: 'employeeId',
+  leadId: 'leadId',
+  studentId: 'studentId',
+  leadActivityId: 'leadActivityId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -720,7 +738,8 @@ exports.Prisma.ModelName = {
   ApplicationNote: 'ApplicationNote',
   VisaApplication: 'VisaApplication',
   UserRole: 'UserRole',
-  RolePermission: 'RolePermission'
+  RolePermission: 'RolePermission',
+  CallLog: 'CallLog'
 };
 
 /**

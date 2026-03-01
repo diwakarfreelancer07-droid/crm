@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { AuditLogService } from "@/lib/auditLog";
 import { withPermission } from "@/lib/permissions";
+import { ApplicationStatus, VisaStatus } from "@prisma/client";
 
 export const dynamic = 'force-dynamic';
 
@@ -37,7 +38,9 @@ export const GET = withPermission('APPLICATIONS', 'VIEW', async (req, { permissi
         if (studentIdString) {
             const studentAppWhere: any = { studentId: studentIdString };
             if (status) {
-                studentAppWhere.status = status;
+                if (Object.values(ApplicationStatus).includes(status as any)) {
+                    studentAppWhere.status = status;
+                }
             } else {
                 studentAppWhere.status = { notIn: ["READY_FOR_VISA", "DEFERRED", "ENROLLED"] };
             }
@@ -81,8 +84,15 @@ export const GET = withPermission('APPLICATIONS', 'VIEW', async (req, { permissi
         // --- Grouped By Student View ---
 
         const appWhere: Record<string, any> = {};
+        let isAppStatus = false;
+        let isVisaStatus = false;
+
         if (status) {
-            appWhere.status = status;
+            isAppStatus = Object.values(ApplicationStatus).includes(status as any);
+            isVisaStatus = Object.values(VisaStatus).includes(status as any);
+            if (isAppStatus) {
+                appWhere.status = status;
+            }
         } else {
             // By default, hide applications that have been moved to the visa stage or completed
             appWhere.status = { notIn: ["READY_FOR_VISA", "DEFERRED", "ENROLLED"] };
@@ -126,16 +136,29 @@ export const GET = withPermission('APPLICATIONS', 'VIEW', async (req, { permissi
         }
 
         // Base where clause for STUDENTS
-        const studentWhere: Record<string, any> = {
-            applications: {
+        const studentWhere: Record<string, any> = {};
+
+        if (!status) {
+            studentWhere.applications = {
                 some: appWhere,
-                ...(!status && {
-                    none: {
-                        status: { in: ["READY_FOR_VISA", "DEFERRED", "ENROLLED"] }
-                    }
-                })
+                none: {
+                    status: { in: ["READY_FOR_VISA", "DEFERRED", "ENROLLED"] }
+                }
+            };
+        } else if (isAppStatus) {
+            studentWhere.applications = {
+                some: appWhere
+            };
+        } else if (isVisaStatus) {
+            studentWhere.visaApplications = {
+                some: { status: status as any }
+            };
+            if (Object.keys(appWhere).length > 0) {
+                studentWhere.applications = { some: appWhere };
             }
-        };
+        } else {
+            studentWhere.applications = { some: appWhere };
+        }
 
 
         if (search) {
@@ -202,7 +225,7 @@ export const GET = withPermission('APPLICATIONS', 'VIEW', async (req, { permissi
                     },
                     visaApplications: {
                         where: {
-                            ...(status && { status: status as any })
+                            ...(isVisaStatus && { status: status as any })
                         },
                         include: {
                             country: { select: { id: true, name: true } },

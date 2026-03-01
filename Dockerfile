@@ -30,14 +30,6 @@ RUN npx prisma generate
 # Build the application
 RUN npm run build
 
-# Verify standalone build was successful
-RUN if [ ! -f ".next/standalone/server.js" ]; then \
-    echo "ERROR: Standalone build failed - server.js not found!"; \
-    echo "Contents of .next directory:"; \
-    ls -la .next/ || echo ".next directory not found"; \
-    exit 1; \
-    fi
-
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
@@ -49,21 +41,16 @@ ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/next.config.ts ./next.config.ts
 COPY --from=builder /app/public ./public
 
-# Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+# Copy the built .next directory
+COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
 
-# Automatically leverage output traces to reduce image size
-# https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy Prisma schema and node_modules for Prisma Client
+# Copy node_modules and prisma for runtime
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@prisma ./node_modules/@prisma
 
 USER nextjs
 
@@ -71,5 +58,5 @@ EXPOSE 3001
 ENV PORT 3001
 # set hostname to localhost
 ENV HOSTNAME "0.0.0.0"
-# test
-CMD ["node", "start"]
+
+CMD ["npm", "start"]

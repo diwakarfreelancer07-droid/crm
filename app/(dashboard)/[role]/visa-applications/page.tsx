@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ApplicationHistoryModal } from "@/components/applications/ApplicationHistoryModal";
 import { ApplicationNotesModal } from "@/components/applications/ApplicationNotesModal";
+import { OfferLetterModal } from "@/components/applications/OfferLetterModal";
+import { ApplicationCommentsModal } from "@/components/applications/ApplicationCommentsModal";
 
 export default function VisaApplicationsPage() {
     const [search, setSearch] = useState("");
@@ -25,6 +27,8 @@ export default function VisaApplicationsPage() {
     // Modal states
     const [historyApp, setHistoryApp] = useState<any>(null);
     const [notesApp, setNotesApp] = useState<any>(null);
+    const [offerLetterApp, setOfferLetterApp] = useState<any>(null);
+    const [commentsApp, setCommentsApp] = useState<any>(null);
 
     const { data, isLoading, refetch } = useVisaApplications(undefined, page, limit, debouncedSearch, status);
     const deleteMutation = useDeleteVisaApplication();
@@ -52,7 +56,7 @@ export default function VisaApplicationsPage() {
 
     return (
         <div className="flex flex-col gap-3 p-3 sm:p-4 bg-slate-50/50 min-h-screen">
-            <Card className="border-0 rounded-3xl overflow-hidden bg-white/80 backdrop-blur-sm shadow-sm ring-1 ring-slate-200/50">
+            <Card className="border-0 rounded-3xl overflow-hidden bg-card">
                 <CardContent className="p-4">
                     {/* Integrated Header Row */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
@@ -62,7 +66,7 @@ export default function VisaApplicationsPage() {
                                 placeholder="Search student or country..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="pl-9 bg-slate-50 border-0 focus-visible:ring-1 focus-visible:ring-primary/20 h-10 text-[13px] placeholder:text-muted-foreground/40 font-sans w-full rounded-xl transition-all"
+                                className="pl-9 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-[13px] placeholder:text-muted-foreground/40 font-sans w-full"
                             />
                         </div>
 
@@ -118,6 +122,8 @@ export default function VisaApplicationsPage() {
                             selectedIds={selectedIds}
                             onSelectionChange={setSelectedIds}
                             onOpenHistory={(app) => setHistoryApp(app)}
+                            onOpenComments={(app) => setCommentsApp(app)}
+                            onOpenOfferLetters={(app) => setOfferLetterApp(app)}
                             onOpenNotes={(app) => setNotesApp(app)}
                             pagination={{
                                 page: pagination.page,
@@ -143,6 +149,20 @@ export default function VisaApplicationsPage() {
                 isOpen={!!notesApp}
                 onClose={() => setNotesApp(null)}
                 applicationId={notesApp?.id}
+                onUpdate={refetch}
+            />
+
+            <OfferLetterModal
+                isOpen={!!offerLetterApp}
+                onClose={() => setOfferLetterApp(null)}
+                application={offerLetterApp}
+                onUpdate={refetch}
+            />
+
+            <ApplicationCommentsModal
+                isOpen={!!commentsApp}
+                onClose={() => setCommentsApp(null)}
+                application={commentsApp}
                 onUpdate={refetch}
             />
         </div>

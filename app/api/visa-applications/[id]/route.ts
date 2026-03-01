@@ -69,6 +69,14 @@ export async function PATCH(
             }
         });
 
+        // Sync status to UniversityApplication if it's FINAL stages
+        if (["DEFERRED", "ENROLLED"].includes(visaApplication.status) && visaApplication.universityApplicationId) {
+            await prisma.universityApplication.update({
+                where: { id: visaApplication.universityApplicationId },
+                data: { status: visaApplication.status as any }
+            });
+        }
+
         // Log activity
         await prisma.leadActivity.create({
             data: {

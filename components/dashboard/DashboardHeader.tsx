@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Bell, ArrowLeft } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { useRouter, usePathname } from "next/navigation";
@@ -26,12 +27,18 @@ interface DashboardHeaderProps {
 
 
 export function DashboardHeader({ title, description, action }: DashboardHeaderProps) {
+    const [mounted, setMounted] = useState(false);
     const { data: session } = useSession() as any;
     const { rolePrefix, prefixPath } = useRolePath();
     const pathname = usePathname();
     const router = useRouter();
 
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const getGreeting = () => {
+        if (!mounted) return "Welcome";
         const hour = new Date().getHours();
         if (hour < 12) return "Good Morning";
         if (hour < 18) return "Good Afternoon";
@@ -69,7 +76,7 @@ export function DashboardHeader({ title, description, action }: DashboardHeaderP
         <header className="flex items-center justify-between px-2 py-4 mb-4 border-b border-border sticky top-0 z-50 bg-background dark:bg-sidebar">
             {/* Greeting */}
             <div className="flex items-center gap-4 min-w-[180px]">
-                {isSubPage && (
+                {mounted && isSubPage && (
                     <button
                         onClick={() => router.back()}
                         className="p-2 hover:bg-muted rounded-xl transition-colors shrink-0"
@@ -78,7 +85,7 @@ export function DashboardHeader({ title, description, action }: DashboardHeaderP
                     </button>
                 )}
                 <div>
-                    <h2 suppressHydrationWarning className="font-bold text-[18px] leading-none tracking-normal font-sans text-foreground">
+                    <h2 className="font-bold text-[18px] leading-none tracking-normal font-sans text-foreground">
                         {getTitle()}
                     </h2>
                     {getDescription() && (
@@ -106,9 +113,9 @@ export function DashboardHeader({ title, description, action }: DashboardHeaderP
                 {/* User Avatar Dropdown */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <button suppressHydrationWarning className="w-10 h-10 rounded-full overflow-hidden hover:ring-2 hover:ring-ring transition-all outline-none">
+                        <button className="w-10 h-10 rounded-full overflow-hidden hover:ring-2 hover:ring-ring transition-all outline-none">
                             <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary">
-                                {session?.user?.imageUrl ? (
+                                {mounted && session?.user?.imageUrl ? (
                                     <img
                                         src={session.user.imageUrl}
                                         alt={session.user.name || "User"}
@@ -116,7 +123,7 @@ export function DashboardHeader({ title, description, action }: DashboardHeaderP
                                     />
                                 ) : (
                                     <span className="font-semibold text-sm">
-                                        {session?.user?.name?.charAt(0) || "U"}
+                                        {mounted ? (session?.user?.name?.charAt(0) || "U") : ""}
                                     </span>
                                 )}
                             </div>

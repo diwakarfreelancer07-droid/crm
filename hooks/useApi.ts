@@ -92,19 +92,11 @@ export const useDeleteEmployee = () => {
 };
 
 // Applications
-export const useApplications = (page = 1, limit = 10, search = '', status: string | null = null) => {
+export const useApplications = (page = 1, limit = 10, search = '', status: string | null = null, studentId?: string) => {
     return useQuery({
-        queryKey: ['applications', page, limit, search, status],
+        queryKey: ['applications', page, limit, search, status, studentId],
         queryFn: async () => {
-            const params = new URLSearchParams({
-                page: page.toString(),
-                limit: limit.toString(),
-                search: search,
-                ...(status && { status })
-            });
-            const response = await fetch(`/api/applications?${params.toString()}`);
-            if (!response.ok) throw new Error('Failed to fetch applications');
-            return response.json();
+            return await getApplications(page, limit, search, studentId, status);
         },
     });
 };

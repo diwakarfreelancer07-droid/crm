@@ -49,8 +49,6 @@ import StudentDocumentsSection from "@/components/student/StudentDocumentsSectio
 import VisaApplicationsSection from "@/components/student/VisaApplicationsSection";
 import { AddVisaApplicationModal } from "@/components/student/AddVisaApplicationModal";
 import { UniversityApplicationsSection } from "@/components/student/UniversityApplicationsSection";
-import StudentLoginDetailsSection from "@/components/student/StudentLoginDetailsSection";
-import StudentAccountDetailsSection from "@/components/student/StudentAccountDetailsSection";
 
 function InfoField({ label, value }: { label: string; value?: string | null }) {
     if (!value) return null;
@@ -203,8 +201,6 @@ export default function StudentDetailPage() {
         { id: "documents", label: "Documents", icon: <FolderOpen className="h-3.5 w-3.5" /> },
         { id: "applications", label: "University Application", icon: <Briefcase className="h-3.5 w-3.5" /> },
         { id: "visa", label: "Visa Application", icon: <Globe className="h-3.5 w-3.5" /> },
-        { id: "login-details", label: "Login Details", icon: <FileText className="h-3.5 w-3.5" /> },
-        { id: "account-details", label: "Account Details", icon: <Database className="h-3.5 w-3.5" /> },
         { id: "activity", label: "Activity", icon: <History className="h-3.5 w-3.5" /> },
     ];
 
@@ -481,39 +477,6 @@ export default function StudentDetailPage() {
                     />
                 </TabsContent>
 
-                {/* === LOGIN DETAILS TAB === */}
-                <TabsContent value="login-details" className="mt-5">
-                    <Card className="border border-border rounded-2xl bg-card shadow-none overflow-hidden">
-                        <CardHeader className="pb-2 border-b border-border/50 bg-white">
-                            <CardTitle className="text-sm font-bold flex items-center gap-2">
-                                <FileText className="h-4 w-4 text-primary" /> Login Details
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-5 bg-white">
-                            <StudentLoginDetailsSection
-                                studentId={student.id}
-                                initialData={student.loginDetails}
-                            />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                {/* === ACCOUNT DETAILS TAB === */}
-                <TabsContent value="account-details" className="mt-5">
-                    <Card className="border border-border rounded-2xl bg-card shadow-none overflow-hidden">
-                        <CardHeader className="pb-2 border-b border-border/50 bg-white">
-                            <CardTitle className="text-sm font-bold flex items-center gap-2">
-                                <Database className="h-4 w-4 text-primary" /> Account Details
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-5 bg-white">
-                            <StudentAccountDetailsSection
-                                studentId={student.id}
-                                initialData={student.accountDetails}
-                            />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
 
                 {/* === ACTIVITY TAB === */}
                 <TabsContent value="activity" className="mt-5">

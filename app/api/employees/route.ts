@@ -95,6 +95,13 @@ export async function GET(req: NextRequest) {
                     name: true,
                     email: true,
                     role: true,
+                    roleId: true,
+                    roleProfile: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
+                    },
                     isActive: true,
                     createdAt: true,
                     agentProfile: true,
@@ -174,6 +181,7 @@ export async function POST(req: NextRequest) {
                 email,
                 passwordHash,
                 role: role || "EMPLOYEE",
+                roleId: body.roleId || null,
                 imageUrl, // Save profile picture
                 emailVerified: new Date(), // Auto-verify employees created by admin
                 agentProfile: ["AGENT", "SALES_REP", "MANAGER"].includes(role) ? {

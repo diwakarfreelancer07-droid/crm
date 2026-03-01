@@ -22,7 +22,11 @@ import {
     Globe,
     School,
     User,
+    CheckCircle2,
     Clock,
+    XCircle,
+    AlertCircle,
+    FileDown,
     ChevronLeft,
     ChevronRight,
     MapPin,
@@ -33,7 +37,10 @@ import {
     Share2,
     ArrowRightLeft,
     CheckSquare,
-    StickyNote
+    StickyNote,
+    Phone,
+    Mail,
+    Undo2
 } from "lucide-react";
 import { VisaStatus } from "@prisma/client";
 import { useUpdateVisaApplication } from "@/hooks/useApi";
@@ -55,6 +62,8 @@ interface VisaApplicationsTableProps {
     onUpdate: () => void;
     onDelete: (id: string) => void;
     onOpenHistory?: (app: any) => void;
+    onOpenComments?: (app: any) => void;
+    onOpenOfferLetters?: (app: any) => void;
     onOpenNotes?: (app: any) => void;
     selectedIds?: string[];
     onSelectionChange?: (ids: string[]) => void;
@@ -72,6 +81,8 @@ export function VisaApplicationsTable({
     onUpdate,
     onDelete,
     onOpenHistory,
+    onOpenComments,
+    onOpenOfferLetters,
     onOpenNotes,
     selectedIds = [],
     onSelectionChange = () => { },
@@ -157,10 +168,73 @@ export function VisaApplicationsTable({
             ),
         },
         {
+            id: "student",
+            header: "Student",
+            cell: ({ row }) => (
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold shrink-0">
+                        {row.original.student?.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex flex-col">
+                        <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
+                            {row.original.student?.id?.substring(0, 8) || "N/A"}
+                        </span>
+                        <span className="font-bold text-foreground text-[13px] whitespace-nowrap">
+                            {row.original.student?.name}
+                        </span>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            id: "contact",
+            header: "Contact",
+            cell: ({ row }) => (
+                <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground whitespace-nowrap">
+                        <Phone className="h-3.5 w-3.5" />
+                        {row.original.student?.phone || "N/A"}
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground truncate max-w-[150px]">
+                        <Mail className="h-3.5 w-3.5" />
+                        {row.original.student?.email || "N/A"}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            id: "visa_details",
+            header: "Visa Info",
+            cell: ({ row }) => (
+                <div className="flex flex-col gap-1">
+                    <div className="text-[10px] font-extrabold text-primary uppercase whitespace-nowrap bg-primary/5 px-2 py-0.5 rounded border border-primary/10 w-fit">
+                        {row.original.visaType.replace(/_/g, ' ')}
+                    </div>
+                    <div className="text-[11px] font-bold text-slate-500">
+                        Passport: {row.original.student?.passportNo || "N/A"}
+                    </div>
+                </div>
+            ),
+        },
+        {
+            id: "university",
+            header: "University",
+            cell: ({ row }) => (
+                <div className="flex flex-col gap-0.5">
+                    <div className="text-[11px] font-bold text-slate-700 max-w-[150px] truncate" title={row.original.university?.name}>
+                        {row.original.university?.name || "N/A"}
+                    </div>
+                    <div className="text-[10px] font-bold text-slate-400">
+                        {row.original.country?.name || "N/A"}
+                    </div>
+                </div>
+            ),
+        },
+        {
             id: "timeline",
             header: "Timeline",
             cell: ({ row }) => (
-                <div className="flex flex-col text-[10px] text-slate-500 font-medium whitespace-nowrap">
+                <div className="flex flex-col text-[10px] text-slate-500 font-medium whitespace-nowrap gap-1">
                     <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         App: {format(new Date(row.original.applicationDate), "dd/MM/yyyy")}
@@ -176,7 +250,7 @@ export function VisaApplicationsTable({
         },
         {
             id: "status",
-            header: "Visa Status",
+            header: "Status",
             cell: ({ row }) => {
                 const status = row.original.status as VisaStatus;
                 const visaId = row.original.id;
@@ -185,20 +259,16 @@ export function VisaApplicationsTable({
                     switch (s) {
                         case "VISA_GRANTED":
                         case "VISA_APPROVED":
-                            return "bg-emerald-50 text-emerald-700 border-emerald-100 hover:bg-emerald-100";
+                            return "bg-emerald-100 text-emerald-700 border-emerald-200";
                         case "VISA_REFUSED":
                         case "VISA_REJECTED":
-                            return "bg-rose-50 text-rose-700 border-rose-100 hover:bg-rose-100";
+                            return "bg-rose-100 text-rose-700 border-rose-200";
                         case "VISA_APPLICATION_SUBMITTED":
-                            return "bg-blue-50 text-blue-700 border-blue-100 hover:bg-blue-100";
+                            return "bg-blue-100 text-blue-700 border-blue-200";
                         case "UNDER_REVIEW":
-                            return "bg-purple-50 text-purple-700 border-purple-100 hover:bg-purple-100";
-                        case "ENROLLED":
-                            return "bg-cyan-50 text-cyan-700 border-cyan-100 hover:bg-cyan-100";
-                        case "DEFERRED":
-                            return "bg-pink-50 text-pink-700 border-pink-100 hover:bg-pink-100";
+                            return "bg-purple-100 text-purple-700 border-purple-200";
                         default:
-                            return "bg-slate-50 text-slate-700 border-slate-100 hover:bg-slate-100";
+                            return "bg-slate-100 text-slate-700 border-slate-200";
                     }
                 };
 
@@ -221,13 +291,12 @@ export function VisaApplicationsTable({
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Badge
-                                variant="outline"
-                                className={`cursor-pointer px-2.5 py-0.5 rounded-full text-[10px] font-bold border transition-all ${getStatusStyle(status)}`}
+                                className={`cursor-pointer border-none rounded-lg font-bold px-3 py-1 transition-all hover:scale-105 active:scale-95 ${getStatusStyle(status)}`}
                             >
                                 {status.replace(/_/g, ' ')}
                             </Badge>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start" className="w-64 p-1 rounded-xl shadow-xl border-border bg-popover max-h-[400px] overflow-y-auto">
+                        <DropdownMenuContent align="start" className="w-64 p-1 rounded-xl shadow-xl max-h-[400px] overflow-y-auto">
                             {statusOptionsList.map((s) => (
                                 <DropdownMenuItem
                                     key={s.value}
@@ -235,7 +304,7 @@ export function VisaApplicationsTable({
                                         e.stopPropagation();
                                         handleStatusChange(s.value as VisaStatus);
                                     }}
-                                    className={`cursor-pointer py-1.5 rounded-lg m-0.5 text-[10px] font-bold ${status === s.value ? "bg-primary/5 text-primary" : "text-muted-foreground"}`}
+                                    className={`cursor-pointer py-1.5 rounded-lg m-0.5 text-[10px] font-bold ${status === s.value ? "bg-primary/5 text-primary" : "text-slate-600"}`}
                                 >
                                     {s.label}
                                 </DropdownMenuItem>
@@ -247,9 +316,86 @@ export function VisaApplicationsTable({
         },
         {
             id: "actions",
-            header: "Actions",
             cell: ({ row }) => (
                 <div className="flex items-center gap-1.5 justify-end">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (row.original.universityApplication) {
+                                onOpenComments?.(row.original.universityApplication);
+                            } else {
+                                toast.error("No linked university application found");
+                            }
+                        }}
+                        className="h-8 px-2 text-[10px] font-bold border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
+                    >
+                        <Eye className="h-3.5 w-3.5 mr-1" /> History
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                                await updateMutation.mutateAsync({
+                                    id: row.original.id,
+                                    data: { status: "DEFERRED" as any }
+                                });
+                                toast.success("Moved to Defer");
+                                onUpdate();
+                            } catch (error) {
+                                toast.error("Failed to defer");
+                            }
+                        }}
+                        className="h-8 px-2 text-[10px] font-bold border-pink-200 text-pink-600 hover:bg-pink-50"
+                    >
+                        <ArrowRightLeft className="h-3 w-3 mr-1" /> Defer
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async (e) => {
+                            e.stopPropagation();
+                            try {
+                                await updateMutation.mutateAsync({
+                                    id: row.original.id,
+                                    data: { status: "ENROLLED" as any }
+                                });
+                                toast.success("Moved to Enrolled");
+                                onUpdate();
+                            } catch (error) {
+                                toast.error("Failed to enroll");
+                            }
+                        }}
+                        className="h-8 px-2 text-[10px] font-bold border-cyan-200 text-cyan-600 hover:bg-cyan-50"
+                    >
+                        <CheckSquare className="h-3 w-3 mr-1" /> Enroll
+                    </Button>
+
+                    {["DEFERRED", "ENROLLED"].includes(row.original.status) && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                    await updateMutation.mutateAsync({
+                                        id: row.original.id,
+                                        data: { status: "VISA_APPLICATION_IN_PROGRESS" as any }
+                                    });
+                                    toast.success("Reverted to Visa stage");
+                                    onUpdate();
+                                } catch (error) {
+                                    toast.error("Failed to revert");
+                                }
+                            }}
+                            className="h-8 px-2 text-[10px] font-bold border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
+                        >
+                            <Undo2 className="h-3.5 w-3.5 mr-1" /> Revert
+                        </Button>
+                    )}
                     <Button
                         variant="ghost"
                         size="icon"
@@ -258,7 +404,6 @@ export function VisaApplicationsTable({
                             router.push(prefixPath(`/visa-applications/${row.original.id}`));
                         }}
                         className="h-8 w-8 text-primary hover:bg-primary/5"
-                        title="View Details"
                     >
                         <Eye className="h-4 w-4" />
                     </Button>
@@ -268,13 +413,13 @@ export function VisaApplicationsTable({
                                 <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 p-1 rounded-xl shadow-xl border-border bg-popover">
+                        <DropdownMenuContent align="end" className="w-56">
                             <DropdownMenuItem
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     router.push(prefixPath(`/visa-applications/${row.original.id}`));
                                 }}
-                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-medium"
+                                className="cursor-pointer"
                             >
                                 <Eye className="mr-2 h-4 w-4" /> View Details
                             </DropdownMenuItem>
@@ -283,7 +428,7 @@ export function VisaApplicationsTable({
                                     e.stopPropagation();
                                     onOpenHistory?.(row.original);
                                 }}
-                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-medium"
+                                className="cursor-pointer"
                             >
                                 <History className="mr-2 h-4 w-4" /> View History
                             </DropdownMenuItem>
@@ -292,7 +437,7 @@ export function VisaApplicationsTable({
                                     e.stopPropagation();
                                     onOpenNotes?.(row.original);
                                 }}
-                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-medium"
+                                className="cursor-pointer"
                             >
                                 <StickyNote className="mr-2 h-4 w-4" /> View Notes
                             </DropdownMenuItem>
@@ -303,7 +448,7 @@ export function VisaApplicationsTable({
                                     try {
                                         await updateMutation.mutateAsync({
                                             id: row.original.id,
-                                            data: { status: "DEFERRED" }
+                                            data: { status: "DEFERRED" as any }
                                         });
                                         toast.success("Moved to Defer");
                                         onUpdate();
@@ -311,7 +456,7 @@ export function VisaApplicationsTable({
                                         toast.error("Failed to defer");
                                     }
                                 }}
-                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-semibold text-pink-600 hover:bg-pink-50"
+                                className="cursor-pointer font-semibold text-pink-600"
                             >
                                 <ArrowRightLeft className="mr-2 h-4 w-4" /> Defer Student
                             </DropdownMenuItem>
@@ -321,7 +466,7 @@ export function VisaApplicationsTable({
                                     try {
                                         await updateMutation.mutateAsync({
                                             id: row.original.id,
-                                            data: { status: "ENROLLED" }
+                                            data: { status: "ENROLLED" as any }
                                         });
                                         toast.success("Moved to Enrolled");
                                         onUpdate();
@@ -329,7 +474,7 @@ export function VisaApplicationsTable({
                                         toast.error("Failed to enroll");
                                     }
                                 }}
-                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-semibold text-cyan-600 hover:bg-cyan-50"
+                                className="cursor-pointer font-semibold text-cyan-600"
                             >
                                 <CheckSquare className="mr-2 h-4 w-4" /> Enroll Student
                             </DropdownMenuItem>
@@ -339,180 +484,12 @@ export function VisaApplicationsTable({
                                     e.stopPropagation();
                                     onDelete(row.original.id);
                                 }}
-                                className="cursor-pointer py-2 rounded-lg m-0.5 text-xs font-medium text-rose-600 hover:bg-rose-50"
+                                className="text-red-600 cursor-pointer"
                             >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                </div>
-            ),
-        },
-        {
-            id: "id-name",
-            header: "ID - Name",
-            cell: ({ row }) => (
-                <div className="flex flex-col">
-                    <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tight">
-                        {row.original.student?.id?.substring(0, 8) || "N/A"}
-                    </span>
-                    <span className="font-extrabold text-slate-900 text-[13px] whitespace-nowrap">
-                        {row.original.student?.name}
-                    </span>
-                </div>
-            ),
-        },
-        {
-            accessorKey: "visaType",
-            header: "Visa Type",
-            cell: ({ row }) => (
-                <div className="text-[10px] font-extrabold text-primary uppercase whitespace-nowrap bg-primary/5 px-2 py-0.5 rounded border border-primary/10">
-                    {row.original.visaType.replace(/_/g, ' ')}
-                </div>
-            ),
-        },
-        {
-            accessorKey: "email",
-            header: "Email",
-            cell: ({ row }) => (
-                <div className="max-w-[160px] truncate text-[11px] font-bold text-slate-600">
-                    {row.original.student?.email || "N/A"}
-                </div>
-            ),
-        },
-        {
-            accessorKey: "mobile",
-            header: "Mobile",
-            cell: ({ row }) => (
-                <div className="text-[11px] font-bold text-slate-800 whitespace-nowrap">
-                    {row.original.student?.phone || "N/A"}
-                </div>
-            ),
-        },
-        {
-            id: "applied-country",
-            header: "Applied Country",
-            cell: ({ row }) => (
-                <Badge variant="outline" className="text-[10px] font-bold px-2 py-0 border-slate-200 text-slate-600 bg-slate-50/50">
-                    {row.original.country?.name || "N/A"}
-                </Badge>
-            ),
-        },
-        {
-            accessorKey: "university",
-            header: "University",
-            cell: ({ row }) => (
-                <div className="text-[11px] font-bold text-slate-700 max-w-[150px] truncate" title={row.original.university?.name}>
-                    {row.original.university?.name || "N/A"}
-                </div>
-            ),
-        },
-        {
-            id: "status",
-            header: "Visa Status",
-            cell: ({ row }) => {
-                const status = row.original.status as VisaStatus;
-                const visaId = row.original.id;
-
-                const handleStatusChange = async (newStatus: VisaStatus) => {
-                    if (newStatus === status) return;
-                    try {
-                        await updateMutation.mutateAsync({
-                            id: visaId,
-                            data: { status: newStatus }
-                        });
-                        onUpdate();
-                    } catch (error) {
-                        console.error("Failed to update status", error);
-                    }
-                };
-
-                return (
-                    <Select value={status} onValueChange={(val) => handleStatusChange(val as VisaStatus)}>
-                        <SelectTrigger className="h-9 min-w-[130px] rounded-lg border-slate-200 text-[11px] font-bold bg-white focus:ring-1 focus:ring-primary/20">
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl shadow-xl">
-                            {statusOptionsList.map((s) => (
-                                <SelectItem key={s.value} value={s.value} className="text-[11px] font-medium">
-                                    {s.label}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                );
-            }
-        },
-        {
-            id: "course",
-            header: "Course",
-            cell: ({ row }) => (
-                <div className="text-[11px] font-bold text-slate-600 max-w-[120px] truncate" title={row.original.course?.name}>
-                    {row.original.course?.name || "N/A"}
-                </div>
-            ),
-        },
-        {
-            accessorKey: "intake",
-            header: "Intake",
-            cell: ({ row }) => (
-                <div className="text-[11px] font-extrabold text-slate-800 uppercase whitespace-nowrap">
-                    {row.original.intake || "N/A"}
-                </div>
-            ),
-        },
-        {
-            id: "passport-no",
-            header: "Passport No",
-            cell: ({ row }) => (
-                <div className="text-[11px] font-bold text-slate-600">
-                    {row.original.student?.passportNo || "N/A"}
-                </div>
-            ),
-        },
-        {
-            id: "assigned-by",
-            header: "Assigned By",
-            cell: ({ row }) => (
-                <div className="text-[10px] font-medium text-slate-700 w-[140px]">
-                    <div className="font-extrabold text-slate-900 truncate">
-                        {row.original.universityApplication?.assignedBy?.name || "System"}
-                    </div>
-                    <div className="text-[9px] text-slate-400 font-bold italic">
-                        ({row.original.universityApplication?.assignedBy?.role || "Admin"})
-                    </div>
-                </div>
-            ),
-        },
-        {
-            id: "assigned-to",
-            header: "Assigned To",
-            cell: ({ row }) => (
-                <div className="text-[10px] font-medium text-slate-700 w-[140px]">
-                    <div className="font-extrabold text-slate-900 truncate">
-                        {row.original.universityApplication?.assignedTo?.name || "Unassigned"}
-                    </div>
-                    <div className="text-[9px] text-slate-400 font-bold italic">
-                        ({row.original.universityApplication?.assignedTo?.role || "Staff"})
-                    </div>
-                </div>
-            ),
-        },
-        {
-            id: "branch",
-            header: "Branch",
-            cell: () => (
-                <div className="text-[11px] font-bold text-slate-600">
-                    Head Office
-                </div>
-            ),
-        },
-        {
-            id: "partner",
-            header: "Partner",
-            cell: () => (
-                <div className="text-[11px] font-bold text-slate-400 italic">
-                    N/A
                 </div>
             ),
         },
@@ -535,7 +512,7 @@ export function VisaApplicationsTable({
                                     <th
                                         key={header.id}
                                         className={`
-                                            py-2 px-4 text-left text-[10px] font-bold uppercase tracking-wider text-muted-foreground
+                                            py-2 px-4 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground
                                             ${index === 0 ? "pl-6" : ""}
                                             ${index === headerGroup.headers.length - 1 ? "pr-6" : ""}
                                         `}

@@ -1,7 +1,7 @@
 generator client {
   provider      = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
   output        = "./generated/client"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -10,33 +10,48 @@ datasource db {
 }
 
 model User {
-  id                String            @id @default(uuid())
-  name              String
-  email             String            @unique
-  passwordHash      String?
-  role              Role
-  isActive          Boolean           @default(true)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  otp               String?
-  otpExpiresAt      DateTime?
-  emailVerified     DateTime?
-  auditLogs         AuditLog[]
-  onboardedStudents Student[]
-  notifications     Notification[]
-  imageUrl          String?
-  lead              Lead?             @relation("LeadUser")
-  agentProfile      AgentProfile?
-  counselorProfile  CounselorProfile?
-  activities        LeadActivity[]
-  assignedByLeads   LeadAssignment[]  @relation("AssignedBy")
-  assignedLeads     LeadAssignment[]  @relation("AssignedTo")
-  documents         LeadDocument[]
-  tasks             LeadTask[]
-  followUps         FollowUp[]
-  appointments      Appointment[]
-  employeeProfile   EmployeeProfile?
-  studentProfile    Student?          @relation("StudentUser")
+  id                      String                  @id @default(uuid())
+  name                    String
+  email                   String                  @unique
+  passwordHash            String?
+  role                    Role
+  isActive                Boolean                 @default(true)
+  roleId                  String?
+  roleProfile             UserRole?               @relation(fields: [roleId], references: [id])
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  otp                     String?
+  otpExpiresAt            DateTime?
+  emailVerified           DateTime?
+  imageUrl                String?
+  agentProfile            AgentProfile?
+  applications            UniversityApplication[] @relation("ApplicationAssociate")
+  visaOfficerApplications VisaApplication[]       @relation("VisaOfficer")
+  appointments            Appointment[]
+  auditLogs               AuditLog[]
+  counselorProfile        CounselorProfile?
+  employeeProfile         EmployeeProfile?
+  followUps               FollowUp[]
+  lead                    Lead?                   @relation("LeadUser")
+  activities              LeadActivity[]
+  assignedByLeads         LeadAssignment[]        @relation("AssignedBy")
+  assignedLeads           LeadAssignment[]        @relation("AssignedTo")
+  documents               LeadDocument[]
+  tasks                   LeadTask[]
+  notifications           Notification[]
+  onboardedStudents       Student[]
+  studentProfile          Student?                @relation("StudentUser")
+  studentDocuments        StudentDocument[]       @relation("StudentDocumentUploader")
+  assignedApplications    UniversityApplication[] @relation("ApplicationAssignedTo")
+  createdApplications     UniversityApplication[] @relation("ApplicationAssignedBy")
+  applicationNotes        ApplicationNote[]
+  managedEmployees        EmployeeProfile[]       @relation("EmployeeManager")
+  agentStudents           Student[]               @relation("StudentAgent")
+  counselorStudents       Student[]               @relation("StudentCounselor")
+  agentApplications       UniversityApplication[] @relation("ApplicationAgent")
+  counselorApplications   UniversityApplication[] @relation("ApplicationCounselor")
+  agentVisaApps           VisaApplication[]       @relation("VisaAgent")
+  counselorVisaApps       VisaApplication[]       @relation("VisaCounselor")
 }
 
 model Notification {
@@ -50,14 +65,6 @@ model Notification {
   user      User             @relation(fields: [userId], references: [id])
 
   @@index([userId])
-}
-
-enum NotificationType {
-  LEAD_CREATED
-  LEAD_ASSIGNED
-  LEAD_CONVERTED
-  TASK_REMINDER
-  SYSTEM
 }
 
 model AgentProfile {
@@ -84,7 +91,6 @@ model CounselorProfile {
   user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Deprecated: Moving to AgentProfile and CounselorProfile
 model EmployeeProfile {
   id          String    @id @default(uuid())
   userId      String    @unique
@@ -93,6 +99,8 @@ model EmployeeProfile {
   designation String?
   salary      Float?
   joiningDate DateTime?
+  managerId   String?
+  manager     User?     @relation("EmployeeManager", fields: [managerId], references: [id])
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -124,22 +132,22 @@ model Lead {
   remark               String?
   createdAt            DateTime         @default(now())
   updatedAt            DateTime         @updatedAt
-  student              Student?
+  imageUrl             String?
+  userId               String?          @unique
+  passportNo           String?
+  passportIssueDate    DateTime?
+  passportExpiryDate   DateTime?
+  proficiencyExams     Json?
+  academicDetails      AcademicDetail[]
+  appointments         Appointment[]
+  followUps            FollowUp[]
+  user                 User?            @relation("LeadUser", fields: [userId], references: [id])
   activities           LeadActivity[]
   assignments          LeadAssignment[]
   documents            LeadDocument[]
   tasks                LeadTask[]
-  imageUrl             String?
-  userId               String?          @unique
-  user                 User?            @relation("LeadUser", fields: [userId], references: [id])
-  followUps            FollowUp[]
-  appointments         Appointment[]
-  passportNo           String?
-  passportIssueDate    DateTime?
-  passportExpiryDate   DateTime?
-  academicDetails      AcademicDetail[]
+  student              Student?
   workExperience       WorkExperience[]
-  proficiencyExams     Json? // Stores array of selected exams like ["IELTS", "PTE"]
 
   @@index([phone])
   @@index([status])
@@ -152,8 +160,8 @@ model FollowUp {
   id             String    @id @default(uuid())
   leadId         String
   userId         String
-  type           String // CALL, WHATSAPP, EMAIL, VISIT
-  status         String    @default("PENDING") // PENDING, COMPLETED, CANCELLED
+  type           String
+  status         String    @default("PENDING")
   nextFollowUpAt DateTime?
   remark         String?
   createdAt      DateTime  @default(now())
@@ -173,7 +181,7 @@ model Appointment {
   description String?
   startTime   DateTime
   endTime     DateTime
-  status      String   @default("SCHEDULED") // SCHEDULED, COMPLETED, CANCELLED, NO_SHOW
+  status      String   @default("SCHEDULED")
   location    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -259,34 +267,65 @@ model LeadDocument {
 }
 
 model Student {
-  id             String        @id @default(uuid())
-  leadId         String?       @unique
-  name           String
-  email          String?
-  phone          String
-  onboardedBy    String
-  status         StudentStatus @default(NEW)
-  createdAt      DateTime      @default(now())
-  lead           Lead?         @relation(fields: [leadId], references: [id])
-  user           User          @relation(fields: [onboardedBy], references: [id])
-  imageUrl       String?
-  savedAddresses Json?
-  studentUserId  String?       @unique
-  studentUser    User?         @relation("StudentUser", fields: [studentUserId], references: [id])
+  id                 String                  @id @default(uuid())
+  leadId             String?                 @unique
+  name               String
+  email              String?
+  phone              String
+  onboardedBy        String
+  status             StudentStatus           @default(NEW)
+  createdAt          DateTime                @default(now())
+  imageUrl           String?
+  savedAddresses     Json?
+  studentUserId      String?                 @unique
+  passportExpiryDate DateTime?
+  passportIssueDate  DateTime?
+  passportNo         String?
+  agentId            String?
+  counselorId        String?
+  applications       UniversityApplication[]
+  visaApplications   VisaApplication[]
+  lead               Lead?                   @relation(fields: [leadId], references: [id])
+  user               User                    @relation(fields: [onboardedBy], references: [id])
+  agent              User?                   @relation("StudentAgent", fields: [agentId], references: [id])
+  counselor          User?                   @relation("StudentCounselor", fields: [counselorId], references: [id])
+  studentUser        User?                   @relation("StudentUser", fields: [studentUserId], references: [id])
+  documents          StudentDocument[]
 
   @@index([onboardedBy])
   @@index([status])
 }
 
+model StudentDocument {
+  id           String   @id @default(uuid())
+  studentId    String
+  uploadedBy   String
+  fileName     String
+  fileUrl      String
+  documentName String
+  countryId    String?
+  checklistId  String?
+  createdAt    DateTime @default(now())
+  country      Country? @relation(fields: [countryId], references: [id])
+  student      Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  uploader     User     @relation("StudentDocumentUploader", fields: [uploadedBy], references: [id])
+
+  @@index([studentId])
+  @@index([uploadedBy])
+}
+
 model AuditLog {
-  id        String   @id @default(uuid())
-  userId    String
-  action    String
-  entity    String
-  entityId  String
-  metadata  Json?
-  createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  id             String       @id @default(uuid())
+  userId         String
+  action         String
+  entity         String
+  entityId       String
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+  module         AuditModule?
+  newValues      Json?
+  previousValues Json?
+  user           User         @relation(fields: [userId], references: [id])
 
   @@index([userId])
 }
@@ -309,13 +348,241 @@ model Qualification {
 }
 
 model Country {
-  id         String                 @id @default(uuid())
-  name       String                 @unique
-  code       String?                @unique
-  isActive   Boolean                @default(true)
-  createdAt  DateTime               @default(now())
-  updatedAt  DateTime               @updatedAt
-  checklists ApplicationChecklist[]
+  id               String                  @id @default(uuid())
+  name             String                  @unique
+  code             String?                 @unique
+  isActive         Boolean                 @default(true)
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+  applications     UniversityApplication[]
+  visaApplications VisaApplication[]
+  checklists       ApplicationChecklist[]
+  studentDocuments StudentDocument[]
+  universities     University[]
+  courses          Course[]
+}
+
+model University {
+  id          String   @id @default(uuid())
+  name        String
+  countryId   String
+  website     String?
+  address     String?
+  description String?
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  country     Country  @relation(fields: [countryId], references: [id])
+
+  courses          Course[]
+  applications     UniversityApplication[]
+  visaApplications VisaApplication[]
+
+  @@index([countryId])
+  @@index([name])
+}
+
+model ApplicationChecklist {
+  id            String        @id @default(uuid())
+  name          String
+  type          ChecklistType @default(MANDATORY)
+  countryId     String?
+  isEnquiryForm Boolean       @default(false)
+  isMandatory   Boolean       @default(true)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  country       Country?      @relation(fields: [countryId], references: [id])
+
+  @@index([countryId])
+}
+
+model AcademicDetail {
+  id            String   @id @default(uuid())
+  leadId        String
+  qualification String
+  stream        String?
+  institution   String?
+  percentage    String?
+  backlogs      String?
+  passingYear   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+}
+
+model WorkExperience {
+  id              String   @id @default(uuid())
+  leadId          String
+  companyName     String
+  position        String?
+  startDate       String?
+  endDate         String?
+  totalExperience String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  lead            Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+}
+
+model Course {
+  id                 String     @id @default(uuid())
+  universityId       String
+  university         University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+  countryId          String
+  country            Country    @relation(fields: [countryId], references: [id])
+  name               String // Course name
+  campus             String? // e.g. "Troy Alabama", "London"
+  level              String? // Bachelor, Master, PhD, Diploma etc.
+  durationMonths     Int? // Duration in months
+  applicationFee     String? // e.g. "USD 50"
+  tuitionFee         String? // e.g. "USD 22050"
+  expectedCommission String?
+  gpaScore           Float?
+  deadline           String? // e.g. "Fall (Aug) 01 Jun Spring (Jan) 01 Nov"
+  entryRequirements  String? // Free text
+  scores             Json? // Stores IELTS/TOEFL/PTE scores array
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  intakes          CourseIntake[]
+  applications     UniversityApplication[]
+  visaApplications VisaApplication[]
+
+  @@index([universityId])
+  @@index([countryId])
+  @@index([name])
+}
+
+model CourseIntake {
+  id        String   @id @default(uuid())
+  courseId  String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  month     String // e.g. "Aug-2026", "Nov-2026", "Jan-2027"
+  createdAt DateTime @default(now())
+
+  @@index([courseId])
+}
+
+model UniversityApplication {
+  id             String            @id @default(uuid())
+  studentId      String
+  countryId      String
+  universityId   String
+  courseId       String?
+  courseName     String? // For backward compatibility or internal ref
+  intake         String? // e.g. "Jun-2026"
+  intendedCourse String? // free text if course not in DB
+  applyLevel     String? // e.g. "Under Graduation", "Post Graduation"
+  deadlineDate   DateTime?
+  associateId    String? // references User (agent/counselor - legacy)
+  assignedById   String? // who assigned
+  assignedToId   String? // who is handling
+  agentId        String?
+  counselorId    String?
+  status         ApplicationStatus @default(PENDING)
+  notes          String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  student          Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  country          Country           @relation(fields: [countryId], references: [id])
+  university       University        @relation(fields: [universityId], references: [id])
+  course           Course?           @relation(fields: [courseId], references: [id])
+  associate        User?             @relation("ApplicationAssociate", fields: [associateId], references: [id])
+  assignedBy       User?             @relation("ApplicationAssignedBy", fields: [assignedById], references: [id])
+  assignedTo       User?             @relation("ApplicationAssignedTo", fields: [assignedToId], references: [id])
+  agent            User?             @relation("ApplicationAgent", fields: [agentId], references: [id])
+  counselor        User?             @relation("ApplicationCounselor", fields: [counselorId], references: [id])
+  visaApplications VisaApplication[]
+  applicationNotes ApplicationNote[]
+
+  @@index([studentId])
+  @@index([universityId])
+  @@index([countryId])
+  @@index([status])
+}
+
+model ApplicationNote {
+  id             String   @id @default(uuid())
+  applicationId  String
+  userId         String
+  note           String
+  attachmentUrl  String?
+  attachmentName String?
+  type           NoteType @default(COMMENT)
+  createdAt      DateTime @default(now())
+
+  application UniversityApplication @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  user        User                  @relation(fields: [userId], references: [id])
+
+  @@index([applicationId])
+}
+
+enum NoteType {
+  COMMENT
+  OFFER_LETTER
+}
+
+model VisaApplication {
+  id                      String     @id @default(uuid())
+  studentId               String
+  universityApplicationId String?
+  countryId               String
+  universityId            String?
+  courseId                String?
+  intake                  String?
+  visaType                VisaType
+  applicationDate         DateTime   @default(now())
+  appointmentDate         DateTime?
+  decisionDate            DateTime?
+  expiryDate              DateTime?
+  gicTuitionFeePaid       Boolean    @default(false)
+  medicalDone             Boolean    @default(false)
+  biometricsDone          Boolean    @default(false)
+  remarks                 String?
+  assignedOfficerId       String?
+  agentId                 String?
+  counselorId             String?
+  status                  VisaStatus @default(PENDING)
+  createdAt               DateTime   @default(now())
+  updatedAt               DateTime   @updatedAt
+
+  student               Student                @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  universityApplication UniversityApplication? @relation(fields: [universityApplicationId], references: [id])
+  country               Country                @relation(fields: [countryId], references: [id])
+  university            University?            @relation(fields: [universityId], references: [id])
+  course                Course?                @relation(fields: [courseId], references: [id])
+  assignedOfficer       User?                  @relation("VisaOfficer", fields: [assignedOfficerId], references: [id])
+  agent                 User?                  @relation("VisaAgent", fields: [agentId], references: [id])
+  counselor             User?                  @relation("VisaCounselor", fields: [counselorId], references: [id])
+
+  @@index([studentId])
+  @@index([countryId])
+  @@index([status])
+}
+
+enum NotificationType {
+  LEAD_CREATED
+  LEAD_ASSIGNED
+  LEAD_CONVERTED
+  TASK_REMINDER
+  SYSTEM
+}
+
+enum ApplicationStatus {
+  PENDING
+  SUBMITTED
+  FINALIZED
+  UNDER_REVIEW
+  OFFER_RECEIVED
+  READY_FOR_VISA
+  ENROLLED
+  DEFERRED
+  REJECTED
+  WITHDRAWN
 }
 
 enum Role {
@@ -329,8 +596,6 @@ enum Role {
   COUNSELOR
 }
 
-// LeadSource Enum removed in favor of dynamic Website model / String source
-
 enum LeadStatus {
   NEW
   UNDER_REVIEW
@@ -342,6 +607,7 @@ enum LeadStatus {
   NOT_INTERESTED
   ON_HOLD
   CLOSED
+  CONVERTED
 }
 
 enum StudentStatus {
@@ -355,25 +621,12 @@ enum StudentStatus {
   NOT_INTERESTED
   NOT_ELIGIBLE
   ON_HOLD
+  APPLICATION_SUBMITTED
 }
 
 enum ChecklistType {
   MANDATORY
   OPTIONAL
-}
-
-model ApplicationChecklist {
-  id            String        @id @default(uuid())
-  name          String
-  type          ChecklistType @default(MANDATORY)
-  countryId     String? // Null means "All Countries"
-  country       Country?      @relation(fields: [countryId], references: [id])
-  isEnquiryForm Boolean       @default(false)
-  isMandatory   Boolean       @default(true)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-
-  @@index([countryId])
 }
 
 enum LeadTemperature {
@@ -413,33 +666,75 @@ enum DocumentType {
   OTHER
 }
 
-model AcademicDetail {
-  id            String   @id @default(uuid())
-  leadId        String
-  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  qualification String
-  stream        String?
-  institution   String?
-  percentage    String?
-  backlogs      String?
-  passingYear   String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  @@index([leadId])
+enum VisaType {
+  STUDENT_VISA
+  DEPENDENT_VISA
+  WORK_VISA
+  TOURIST_VISA
 }
 
-model WorkExperience {
-  id              String   @id @default(uuid())
-  leadId          String
-  lead            Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  companyName     String
-  position        String?
-  startDate       String?
-  endDate         String?
-  totalExperience String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+enum VisaStatus {
+  VISA_GUIDANCE_GIVEN
+  DOCUMENTS_CHECKLIST_SHARED
+  DOCUMENTS_PENDING
+  DOCUMENTS_RECEIVED
+  DOCUMENTS_VERIFIED
+  FINANCIAL_DOCUMENTS_PENDING
+  SPONSORSHIP_DOCUMENTS_PENDING
+  VISA_APPLICATION_IN_PROGRESS
+  VISA_APPLICATION_SUBMITTED
+  BIOMETRICS_SCHEDULED
+  BIOMETRICS_COMPLETED
+  UNDER_REVIEW
+  ADDITIONAL_DOCUMENTS_REQUESTED
+  INTERVIEW_SCHEDULED
+  INTERVIEW_COMPLETED
+  VISA_APPROVED
+  VISA_GRANTED
+  VISA_REFUSED
+  VISA_REJECTED
+  VISA_WITHDRAWN
+  DEFERRED
+  ENROLLED
+  PENDING
+}
 
-  @@index([leadId])
+enum AuditModule {
+  APPLICATIONS
+  STUDENTS
+  LEADS
+  USERS
+  SETTINGS
+  UNIVERSITIES
+  COURSES
+  VISA
+  MASTERS
+}
+
+model UserRole {
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String?
+  isSystem    Boolean          @default(false)
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  permissions RolePermission[]
+  users       User[]
+
+  @@map("user_roles")
+}
+
+model RolePermission {
+  id        String   @id @default(uuid())
+  roleId    String
+  module    String
+  actions   String[] // e.g. ["VIEW", "CREATE", "EDIT", "DELETE"]
+  scope     String   @default("ALL") // ALL, OWN, ASSIGNED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      UserRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, module])
+  @@map("role_permissions")
 }

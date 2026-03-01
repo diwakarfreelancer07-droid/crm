@@ -55,6 +55,13 @@ export async function GET(req: NextRequest) {
                     email: true,
                     role: true,
                     isActive: true,
+                    roleId: true,
+                    roleProfile: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
+                    },
                     createdAt: true,
                     counselorProfile: {
                         include: {
@@ -98,7 +105,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { name, email, password, phone, department, designation, salary, joiningDate, agentId } = await req.json();
+        const body = await req.json();
+        const { name, email, password, phone, department, designation, salary, joiningDate, agentId, roleId } = body;
 
         // If an Agent is creating, the counselor is automatically linked to them
         let effectiveAgentId = agentId;
@@ -127,6 +135,7 @@ export async function POST(req: NextRequest) {
                 email,
                 passwordHash,
                 role: "COUNSELOR",
+                roleId: roleId || null,
                 emailVerified: new Date(),
                 counselorProfile: {
                     create: {

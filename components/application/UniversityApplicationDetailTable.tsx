@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
     Table,
     TableBody,
@@ -17,11 +19,16 @@ import {
     FileDown,
     Plus,
     Search,
-    CheckCircle
+    CheckCircle,
+    Plane
 } from "lucide-react";
 import { Application } from "@/types/api";
 import axios from "axios";
 import { toast } from "sonner";
+import { MoveToVisaModal } from "@/components/applications/MoveToVisaModal";
+import { OfferLetterModal } from "@/components/applications/OfferLetterModal";
+import { ApplicationCommentsModal } from "@/components/applications/ApplicationCommentsModal";
+import { Eye, History } from "lucide-react";
 
 interface UniversityApplicationDetailTableProps {
     applications: Application[];
@@ -38,6 +45,15 @@ export function UniversityApplicationDetailTable({
     onUpdate,
     onAdd
 }: UniversityApplicationDetailTableProps) {
+    const [isMoveToVisaOpen, setIsMoveToVisaOpen] = useState(false);
+    const [selectedApp, setSelectedApp] = useState<Application | null>(null);
+    const [offerLetterApp, setOfferLetterApp] = useState<any>(null);
+    const [commentsApp, setCommentsApp] = useState<any>(null);
+
+    const handleMoveToVisaClick = (app: Application) => {
+        setSelectedApp(app);
+        setIsMoveToVisaOpen(true);
+    };
 
     const getStatusColor = (status: string) => {
         switch (status) {
@@ -91,16 +107,17 @@ export function UniversityApplicationDetailTable({
                             <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Created - Updated</TableHead>
                             <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Country</TableHead>
                             <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">University</TableHead>
-                            <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Course / Intake</TableHead>
+                            <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Course</TableHead>
+                            <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Intake</TableHead>
                             <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Associate</TableHead>
                             <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Deadline Date</TableHead>
                             <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Status</TableHead>
-                            <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3 text-center">Offer Letter</TableHead>
+                            <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3 text-right pr-6">Management</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {applications.length > 0 ? (
-                            applications.map((app) => (
+                        {applications.filter(app => !["READY_FOR_VISA", "DEFERRED", "ENROLLED"].includes(app.status)).length > 0 ? (
+                            applications.filter(app => !["READY_FOR_VISA", "DEFERRED", "ENROLLED"].includes(app.status)).map((app) => (
                                 <TableRow key={app.id} className="hover:bg-muted/20 border-border/40">
                                     <TableCell className="py-3">
                                         <div className="flex items-center gap-1">
@@ -131,6 +148,18 @@ export function UniversityApplicationDetailTable({
                                             >
                                                 <Trash2 className="h-3.5 w-3.5" />
                                             </Button>
+
+                                            {(app.status === "FINALIZED" || app.status === "OFFER_RECEIVED") && (
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-7 w-7 rounded-md text-primary hover:text-primary hover:bg-primary/5"
+                                                    onClick={() => handleMoveToVisaClick(app)}
+                                                    title="Move to Visa"
+                                                >
+                                                    <Plane className="h-3.5 w-3.5" />
+                                                </Button>
+                                            )}
                                         </div>
                                     </TableCell>
                                     <TableCell className="py-3">
@@ -146,10 +175,10 @@ export function UniversityApplicationDetailTable({
                                         <span className="text-[11px] font-bold text-primary truncate max-w-[150px] block">{(app as any).universityName || app.university?.name || 'N/A'}</span>
                                     </TableCell>
                                     <TableCell className="py-3">
-                                        <div className="flex flex-col gap-0.5">
-                                            <span className="text-[11px] font-medium text-foreground">{(app as any).courseName || (app as any).course?.name || 'N/A'}</span>
-                                            <span className="text-[10px] text-muted-foreground italic">{app.intake || 'N/A'}</span>
-                                        </div>
+                                        <span className="text-[11px] font-medium text-foreground">{(app as any).courseName || (app as any).course?.name || 'N/A'}</span>
+                                    </TableCell>
+                                    <TableCell className="py-3">
+                                        <span className="text-[10px] text-muted-foreground italic">{app.intake || 'N/A'}</span>
                                     </TableCell>
                                     <TableCell className="py-3">
                                         <span className="text-[11px] font-medium text-slate-600">{app.associate?.name || 'Not Assigned'}</span>
@@ -164,20 +193,23 @@ export function UniversityApplicationDetailTable({
                                             {app.status}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell className="py-3 text-center">
-                                        {(app as any).offerLetterUrl ? (
-                                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-md text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50">
-                                                <FileDown className="h-4 w-4" />
+                                    <TableCell className="py-3 text-right pr-6">
+                                        <div className="flex items-center justify-end gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setCommentsApp(app)}
+                                                className="h-8 px-2 text-[10px] font-bold border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm"
+                                            >
+                                                <History className="h-3.5 w-3.5 mr-1" /> History
                                             </Button>
-                                        ) : (
-                                            <span className="text-[10px] text-muted-foreground italic">Pending</span>
-                                        )}
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                             ))
                         ) : (
                             <TableRow>
-                                <TableCell colSpan={9} className="h-32 text-center">
+                                <TableCell colSpan={10} className="h-32 text-center">
                                     <div className="flex flex-col items-center justify-center text-muted-foreground/40">
                                         <Plus className="h-8 w-8 mb-2 opacity-20" />
                                         <p className="text-xs font-medium italic">No university applications tracked yet</p>
@@ -188,6 +220,30 @@ export function UniversityApplicationDetailTable({
                     </TableBody>
                 </Table>
             </div>
+
+            <MoveToVisaModal
+                isOpen={isMoveToVisaOpen}
+                onClose={() => setIsMoveToVisaOpen(false)}
+                application={selectedApp}
+                onSuccess={() => {
+                    onUpdate?.();
+                    setIsMoveToVisaOpen(false);
+                }}
+            />
+
+            <OfferLetterModal
+                isOpen={!!offerLetterApp}
+                onClose={() => setOfferLetterApp(null)}
+                application={offerLetterApp}
+                onUpdate={onUpdate}
+            />
+
+            <ApplicationCommentsModal
+                isOpen={!!commentsApp}
+                onClose={() => setCommentsApp(null)}
+                application={commentsApp}
+                onUpdate={onUpdate}
+            />
         </div >
     );
 }

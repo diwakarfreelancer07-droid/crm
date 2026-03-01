@@ -16,9 +16,14 @@ export async function GET(
         }
 
         const { id } = await params;
+        const { searchParams } = new URL(req.url);
+        const type = searchParams.get('type');
 
         const notes = await prisma.applicationNote.findMany({
-            where: { applicationId: id },
+            where: {
+                applicationId: id,
+                ...(type ? { type: type as any } : {})
+            },
             include: {
                 user: { select: { name: true, role: true, imageUrl: true } }
             },
@@ -45,20 +50,23 @@ export async function POST(
 
         const { id } = await params;
         const body = await req.json();
-        const { note } = body;
+        const { note, attachmentUrl, attachmentName, type } = body;
 
-        if (!note) {
-            return NextResponse.json({ error: "Note content is required" }, { status: 400 });
+        if (!note && !attachmentUrl) {
+            return NextResponse.json({ error: "Note content or attachment is required" }, { status: 400 });
         }
 
         const newNote = await prisma.applicationNote.create({
             data: {
                 applicationId: id,
                 userId: session.user.id,
-                note
+                note: note || "",
+                attachmentUrl,
+                attachmentName,
+                type: type || "COMMENT"
             },
             include: {
-                user: { select: { name: true } }
+                user: { select: { name: true, role: true } }
             }
         });
 
@@ -70,7 +78,7 @@ export async function POST(
             entity: "UniversityApplication",
             entityId: id,
             metadata: {
-                action: "NOTE_ADDED",
+                action: type === "OFFER_LETTER" ? "OFFER_LETTER_ADDED" : "NOTE_ADDED",
                 note,
                 addedBy: newNote.user.name
             }

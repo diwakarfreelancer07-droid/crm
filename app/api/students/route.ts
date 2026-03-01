@@ -1,16 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { withPermission } from "@/lib/permissions";
+
+export const dynamic = 'force-dynamic';
 
 // GET /api/students - List all students with filters
-export async function GET(req: NextRequest) {
+export const GET = withPermission('STUDENTS', 'VIEW', async (req, { permission }) => {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const { user: sessionUser, scope } = permission;
+        const session = { user: sessionUser };
 
         const { searchParams } = new URL(req.url);
         const search = searchParams.get("search") || "";
@@ -25,14 +24,13 @@ export async function GET(req: NextRequest) {
         };
         const userRole = (session as any).user.role;
 
-        // RBAC: Agent visibility
-        if (userRole === 'AGENT' || userRole === 'EMPLOYEE' || userRole === 'COUNSELOR' || userRole === 'SALES_REP' || userRole === 'SUPPORT_AGENT') {
-            const onboardedByIds = [(session as any).user.id];
+        // RBAC: Dynamic scope-based visibility
+        if (scope === 'OWN' || scope === 'ASSIGNED') {
+            const onboardedByIds = [session.user.id];
 
-            // For AGENT, also include students onboarded by their subordinates
-            if (userRole === 'AGENT') {
+            if (session.user.role === 'AGENT') {
                 const agent = await prisma.agentProfile.findUnique({
-                    where: { userId: (session as any).user.id }
+                    where: { userId: session.user.id }
                 });
                 if (agent) {
                     const subordinates = await prisma.counselorProfile.findMany({
@@ -100,15 +98,13 @@ export async function GET(req: NextRequest) {
         console.error("Error fetching students:", error);
         return NextResponse.json({ error: "Failed to fetch students" }, { status: 500 });
     }
-}
+});
 
 // POST /api/students - Create new student (manual entry)
-export async function POST(req: NextRequest) {
+export const POST = withPermission('STUDENTS', 'CREATE', async (req, { permission }) => {
     try {
-        const session = await getServerSession(authOptions) as any;
-        if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const { user: sessionUser } = permission;
+        const session = { user: sessionUser };
 
         // Verify session user exists in DB (to prevent FK errors if session is from before DB reset)
         const currentUser = await prisma.user.findUnique({
@@ -271,5 +267,5 @@ export async function POST(req: NextRequest) {
         console.error("Error creating student:", error);
         return NextResponse.json({ error: "Failed to create student" }, { status: 500 });
     }
-}
+});
 

@@ -18,9 +18,16 @@ import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useRolePath } from "@/hooks/use-role-path";
+import { Plus, History, Eye } from "lucide-react";
+import { useState } from "react";
+import { OfferLetterModal } from "./OfferLetterModal";
+import { ApplicationCommentsModal } from "./ApplicationCommentsModal";
+import { Button } from "@/components/ui/button";
 
 export function StudentApplicationsModal({ isOpen, onClose, student }: any) {
     const { prefixPath } = useRolePath();
+    const [offerLetterApp, setOfferLetterApp] = useState<any>(null);
+    const [commentsApp, setCommentsApp] = useState<any>(null);
     const { data, isLoading } = useQuery({
         queryKey: ['student-applications', student?.id],
         queryFn: async () => {
@@ -93,11 +100,41 @@ export function StudentApplicationsModal({ isOpen, onClose, student }: any) {
                                             <ExternalLink className="h-3 w-3" />
                                         </Link>
                                     </div>
+
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setCommentsApp(app);
+                                        }}
+                                        className="h-8 flex-1 text-[10px] font-bold border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm rounded-xl"
+                                    >
+                                        <History className="h-3.5 w-3.5 mr-1" /> History
+                                    </Button>
                                 </div>
                             ))}
                         </div>
                     )}
                 </div>
+
+                <OfferLetterModal
+                    isOpen={!!offerLetterApp}
+                    onClose={() => setOfferLetterApp(null)}
+                    application={offerLetterApp}
+                    onUpdate={() => {
+                        // Refetching is handled by react-query's key
+                    }}
+                />
+
+                <ApplicationCommentsModal
+                    isOpen={!!commentsApp}
+                    onClose={() => setCommentsApp(null)}
+                    application={commentsApp}
+                    onUpdate={() => {
+                        // Refetching is handled by react-query's key
+                    }}
+                />
             </DialogContent>
         </Dialog>
     );

@@ -72,10 +72,39 @@ export function AddUniversityApplicationForm({
 
     // Cache for Universities to avoid redundant fetches
     const [universitiesCache, setUniversitiesCache] = useState<Record<string, MasterData[]>>({});
+    const [agents, setAgents] = useState<MasterData[]>([]);
+    const [counselors, setCounselors] = useState<MasterData[]>([]);
+    const [globalAgentId, setGlobalAgentId] = useState<string>("");
+    const [globalCounselorId, setGlobalCounselorId] = useState<string>("");
 
     useEffect(() => {
         fetchMasters();
+        fetchAgents();
     }, []);
+
+    const fetchAgents = async () => {
+        try {
+            const res = await axios.get("/api/employees?role=AGENT&limit=100");
+            setAgents(res.data.employees || []);
+        } catch (error) {
+            console.error("Failed to fetch agents:", error);
+        }
+    };
+
+    const fetchCounselors = async (agentId: string) => {
+        try {
+            const res = await axios.get(`/api/employees?role=COUNSELOR&agentId=${agentId}&limit=100`);
+            setCounselors(res.data.employees || []);
+        } catch (error) {
+            console.error("Failed to fetch counselors:", error);
+        }
+    };
+
+    const handleGlobalAgentChange = (val: string) => {
+        setGlobalAgentId(val);
+        setGlobalCounselorId("");
+        fetchCounselors(val);
+    };
 
     const fetchMasters = async () => {
         setLoadingMasters(true);
@@ -208,7 +237,9 @@ export function AddUniversityApplicationForm({
                     courseName: r.courseName,
                     intake: r.intake,
                     deadlineDate: r.deadlineDate,
-                    associateId: r.associateId
+                    associateId: r.associateId,
+                    agentId: globalAgentId || null,
+                    counselorId: globalCounselorId || null
                 }))
             });
 
@@ -290,6 +321,44 @@ export function AddUniversityApplicationForm({
                                         ))}
                                     </SelectContent>
                                 </Select>
+                            </div>
+
+                            <div className="p-5 rounded-2xl bg-amber-50 border border-amber-100 space-y-4">
+                                <h4 className="text-[11px] font-black text-amber-600 flex items-center gap-2 uppercase tracking-widest">
+                                    <User className="h-3.5 w-3.5" /> Assignment
+                                </h4>
+                                <div className="space-y-3">
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[9px] font-black uppercase text-muted-foreground ml-1">Select Agent</Label>
+                                        <Select value={globalAgentId} onValueChange={handleGlobalAgentChange}>
+                                            <SelectTrigger className="h-10 rounded-xl bg-white border-none shadow-sm text-xs font-bold">
+                                                <SelectValue placeholder="Select Agent" />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl">
+                                                {agents.map(a => (
+                                                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[9px] font-black uppercase text-muted-foreground ml-1">Select Counselor (Optional)</Label>
+                                        <Select
+                                            value={globalCounselorId}
+                                            onValueChange={(val) => setGlobalCounselorId(val)}
+                                            disabled={!globalAgentId || counselors.length === 0}
+                                        >
+                                            <SelectTrigger className="h-10 rounded-xl bg-white border-none shadow-sm text-xs font-bold">
+                                                <SelectValue placeholder={!globalAgentId ? "Select agent first" : counselors.length === 0 ? "No counselors" : "Select Counselor"} />
+                                            </SelectTrigger>
+                                            <SelectContent className="rounded-xl">
+                                                {counselors.map(c => (
+                                                    <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
                             </div>
 
                             <div className="p-5 rounded-2xl bg-primary/5 border border-primary/10 space-y-4">

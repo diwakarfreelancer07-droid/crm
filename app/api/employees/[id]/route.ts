@@ -38,6 +38,7 @@ export async function GET(
             include: {
                 agentProfile: true,
                 counselorProfile: true,
+                roleProfile: true,
                 assignedLeads: {
                     include: {
                         lead: {
@@ -124,6 +125,7 @@ export async function PATCH(
         if (name) updateData.name = name;
         if (email) updateData.email = email;
         if (role) updateData.role = role;
+        if (body.roleId !== undefined) updateData.roleId = body.roleId;
         if (typeof isActive === 'boolean') updateData.isActive = isActive;
 
         if (password) {

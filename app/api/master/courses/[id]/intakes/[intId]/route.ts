@@ -6,16 +6,18 @@ import { AuditLogService } from "@/lib/auditLog";
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string, intId: string } }
+    { params }: { params: Promise<{ id: string, intId: string }> }
 ) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getServerSession(authOptions) as any;
         if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
+        const { id, intId } = await params;
+
         const intake = await prisma.courseIntake.findUnique({
-            where: { id: params.intId },
+            where: { id: intId },
         });
 
         if (!intake) {
@@ -23,7 +25,7 @@ export async function DELETE(
         }
 
         await prisma.courseIntake.delete({
-            where: { id: params.intId },
+            where: { id: intId },
         });
 
         await AuditLogService.log({
@@ -31,7 +33,7 @@ export async function DELETE(
             action: "UPDATED",
             module: "MASTERS",
             entity: "Course",
-            entityId: params.id,
+            entityId: id,
             metadata: { intakeMonth: intake.month, action: "REMOVE_INTAKE" },
         });
 

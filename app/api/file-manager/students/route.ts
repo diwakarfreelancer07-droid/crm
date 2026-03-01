@@ -12,12 +12,13 @@ export async function GET(req: NextRequest) {
 
         const { searchParams } = new URL(req.url);
         const search = searchParams.get('search') || '';
+        const source = searchParams.get('source') || '';
         const page = Math.max(1, parseInt(searchParams.get('page') || '1'));
         const limit = Math.max(1, parseInt(searchParams.get('limit') || '25'));
         const skip = (page - 1) * limit;
 
         // Build search filter
-        const searchFilter = search
+        const searchFilter: any = search
             ? {
                 OR: [
                     { name: { contains: search, mode: 'insensitive' as const } },
@@ -26,6 +27,10 @@ export async function GET(req: NextRequest) {
                 ],
             }
             : {};
+
+        if (source && source !== 'ALL') {
+            searchFilter.lead = { source: source };
+        }
 
         const where = {
             ...searchFilter,

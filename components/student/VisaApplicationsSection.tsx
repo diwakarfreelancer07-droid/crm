@@ -8,6 +8,10 @@ import { VisaApplicationsTable } from "./VisaApplicationsTable";
 import { AddVisaApplicationModal } from "./AddVisaApplicationModal";
 import { useVisaApplications, useDeleteVisaApplication } from "@/hooks/useApi";
 import { toast } from "sonner";
+import { OfferLetterModal } from "@/components/applications/OfferLetterModal";
+import { ApplicationCommentsModal } from "@/components/applications/ApplicationCommentsModal";
+import { ApplicationNotesModal } from "@/components/applications/ApplicationNotesModal";
+import { ApplicationHistoryModal } from "@/components/applications/ApplicationHistoryModal";
 
 interface VisaApplicationsSectionProps {
     studentId: string;
@@ -16,6 +20,11 @@ interface VisaApplicationsSectionProps {
 
 export default function VisaApplicationsSection({ studentId, studentName }: VisaApplicationsSectionProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [offerLetterApp, setOfferLetterApp] = useState<any>(null);
+    const [commentsApp, setCommentsApp] = useState<any>(null);
+    const [historyApp, setHistoryApp] = useState<any>(null);
+    const [notesApp, setNotesApp] = useState<any>(null);
+
     const { data, isLoading, refetch } = useVisaApplications(studentId);
     const deleteMutation = useDeleteVisaApplication();
 
@@ -57,6 +66,10 @@ export default function VisaApplicationsSection({ studentId, studentName }: Visa
                         data={data?.visaApplications || []}
                         onUpdate={refetch}
                         onDelete={handleDelete}
+                        onOpenHistory={(app) => setHistoryApp(app)}
+                        onOpenComments={(app) => setCommentsApp(app)}
+                        onOpenOfferLetters={(app) => setOfferLetterApp(app)}
+                        onOpenNotes={(app) => setNotesApp(app)}
                     />
                 )}
             </CardContent>
@@ -70,6 +83,35 @@ export default function VisaApplicationsSection({ studentId, studentName }: Visa
                     refetch();
                     toast.success("Visa application added");
                 }}
+            />
+
+            {/* Application Modals */}
+            <ApplicationHistoryModal
+                isOpen={!!historyApp}
+                onClose={() => setHistoryApp(null)}
+                applicationId={historyApp?.id}
+                application={historyApp}
+            />
+
+            <ApplicationNotesModal
+                isOpen={!!notesApp}
+                onClose={() => setNotesApp(null)}
+                applicationId={notesApp?.id}
+                onUpdate={refetch}
+            />
+
+            <OfferLetterModal
+                isOpen={!!offerLetterApp}
+                onClose={() => setOfferLetterApp(null)}
+                application={offerLetterApp}
+                onUpdate={refetch}
+            />
+
+            <ApplicationCommentsModal
+                isOpen={!!commentsApp}
+                onClose={() => setCommentsApp(null)}
+                application={commentsApp}
+                onUpdate={refetch}
             />
         </Card>
     );

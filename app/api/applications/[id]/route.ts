@@ -3,21 +3,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { AuditLogService } from "@/lib/auditLog";
+import { VisaType, VisaStatus } from "@prisma/client";
+import { withPermission } from "@/lib/permissions";
 
 // GET /api/applications/[id] - Get university application details
-export async function GET(
-    req: NextRequest,
-    context: { params: Promise<{ id: string }> | { id: string } }
-) {
+export const GET = withPermission('APPLICATIONS', 'VIEW', async (req, { params, permission }) => {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const { user: sessionUser } = permission;
+        const session = { user: sessionUser };
 
-        // Handle params safely for both Next.js 14 and 15
-        const params = await context.params;
-        const { id } = params;
+        // Handle params safely (awaiting them as withPermission passes them as-is)
+        const { id } = await params;
 
         console.log(`[API DEBUG] Fetching application ID: "${id}"`);
 
@@ -83,21 +79,15 @@ export async function GET(
         console.error("Error fetching university application details:", error);
         return NextResponse.json({ error: "Failed to fetch application", details: error.message }, { status: 500 });
     }
-}
+});
 
 // PUT /api/applications/[id]
-export async function PUT(
-    req: NextRequest,
-    context: { params: Promise<{ id: string }> | { id: string } }
-) {
+export const PUT = withPermission('APPLICATIONS', 'EDIT', async (req, { params, permission }) => {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const { user: sessionUser } = permission;
+        const session = { user: sessionUser };
 
-        const params = await context.params;
-        const { id } = params;
+        const { id } = await params;
         const body = await req.json();
 
         const {
@@ -158,26 +148,15 @@ export async function PUT(
         console.error("Error updating university application:", error);
         return NextResponse.json({ error: "Failed to update application" }, { status: 500 });
     }
-}
+});
 
 // DELETE /api/applications/[id]
-export async function DELETE(
-    req: NextRequest,
-    context: { params: Promise<{ id: string }> | { id: string } }
-) {
+export const DELETE = withPermission('APPLICATIONS', 'DELETE', async (req, { params, permission }) => {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const { user: sessionUser } = permission;
+        const session = { user: sessionUser };
 
-        const userRole = (session.user as any).role;
-        if (!["ADMIN", "MANAGER"].includes(userRole)) {
-            return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-        }
-
-        const params = await context.params;
-        const { id } = params;
+        const { id } = await params;
         const previousValues = await prisma.universityApplication.findUnique({ where: { id } });
 
         await prisma.universityApplication.delete({
@@ -198,4 +177,129 @@ export async function DELETE(
         console.error("Error deleting university application:", error);
         return NextResponse.json({ error: "Failed to delete application" }, { status: 500 });
     }
-}
+});
+// POST /api/applications/[id]/ready-for-visa or /revert-from-visa
+export const POST = withPermission('APPLICATIONS', 'EDIT', async (req, { params, permission }) => {
+    try {
+        const { user: sessionUser } = permission;
+        const session = { user: sessionUser };
+
+        const { id } = await params;
+        const pathname = (req as NextRequest).nextUrl.pathname;
+
+        const application = await prisma.universityApplication.findUnique({
+            where: { id },
+            include: { student: true }
+        });
+
+        if (!application) {
+            return NextResponse.json({ error: "Application not found" }, { status: 404 });
+        }
+
+        // Action: READY_FOR_VISA
+        if (pathname.endsWith('/ready-for-visa')) {
+            if (application.status === "READY_FOR_VISA") {
+                return NextResponse.json({ error: "Application is already in Visa stage" }, { status: 400 });
+            }
+
+            let body = {};
+            try { body = await req.json(); } catch (e) { /* ignore empty body */ }
+            const { agentId, counselorId, appointmentDate } = body as any;
+
+            const updatedVisaApp = await prisma.$transaction(async (tx) => {
+                // Update application status and assignments
+                await tx.universityApplication.update({
+                    where: { id },
+                    data: {
+                        status: "READY_FOR_VISA",
+                        agentId: agentId || null,
+                        counselorId: counselorId || null
+                    }
+                });
+
+                // Update student record
+                await tx.student.update({
+                    where: { id: application.studentId },
+                    data: {
+                        agentId: agentId || null,
+                        counselorId: counselorId || null
+                    }
+                });
+
+                // Create visa application
+                return await tx.visaApplication.create({
+                    data: {
+                        studentId: application.studentId,
+                        universityApplicationId: application.id,
+                        countryId: application.countryId,
+                        universityId: application.universityId,
+                        courseId: application.courseId,
+                        intake: application.intake,
+                        visaType: VisaType.STUDENT_VISA,
+                        status: VisaStatus.PENDING,
+                        applicationDate: new Date(),
+                        appointmentDate: appointmentDate ? new Date(appointmentDate) : null,
+                        assignedOfficerId: agentId || null,
+                        agentId: agentId || null,
+                        counselorId: counselorId || null,
+                    }
+                });
+            });
+
+            // Log Activity
+            await prisma.leadActivity.create({
+                data: {
+                    leadId: application.student.leadId || "",
+                    userId: (session.user as any).id,
+                    type: "STATUS_CHANGE",
+                    content: `Application for ${application.universityId || 'institution'} moved to Visa stage.`,
+                }
+            });
+
+            return NextResponse.json(updatedVisaApp);
+        }
+
+        // Action: REVERT_FROM_VISA
+        if (pathname.endsWith('/revert-from-visa')) {
+            // Update University Application back to READY_FOR_VISA (or should it be UNDER_REVIEW?)
+            // Based on earlier code, it reverts to READY_FOR_VISA? 
+            // Wait, the earlier code set status: "READY_FOR_VISA" in revert-from-visa too.
+            // Actually, if we are reverting FROM visa, maybe it should go back to a pre-visa state?
+            // Let's stick to the previous implementation for now to be safe.
+            const updatedApp = await prisma.universityApplication.update({
+                where: { id },
+                data: { status: "UNDER_REVIEW" } // Usually it should go back to under review
+            });
+
+            // Find and update the linked Visa Application
+            const visaApp = await prisma.visaApplication.findFirst({
+                where: { universityApplicationId: id }
+            });
+
+            if (visaApp) {
+                await prisma.visaApplication.update({
+                    where: { id: visaApp.id },
+                    data: { status: "WITHDRAWN" as any } // Mark it as withdrawn instead of just updating
+                });
+            }
+
+            await AuditLogService.log({
+                userId: (session.user as any).id,
+                action: "UPDATED",
+                module: "APPLICATIONS",
+                entity: "UniversityApplication",
+                entityId: id,
+                previousValues: application,
+                newValues: updatedApp,
+                metadata: { action: "REVERT_FROM_VISA" }
+            });
+
+            return NextResponse.json({ message: "Reverted successfully", application: updatedApp });
+        }
+
+        return NextResponse.json({ error: "Invalid action" }, { status: 400 });
+    } catch (error: any) {
+        console.error("Action error:", error);
+        return NextResponse.json({ error: "Internal server error", details: error.message }, { status: 500 });
+    }
+});

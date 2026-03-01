@@ -1,4 +1,5 @@
 "use client";
+import { toast } from "sonner";
 
 import {
     useReactTable,
@@ -14,7 +15,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Trash2, Calendar, Globe, School, User, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
+import { MoreHorizontal, Eye, Trash2, Calendar, Globe, School, User, CheckCircle2, Clock, XCircle, AlertCircle, Plus, History, Undo2, CheckSquare, ArrowRightLeft } from "lucide-react";
 import { VisaStatus, VisaType } from "@prisma/client";
 import { useUpdateVisaApplication } from "@/hooks/useApi";
 import { useRouter } from "next/navigation";
@@ -24,9 +25,21 @@ interface VisaApplicationsTableProps {
     data: any[];
     onUpdate: () => void;
     onDelete: (id: string) => void;
+    onOpenHistory?: (app: any) => void;
+    onOpenComments?: (app: any) => void;
+    onOpenOfferLetters?: (app: any) => void;
+    onOpenNotes?: (app: any) => void;
 }
 
-export function VisaApplicationsTable({ data, onUpdate, onDelete }: VisaApplicationsTableProps) {
+export function VisaApplicationsTable({
+    data,
+    onUpdate,
+    onDelete,
+    onOpenHistory,
+    onOpenComments,
+    onOpenOfferLetters,
+    onOpenNotes
+}: VisaApplicationsTableProps) {
     const router = useRouter();
     const { prefixPath } = useRolePath();
     const updateMutation = useUpdateVisaApplication();
@@ -218,6 +231,95 @@ export function VisaApplicationsTable({ data, onUpdate, onDelete }: VisaApplicat
             ),
         },
         {
+            id: "management",
+            header: "Management",
+            cell: ({ row }) => (
+                <div className="flex items-center gap-1.5">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            if (row.original.universityApplication) {
+                                onOpenComments?.(row.original.universityApplication);
+                            } else {
+                                toast.error("No linked university application found");
+                            }
+                        }}
+                        className="h-7 px-2 text-[9px] font-bold border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm rounded-lg"
+                    >
+                        <History className="h-3 w-3 mr-1" /> History
+                    </Button>
+
+                    {!["DEFERRED", "ENROLLED"].includes(row.original.status) ? (
+                        <>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                        await updateMutation.mutateAsync({
+                                            id: row.original.id,
+                                            data: { status: "DEFERRED" as any }
+                                        });
+                                        toast.success("Moved to Defer");
+                                        onUpdate();
+                                    } catch (error) {
+                                        toast.error("Failed to defer");
+                                    }
+                                }}
+                                className="h-7 px-2 text-[9px] font-bold border-pink-200 text-pink-600 hover:bg-pink-50 rounded-lg"
+                            >
+                                <ArrowRightLeft className="h-3 w-3 mr-1" /> Defer
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={async (e) => {
+                                    e.stopPropagation();
+                                    try {
+                                        await updateMutation.mutateAsync({
+                                            id: row.original.id,
+                                            data: { status: "ENROLLED" as any }
+                                        });
+                                        toast.success("Moved to Enrolled");
+                                        onUpdate();
+                                    } catch (error) {
+                                        toast.error("Failed to enroll");
+                                    }
+                                }}
+                                className="h-7 px-2 text-[9px] font-bold border-cyan-200 text-cyan-600 hover:bg-cyan-50 rounded-lg"
+                            >
+                                <CheckSquare className="h-3 w-3 mr-1" /> Enroll
+                            </Button>
+                        </>
+                    ) : (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={async (e) => {
+                                e.stopPropagation();
+                                try {
+                                    await updateMutation.mutateAsync({
+                                        id: row.original.id,
+                                        data: { status: "VISA_APPLICATION_IN_PROGRESS" as any }
+                                    });
+                                    toast.success("Reverted to Visa stage");
+                                    onUpdate();
+                                } catch (error) {
+                                    toast.error("Failed to revert");
+                                }
+                            }}
+                            className="h-7 px-2 text-[9px] font-bold border-slate-200 text-slate-600 hover:bg-slate-50 shadow-sm rounded-lg"
+                        >
+                            <Undo2 className="h-3 w-3 mr-1" /> Revert
+                        </Button>
+                    )}
+                </div>
+            )
+        },
+        {
             id: "actions",
             cell: ({ row }) => (
                 <div className="flex items-center justify-end">
@@ -232,13 +334,25 @@ export function VisaApplicationsTable({ data, onUpdate, onDelete }: VisaApplicat
                                 <MoreHorizontal className="h-4 w-4 text-slate-400" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-none p-1 bg-white">
+                        <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-xl border-none p-1 bg-white">
                             <DropdownMenuItem
                                 className="cursor-pointer py-2 rounded-lg"
                                 onClick={() => router.push(prefixPath(`/visa-applications/${row.original.id}`))}
                             >
                                 <Eye className="mr-2 h-4 w-4 text-primary" /> View Details
                             </DropdownMenuItem>
+                            <DropdownMenuItem
+                                className="cursor-pointer py-2 rounded-lg"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    if (row.original.universityApplication) {
+                                        onOpenComments?.(row.original.universityApplication);
+                                    }
+                                }}
+                            >
+                                <History className="mr-2 h-4 w-4 text-slate-500" /> View History
+                            </DropdownMenuItem>
+                            <div className="h-px bg-slate-100 my-1" />
                             <DropdownMenuItem
                                 className="text-destructive cursor-pointer py-2 rounded-lg hover:bg-destructive/5"
                                 onClick={(e) => {

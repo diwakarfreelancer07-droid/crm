@@ -23,8 +23,6 @@ import { useRolePath } from "@/hooks/use-role-path";
 import StudentDocumentsSection from "@/components/student/StudentDocumentsSection";
 import { UniversityApplicationDetailTable } from "@/components/application/UniversityApplicationDetailTable";
 import { VisaApplicationDetailTable } from "./VisaApplicationDetailTable";
-import StudentLoginDetailsSection from "@/components/student/StudentLoginDetailsSection";
-import StudentAccountDetailsSection from "@/components/student/StudentAccountDetailsSection";
 
 interface VisaApplicationDetailViewProps {
     visaApplication: any;
@@ -123,12 +121,6 @@ export function VisaApplicationDetailView({
                     <TabsTrigger value="visa" className="flex-1 min-w-[150px] rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm text-xs font-bold gap-2 transition-all">
                         <Plane className="h-4 w-4" /> Visa Application
                     </TabsTrigger>
-                    <TabsTrigger value="login" className="flex-1 min-w-[120px] rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm text-xs font-bold gap-2 transition-all">
-                        <FileText className="h-4 w-4" /> Login Details
-                    </TabsTrigger>
-                    <TabsTrigger value="account" className="flex-1 min-w-[120px] rounded-xl data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-sm text-xs font-bold gap-2 transition-all">
-                        <Clock className="h-4 w-4" /> Account Details
-                    </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="personal" className="focus-visible:ring-0">
@@ -203,27 +195,6 @@ export function VisaApplicationDetailView({
                     />
                 </TabsContent>
 
-                <TabsContent value="login" className="focus-visible:ring-0">
-                    <Card className="rounded-2xl border-none shadow-sm">
-                        <CardContent className="p-6">
-                            <StudentLoginDetailsSection
-                                studentId={student?.id}
-                                initialData={student?.loginDetails}
-                            />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
-
-                <TabsContent value="account" className="focus-visible:ring-0">
-                    <Card className="rounded-2xl border-none shadow-sm">
-                        <CardContent className="p-6">
-                            <StudentAccountDetailsSection
-                                studentId={student?.id}
-                                initialData={student?.accountDetails}
-                            />
-                        </CardContent>
-                    </Card>
-                </TabsContent>
             </Tabs>
         </div>
     );

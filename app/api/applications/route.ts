@@ -1,16 +1,15 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { AuditLogService } from "@/lib/auditLog";
+import { withPermission } from "@/lib/permissions";
+
+export const dynamic = 'force-dynamic';
 
 // GET /api/applications - List university applications
-export async function GET(req: NextRequest) {
+export const GET = withPermission('APPLICATIONS', 'VIEW', async (req, { permission }) => {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
+        const { user: sessionUser, scope } = permission;
+        const session = { user: sessionUser };
 
         const { searchParams } = new URL(req.url);
 
@@ -31,32 +30,52 @@ export async function GET(req: NextRequest) {
         const dateTo = searchParams.get("dateTo");
         const studentIdString = searchParams.get("studentId");
 
-        const userRole = session.user.role;
-        const userId = session.user.id;
+        const userRole = session.user.role as string;
+        const userId = session.user.id as string;
 
         // If studentId is provided, returns all applications for that specific student
         if (studentIdString) {
-            const applications = await prisma.universityApplication.findMany({
-                where: { studentId: studentIdString },
-                include: {
-                    student: {
-                        select: {
-                            id: true, name: true, email: true, phone: true, imageUrl: true, status: true, passportNo: true,
+            const studentAppWhere: any = { studentId: studentIdString };
+            if (status) {
+                studentAppWhere.status = status;
+            } else {
+                studentAppWhere.status = { notIn: ["READY_FOR_VISA", "DEFERRED", "ENROLLED"] };
+            }
+
+            const [applications, total] = await Promise.all([
+                prisma.universityApplication.findMany({
+                    where: studentAppWhere,
+                    include: {
+                        student: {
+                            select: {
+                                id: true, name: true, email: true, phone: true, imageUrl: true, status: true, passportNo: true,
+                            }
+                        },
+                        country: { select: { id: true, name: true } },
+                        university: { select: { id: true, name: true } },
+                        course: { select: { id: true, name: true } },
+                        assignedBy: { select: { id: true, name: true, role: true } },
+                        assignedTo: { select: { id: true, name: true, role: true } },
+                        _count: {
+                            select: { applicationNotes: true }
                         }
                     },
-                    country: { select: { id: true, name: true } },
-                    university: { select: { id: true, name: true } },
-                    course: { select: { id: true, name: true } },
-                    assignedBy: { select: { id: true, name: true, role: true } },
-                    assignedTo: { select: { id: true, name: true, role: true } },
-                    _count: {
-                        select: { applicationNotes: true }
-                    }
-                },
-                orderBy: { createdAt: 'desc' }
-            });
+                    orderBy: { createdAt: 'desc' },
+                    skip,
+                    take: limit,
+                }),
+                prisma.universityApplication.count({ where: studentAppWhere })
+            ]);
 
-            return NextResponse.json({ applications });
+            return NextResponse.json({
+                applications,
+                pagination: {
+                    total,
+                    page,
+                    limit,
+                    totalPages: Math.ceil(total / limit),
+                }
+            });
         }
 
         // --- Grouped By Student View ---
@@ -65,8 +84,8 @@ export async function GET(req: NextRequest) {
         if (status) {
             appWhere.status = status;
         } else {
-            // By default, hide applications that have been moved to the visa stage
-            appWhere.status = { not: "READY_FOR_VISA" };
+            // By default, hide applications that have been moved to the visa stage or completed
+            appWhere.status = { notIn: ["READY_FOR_VISA", "DEFERRED", "ENROLLED"] };
         }
         if (countryId) appWhere.countryId = countryId;
         if (assignedToId) appWhere.assignedToId = assignedToId;
@@ -81,41 +100,43 @@ export async function GET(req: NextRequest) {
             };
         }
 
-        // RBAC Logic for applications
-        if (userRole === 'COUNSELOR') {
+        // RBAC Logic for applications (Dynamic scope-based)
+        if (scope === 'OWN' || scope === 'ASSIGNED') {
+            const secondaryIds = [userId];
+            if (userRole === 'AGENT') {
+                const agent = await prisma.agentProfile.findUnique({
+                    where: { userId },
+                    select: { id: true }
+                });
+                if (agent) {
+                    const counselors = await prisma.counselorProfile.findMany({
+                        where: { agentId: agent.id },
+                        select: { userId: true }
+                    });
+                    secondaryIds.push(...counselors.map(c => c.userId));
+                }
+            }
+
+            // Apply restrictions to appWhere
             appWhere.OR = [
-                { assignedToId: userId },
-                { student: { onboardedBy: userId } }
+                { assignedToId: { in: secondaryIds } },
+                { assignedById: { in: secondaryIds as any } },
+                { student: { onboardedBy: { in: secondaryIds } } }
             ];
-        } else if (['SUPPORT_AGENT', 'SALES_REP'].includes(userRole)) {
-            appWhere.assignedToId = userId;
         }
 
         // Base where clause for STUDENTS
         const studentWhere: Record<string, any> = {
-            OR: [
-                {
-                    applications: {
-                        some: appWhere
+            applications: {
+                some: appWhere,
+                ...(!status && {
+                    none: {
+                        status: { in: ["READY_FOR_VISA", "DEFERRED", "ENROLLED"] }
                     }
-                },
-                {
-                    visaApplications: {
-                        some: {
-                            status: status as any,
-                            ...(userRole === 'COUNSELOR' && { assignedOfficerId: userId }),
-                            ...(['SUPPORT_AGENT', 'SALES_REP'].includes(userRole) && { assignedOfficerId: userId })
-                        }
-                    }
-                }
-            ]
+                })
+            }
         };
 
-        // If not filtering for specifically DEFERRED/ENROLLED, stick to university apps matching filters
-        if (!["DEFERRED", "ENROLLED"].includes(status || "")) {
-            delete (studentWhere as any).OR;
-            studentWhere.applications = { some: appWhere };
-        }
 
         if (search) {
             studentWhere.AND = [
@@ -158,6 +179,10 @@ export async function GET(req: NextRequest) {
             studentWhere.onboardedBy = { in: secondaryIds };
         }
 
+        console.log('DEBUG: Applications API', { userRole, userId, status, studentIdString });
+        console.log('DEBUG: appWhere', JSON.stringify(appWhere, null, 2));
+        console.log('DEBUG: studentWhere', JSON.stringify(studentWhere, null, 2));
+
         const [students, total] = await Promise.all([
             prisma.student.findMany({
                 where: studentWhere,
@@ -176,7 +201,9 @@ export async function GET(req: NextRequest) {
                         take: 1
                     },
                     visaApplications: {
-                        where: { status: status as any },
+                        where: {
+                            ...(status && { status: status as any })
+                        },
                         include: {
                             country: { select: { id: true, name: true } },
                             university: { select: { id: true, name: true } },
@@ -202,12 +229,12 @@ export async function GET(req: NextRequest) {
 
             // Prioritize status match. If we are filtering by status, find the one that matches.
             let displayApp = latestUniApp;
-            if (status && latestVisaApp?.status === status) {
+            if (status && latestVisaApp?.status === (status as any)) {
                 displayApp = {
                     ...latestVisaApp,
-                    status: latestVisaApp.status,
+                    status: latestVisaApp.status as any,
                     universityApplication: latestUniApp // keep ref if exists
-                };
+                } as any;
             }
 
             if (!displayApp) return null;
@@ -249,29 +276,13 @@ export async function GET(req: NextRequest) {
         console.error("Error fetching applications:", error);
         return NextResponse.json({ error: "Failed to fetch applications" }, { status: 500 });
     }
-}
+});
 
 // POST /api/applications 
-export async function POST(req: NextRequest) {
+export const POST = withPermission('APPLICATIONS', 'CREATE', async (req, { permission }) => {
     try {
-        const session = await getServerSession(authOptions);
-        if (!session?.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-        }
-
-        const currentUser = await prisma.user.findUnique({
-            where: { id: (session.user as any).id }
-        });
-
-        if (!currentUser) {
-            return NextResponse.json({
-                error: "Your session is invalid (likely due to a database reset). Please log out and log back in."
-            }, { status: 403 });
-        }
-
-        if (!["ADMIN", "MANAGER", "COUNSELOR", "AGENT"].includes(session.user.role)) {
-            return NextResponse.json({ error: "Permission denied" }, { status: 403 });
-        }
+        const { user: sessionUser } = permission;
+        const session = { user: sessionUser };
 
         const body = await req.json();
         const { studentId, applications } = body;
@@ -292,6 +303,19 @@ export async function POST(req: NextRequest) {
 
         const createdApplications = await prisma.$transaction(async (tx) => {
             const results = [];
+
+            // Extract agent/counselor from first app (assuming they are student-wide for this batch)
+            const firstApp = applications[0];
+            if (firstApp && (firstApp.agentId || firstApp.counselorId)) {
+                await tx.student.update({
+                    where: { id: studentId },
+                    data: {
+                        agentId: firstApp.agentId || null,
+                        counselorId: firstApp.counselorId || null
+                    }
+                });
+            }
+
             for (const appData of applications) {
                 const app = await tx.universityApplication.create({
                     data: {
@@ -305,6 +329,8 @@ export async function POST(req: NextRequest) {
                         applyLevel: appData.applyLevel || null,
                         deadlineDate: appData.deadlineDate ? new Date(appData.deadlineDate) : null,
                         associateId: appData.associateId || null,
+                        agentId: appData.agentId || null,
+                        counselorId: appData.counselorId || null,
                         status: "PENDING"
                     },
                     include: {
@@ -344,4 +370,4 @@ export async function POST(req: NextRequest) {
         console.error("Error creating applications:", error);
         return NextResponse.json({ error: "Failed to create applications" }, { status: 500 });
     }
-}
+});

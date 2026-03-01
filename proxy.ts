@@ -1,3 +1,8 @@
+// Polyfill for self in environments where it is missing
+if (typeof self === "undefined") {
+    (globalThis as any).self = globalThis;
+}
+
 import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
@@ -23,7 +28,7 @@ const NAMESPACE_ROLES: Record<string, string[]> = {
 // Login page for each namespace
 const NAMESPACE_LOGIN: Record<string, string> = {
     "/admin": "/admin",
-    "/agent": "/agent-login",
+    "/agent": "/agent/login",
     "/student": "/login",
 };
 
@@ -63,9 +68,9 @@ export default withAuth(
             }
 
             const namespace = getNamespace(pathname);
-            console.log('Middleware namespace check:', { pathname, namespace });
+            const isLoginPage = pathname === "/login" || pathname === "/admin" || pathname === "/agent/login";
 
-            if (namespace) {
+            if (namespace && !isLoginPage) {
                 // Check that this role is allowed in this namespace
                 const allowedRoles = NAMESPACE_ROLES[namespace] || [];
                 if (role && !allowedRoles.includes(role)) {
@@ -74,8 +79,6 @@ export default withAuth(
                     console.log('Middleware redirecting unauthorized role:', { role, correctPrefix });
                     return NextResponse.redirect(new URL(`${correctPrefix}/dashboard`, req.url));
                 }
-
-                console.log('Middleware allowing namespaced path without rewrite:', { pathname });
             }
 
             return NextResponse.next();
@@ -88,7 +91,7 @@ export default withAuth(
             authorized: ({ token, req }) => {
                 // Public auth pages — always allow
                 const pathname = req.nextUrl.pathname;
-                const publicPaths = ["/login", "/admin", "/agent-login", "/register", "/forgot-password", "/new-password", "/verify-otp"];
+                const publicPaths = ["/login", "/admin", "/agent/login", "/register", "/forgot-password", "/new-password", "/verify-otp"];
                 if (publicPaths.some((p) => pathname === p || pathname.startsWith(p + "/"))) {
                     return true;
                 }

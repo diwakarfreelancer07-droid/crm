@@ -7,25 +7,26 @@ import { AuditLogService } from "@/lib/auditLog";
 
 export async function POST(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getServerSession(authOptions) as any;
         if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
+        const { id } = await params;
         const body = await req.json();
         const validatedData = intakeSchema.parse(body);
 
-        const course = await prisma.course.findUnique({ where: { id: params.id } });
+        const course = await prisma.course.findUnique({ where: { id } });
         if (!course) {
             return NextResponse.json({ message: "Course not found" }, { status: 404 });
         }
 
         const intake = await prisma.courseIntake.create({
             data: {
-                courseId: params.id,
+                courseId: id,
                 month: validatedData.month,
             },
         });
@@ -35,7 +36,7 @@ export async function POST(
             action: "UPDATED",
             module: "MASTERS",
             entity: "Course",
-            entityId: params.id,
+            entityId: id,
             metadata: { intakeMonth: validatedData.month, action: "ADD_INTAKE" },
         });
 

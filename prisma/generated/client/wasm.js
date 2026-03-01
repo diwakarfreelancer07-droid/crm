@@ -129,6 +129,7 @@ exports.Prisma.UserScalarFieldEnum = {
   passwordHash: 'passwordHash',
   role: 'role',
   isActive: 'isActive',
+  roleId: 'roleId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   otp: 'otp',
@@ -174,7 +175,8 @@ exports.Prisma.EmployeeProfileScalarFieldEnum = {
   department: 'department',
   designation: 'designation',
   salary: 'salary',
-  joiningDate: 'joiningDate'
+  joiningDate: 'joiningDate',
+  managerId: 'managerId'
 };
 
 exports.Prisma.LeadScalarFieldEnum = {
@@ -301,9 +303,11 @@ exports.Prisma.StudentScalarFieldEnum = {
   imageUrl: 'imageUrl',
   savedAddresses: 'savedAddresses',
   studentUserId: 'studentUserId',
-  passportNo: 'passportNo',
+  passportExpiryDate: 'passportExpiryDate',
   passportIssueDate: 'passportIssueDate',
-  passportExpiryDate: 'passportExpiryDate'
+  passportNo: 'passportNo',
+  agentId: 'agentId',
+  counselorId: 'counselorId'
 };
 
 exports.Prisma.StudentDocumentScalarFieldEnum = {
@@ -325,7 +329,10 @@ exports.Prisma.AuditLogScalarFieldEnum = {
   entity: 'entity',
   entityId: 'entityId',
   metadata: 'metadata',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  module: 'module',
+  newValues: 'newValues',
+  previousValues: 'previousValues'
 };
 
 exports.Prisma.WebsiteScalarFieldEnum = {
@@ -354,15 +361,14 @@ exports.Prisma.CountryScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.ApplicationScalarFieldEnum = {
+exports.Prisma.UniversityScalarFieldEnum = {
   id: 'id',
-  studentId: 'studentId',
-  status: 'status',
-  universityName: 'universityName',
-  courseName: 'courseName',
-  intake: 'intake',
+  name: 'name',
   countryId: 'countryId',
-  notes: 'notes',
+  website: 'website',
+  address: 'address',
+  description: 'description',
+  imageUrl: 'imageUrl',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -399,6 +405,110 @@ exports.Prisma.WorkExperienceScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   totalExperience: 'totalExperience',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CourseScalarFieldEnum = {
+  id: 'id',
+  universityId: 'universityId',
+  countryId: 'countryId',
+  name: 'name',
+  campus: 'campus',
+  level: 'level',
+  durationMonths: 'durationMonths',
+  applicationFee: 'applicationFee',
+  tuitionFee: 'tuitionFee',
+  expectedCommission: 'expectedCommission',
+  gpaScore: 'gpaScore',
+  deadline: 'deadline',
+  entryRequirements: 'entryRequirements',
+  scores: 'scores',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CourseIntakeScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  month: 'month',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.UniversityApplicationScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  countryId: 'countryId',
+  universityId: 'universityId',
+  courseId: 'courseId',
+  courseName: 'courseName',
+  intake: 'intake',
+  intendedCourse: 'intendedCourse',
+  applyLevel: 'applyLevel',
+  deadlineDate: 'deadlineDate',
+  associateId: 'associateId',
+  assignedById: 'assignedById',
+  assignedToId: 'assignedToId',
+  agentId: 'agentId',
+  counselorId: 'counselorId',
+  status: 'status',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ApplicationNoteScalarFieldEnum = {
+  id: 'id',
+  applicationId: 'applicationId',
+  userId: 'userId',
+  note: 'note',
+  attachmentUrl: 'attachmentUrl',
+  attachmentName: 'attachmentName',
+  type: 'type',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.VisaApplicationScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  universityApplicationId: 'universityApplicationId',
+  countryId: 'countryId',
+  universityId: 'universityId',
+  courseId: 'courseId',
+  intake: 'intake',
+  visaType: 'visaType',
+  applicationDate: 'applicationDate',
+  appointmentDate: 'appointmentDate',
+  decisionDate: 'decisionDate',
+  expiryDate: 'expiryDate',
+  gicTuitionFeePaid: 'gicTuitionFeePaid',
+  medicalDone: 'medicalDone',
+  biometricsDone: 'biometricsDone',
+  remarks: 'remarks',
+  assignedOfficerId: 'assignedOfficerId',
+  agentId: 'agentId',
+  counselorId: 'counselorId',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserRoleScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  isSystem: 'isSystem',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RolePermissionScalarFieldEnum = {
+  id: 'id',
+  roleId: 'roleId',
+  module: 'module',
+  actions: 'actions',
+  scope: 'scope',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -457,7 +567,8 @@ exports.LeadStatus = exports.$Enums.LeadStatus = {
   INTERESTED: 'INTERESTED',
   NOT_INTERESTED: 'NOT_INTERESTED',
   ON_HOLD: 'ON_HOLD',
-  CLOSED: 'CLOSED'
+  CLOSED: 'CLOSED',
+  CONVERTED: 'CONVERTED'
 };
 
 exports.LeadTemperature = exports.$Enums.LeadTemperature = {
@@ -507,24 +618,76 @@ exports.StudentStatus = exports.$Enums.StudentStatus = {
   INTERESTED: 'INTERESTED',
   NOT_INTERESTED: 'NOT_INTERESTED',
   NOT_ELIGIBLE: 'NOT_ELIGIBLE',
-  ON_HOLD: 'ON_HOLD'
+  ON_HOLD: 'ON_HOLD',
+  APPLICATION_SUBMITTED: 'APPLICATION_SUBMITTED'
 };
 
-exports.ApplicationStatus = exports.$Enums.ApplicationStatus = {
-  SUBMITTED: 'SUBMITTED',
-  UNDER_REVIEW: 'UNDER_REVIEW',
-  OFFER_UNCONDITIONAL: 'OFFER_UNCONDITIONAL',
-  OFFER_CONDITIONAL: 'OFFER_CONDITIONAL',
-  REJECTED: 'REJECTED',
-  VISA_APPLIED: 'VISA_APPLIED',
-  VISA_GRANTED: 'VISA_GRANTED',
-  VISA_REJECTED: 'VISA_REJECTED',
-  ENROLLED: 'ENROLLED'
+exports.AuditModule = exports.$Enums.AuditModule = {
+  APPLICATIONS: 'APPLICATIONS',
+  STUDENTS: 'STUDENTS',
+  LEADS: 'LEADS',
+  USERS: 'USERS',
+  SETTINGS: 'SETTINGS',
+  UNIVERSITIES: 'UNIVERSITIES',
+  COURSES: 'COURSES',
+  VISA: 'VISA',
+  MASTERS: 'MASTERS'
 };
 
 exports.ChecklistType = exports.$Enums.ChecklistType = {
   MANDATORY: 'MANDATORY',
   OPTIONAL: 'OPTIONAL'
+};
+
+exports.ApplicationStatus = exports.$Enums.ApplicationStatus = {
+  PENDING: 'PENDING',
+  SUBMITTED: 'SUBMITTED',
+  FINALIZED: 'FINALIZED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  OFFER_RECEIVED: 'OFFER_RECEIVED',
+  READY_FOR_VISA: 'READY_FOR_VISA',
+  ENROLLED: 'ENROLLED',
+  DEFERRED: 'DEFERRED',
+  REJECTED: 'REJECTED',
+  WITHDRAWN: 'WITHDRAWN'
+};
+
+exports.NoteType = exports.$Enums.NoteType = {
+  COMMENT: 'COMMENT',
+  OFFER_LETTER: 'OFFER_LETTER'
+};
+
+exports.VisaType = exports.$Enums.VisaType = {
+  STUDENT_VISA: 'STUDENT_VISA',
+  DEPENDENT_VISA: 'DEPENDENT_VISA',
+  WORK_VISA: 'WORK_VISA',
+  TOURIST_VISA: 'TOURIST_VISA'
+};
+
+exports.VisaStatus = exports.$Enums.VisaStatus = {
+  VISA_GUIDANCE_GIVEN: 'VISA_GUIDANCE_GIVEN',
+  DOCUMENTS_CHECKLIST_SHARED: 'DOCUMENTS_CHECKLIST_SHARED',
+  DOCUMENTS_PENDING: 'DOCUMENTS_PENDING',
+  DOCUMENTS_RECEIVED: 'DOCUMENTS_RECEIVED',
+  DOCUMENTS_VERIFIED: 'DOCUMENTS_VERIFIED',
+  FINANCIAL_DOCUMENTS_PENDING: 'FINANCIAL_DOCUMENTS_PENDING',
+  SPONSORSHIP_DOCUMENTS_PENDING: 'SPONSORSHIP_DOCUMENTS_PENDING',
+  VISA_APPLICATION_IN_PROGRESS: 'VISA_APPLICATION_IN_PROGRESS',
+  VISA_APPLICATION_SUBMITTED: 'VISA_APPLICATION_SUBMITTED',
+  BIOMETRICS_SCHEDULED: 'BIOMETRICS_SCHEDULED',
+  BIOMETRICS_COMPLETED: 'BIOMETRICS_COMPLETED',
+  UNDER_REVIEW: 'UNDER_REVIEW',
+  ADDITIONAL_DOCUMENTS_REQUESTED: 'ADDITIONAL_DOCUMENTS_REQUESTED',
+  INTERVIEW_SCHEDULED: 'INTERVIEW_SCHEDULED',
+  INTERVIEW_COMPLETED: 'INTERVIEW_COMPLETED',
+  VISA_APPROVED: 'VISA_APPROVED',
+  VISA_GRANTED: 'VISA_GRANTED',
+  VISA_REFUSED: 'VISA_REFUSED',
+  VISA_REJECTED: 'VISA_REJECTED',
+  VISA_WITHDRAWN: 'VISA_WITHDRAWN',
+  DEFERRED: 'DEFERRED',
+  ENROLLED: 'ENROLLED',
+  PENDING: 'PENDING'
 };
 
 exports.Prisma.ModelName = {
@@ -547,10 +710,17 @@ exports.Prisma.ModelName = {
   Website: 'Website',
   Qualification: 'Qualification',
   Country: 'Country',
-  Application: 'Application',
+  University: 'University',
   ApplicationChecklist: 'ApplicationChecklist',
   AcademicDetail: 'AcademicDetail',
-  WorkExperience: 'WorkExperience'
+  WorkExperience: 'WorkExperience',
+  Course: 'Course',
+  CourseIntake: 'CourseIntake',
+  UniversityApplication: 'UniversityApplication',
+  ApplicationNote: 'ApplicationNote',
+  VisaApplication: 'VisaApplication',
+  UserRole: 'UserRole',
+  RolePermission: 'RolePermission'
 };
 
 /**

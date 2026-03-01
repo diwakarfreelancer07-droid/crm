@@ -28,6 +28,8 @@ import {
     SelectValue
 } from "@/components/ui/select";
 import { VisaStatus } from "@prisma/client";
+import { useUpdateVisaApplication } from "@/hooks/useApi";
+import { ArrowRightLeft, CheckSquare } from "lucide-react";
 
 interface VisaApplicationDetailTableProps {
     applications: any[];
@@ -65,9 +67,14 @@ export function VisaApplicationDetailTable({
         }
     };
 
+    const updateMutation = useUpdateVisaApplication();
+
     const handleStatusUpdate = async (id: string, newStatus: string) => {
         try {
-            await axios.put(`/api/visa-applications/${id}`, { status: newStatus });
+            await updateMutation.mutateAsync({
+                id,
+                data: { status: newStatus }
+            });
             toast.success("Visa status updated");
             onUpdate?.();
         } catch (error) {
@@ -99,6 +106,7 @@ export function VisaApplicationDetailTable({
                             <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Visa Status</TableHead>
                             <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Reason</TableHead>
                             <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3">Created By</TableHead>
+                            <TableHead className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground py-3 text-right">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -168,6 +176,32 @@ export function VisaApplicationDetailTable({
                                         <div className="flex flex-col gap-0.5">
                                             <span className="text-[11px] font-medium text-slate-700">{app.assignedOfficer?.name || "System"}</span>
                                             <span className="text-[10px] text-muted-foreground">({app.assignedOfficer?.role?.toLowerCase() || "system"})</span>
+                                        </div>
+                                    </TableCell>
+                                    <TableCell className="py-3">
+                                        <div className="flex items-center gap-2">
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    handleStatusUpdate(app.id, "DEFERRED");
+                                                }}
+                                                className="h-7 px-2 text-[10px] font-bold border-pink-200 text-pink-600 hover:bg-pink-50"
+                                            >
+                                                <ArrowRightLeft className="h-3 w-3 mr-1" /> Defer
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    handleStatusUpdate(app.id, "ENROLLED");
+                                                }}
+                                                className="h-7 px-2 text-[10px] font-bold border-cyan-200 text-cyan-600 hover:bg-cyan-50"
+                                            >
+                                                <CheckSquare className="h-3 w-3 mr-1" /> Enroll
+                                            </Button>
                                         </div>
                                     </TableCell>
                                 </TableRow>

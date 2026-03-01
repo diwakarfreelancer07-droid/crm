@@ -34,8 +34,11 @@ export const deleteEmployee = async (id: string): Promise<void> => {
 };
 
 // Applications
-export const getApplications = async (page = 1, limit = 10, search = ''): Promise<{ applications: any[], pagination: any }> => {
-    return api.get(`/applications?page=${page}&limit=${limit}&search=${search}`);
+export const getApplications = async (page = 1, limit = 10, search = '', studentId?: string, status?: string | null): Promise<{ applications: any[], pagination: any }> => {
+    let url = `/applications?page=${page}&limit=${limit}&search=${search}`;
+    if (studentId) url += `&studentId=${studentId}`;
+    if (status) url += `&status=${status}`;
+    return api.get(url);
 };
 
 export const createApplication = async (data: any): Promise<any> => {

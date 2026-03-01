@@ -27,6 +27,9 @@ export async function GET(req: Request) {
 
         if (status && status !== "ALL") {
             where.status = status as VisaStatus;
+        } else {
+            // By default, hide applications that have been deferred or enrolled
+            where.status = { notIn: ["DEFERRED", "ENROLLED"] as VisaStatus[] };
         }
 
         if (search) {

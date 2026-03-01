@@ -54,6 +54,7 @@ export const menuItems: MenuItem[] = [
             { label: "Universities", href: "/master/universities" },
             { label: "Qualifications", href: "/master/qualifications" },
             { label: "Courses", href: "/master/courses" },
+            { label: "Roles & Permissions", href: "/roles" },
             { label: "Websites", href: "/master/websites" },
         ]
     },

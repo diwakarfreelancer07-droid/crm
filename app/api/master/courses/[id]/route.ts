@@ -7,7 +7,7 @@ import { AuditLogService } from "@/lib/auditLog";
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -15,8 +15,10 @@ export async function GET(
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
+        const { id } = await params;
+
         const course = await prisma.course.findUnique({
-            where: { id: params.id },
+            where: { id },
             include: {
                 university: { select: { name: true } },
                 country: { select: { name: true } },
@@ -37,18 +39,19 @@ export async function GET(
 
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getServerSession(authOptions) as any;
         if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
+        const { id } = await params;
         const body = await req.json();
         const validatedData = courseSchema.partial().parse(body);
 
-        const oldCourse = await prisma.course.findUnique({ where: { id: params.id } });
+        const oldCourse = await prisma.course.findUnique({ where: { id } });
         if (!oldCourse) {
             return NextResponse.json({ message: "Course not found" }, { status: 404 });
         }
@@ -56,7 +59,7 @@ export async function PUT(
         const { intakes, ...courseData } = validatedData;
 
         const updatedCourse = await prisma.course.update({
-            where: { id: params.id },
+            where: { id },
             data: {
                 ...courseData,
                 scores: courseData.scores as any,
@@ -91,27 +94,29 @@ export async function PUT(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getServerSession(authOptions) as any;
         if (!session || !["ADMIN", "MANAGER"].includes(session.user.role)) {
             return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
         }
 
-        const course = await prisma.course.findUnique({ where: { id: params.id } });
+        const { id } = await params;
+
+        const course = await prisma.course.findUnique({ where: { id } });
         if (!course) {
             return NextResponse.json({ message: "Course not found" }, { status: 404 });
         }
 
-        await prisma.course.delete({ where: { id: params.id } });
+        await prisma.course.delete({ where: { id } });
 
         await AuditLogService.log({
             userId: session.user.id,
             action: "DELETED",
             module: "MASTERS",
             entity: "Course",
-            entityId: params.id,
+            entityId: id,
             previousValues: course,
         });
 

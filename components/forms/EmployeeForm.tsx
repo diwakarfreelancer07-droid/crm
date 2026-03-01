@@ -1,6 +1,7 @@
 "use client"
 
 import { useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import { useForm } from '@tanstack/react-form'
 import { toast } from "sonner"
 import { zodValidator } from '@tanstack/zod-form-adapter'
@@ -21,7 +22,8 @@ const employeeSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(6, "Password must be at least 6 characters").optional().or(z.literal("")),
     phone: z.string().min(10, "Phone number must be at least 10 digits"),
-    role: z.enum(["ADMIN", "MANAGER", "SALES_REP", "SUPPORT_AGENT", "EMPLOYEE", "AGENT", "COUNSELOR"]).optional(), // Made optional based on context
+    role: z.enum(["ADMIN", "MANAGER", "SALES_REP", "SUPPORT_AGENT", "EMPLOYEE", "AGENT", "COUNSELOR"]).optional(),
+    roleId: z.string().optional().nullable(),
     department: z.string().min(2, "Department is required"),
     salary: z.coerce.number().min(0, "Salary must be a positive number"),
     joiningDate: z.string(),
@@ -58,6 +60,14 @@ export default function EmployeeForm({ employee, onSuccess, formId, defaultRole 
     const createMutation = useCreateEmployee()
     const updateMutation = useUpdateEmployee()
     const { data: session } = useSession() as any;
+    const [availableRoles, setAvailableRoles] = useState<any[]>([]);
+
+    useEffect(() => {
+        fetch("/api/roles")
+            .then(res => res.json())
+            .then(data => setAvailableRoles(data))
+            .catch(err => console.error("Failed to fetch roles", err));
+    }, []);
 
     // Fetch staff members who can have counselors reporting to them
     const { data: managersData } = useEmployees("active", 1, 100, ""); // Will filter manually below to be safe or use query params if API supports multiple roles
@@ -79,6 +89,7 @@ export default function EmployeeForm({ employee, onSuccess, formId, defaultRole 
             imageUrl: employee?.imageUrl || null,
             password: '',
             role: employee?.role || defaultRole || 'EMPLOYEE',
+            roleId: (employee as any)?.roleId || '',
             agentId: (employee as any)?.counselorProfile?.agentId || '',
             companyName: (employee as any)?.agentProfile?.companyName || '',
             address: (employee as any)?.agentProfile?.address || '',
@@ -87,6 +98,7 @@ export default function EmployeeForm({ employee, onSuccess, formId, defaultRole 
         // @ts-ignore
         validatorAdapter: zodValidator(),
         validators: {
+            // @ts-ignore
             onChange: employeeSchema,
         },
         onSubmit: async ({ value }) => {
@@ -268,6 +280,30 @@ export default function EmployeeForm({ employee, onSuccess, formId, defaultRole 
                                 </div>
                             )}
                         />
+                        <form.Field
+                            name="roleId"
+                            children={(field) => (
+                                <div className="space-y-2">
+                                    <Label htmlFor={field.name}>Assigned Permissions Role</Label>
+                                    <select
+                                        id={field.name}
+                                        name={field.name}
+                                        value={field.state.value || ""}
+                                        onBlur={field.handleBlur}
+                                        onChange={(e) => field.handleChange(e.target.value)}
+                                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                    >
+                                        <option value="">Select Permitted Role (Optional)</option>
+                                        {availableRoles.filter(r => r.isActive).map(role => (
+                                            <option key={role.id} value={role.id}>
+                                                {role.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <ErrorMessage field={field} />
+                                </div>
+                            )}
+                        />
                     </div>
                 )}
 
@@ -402,22 +438,8 @@ export default function EmployeeForm({ employee, onSuccess, formId, defaultRole 
                             <div className="space-y-2">
                                 <Label htmlFor={field.name}>Joining Date</Label>
                                 <DatePicker
-                                    id={field.name}
-                                    name={field.name}
-                                    value={(() => {
-                                        try {
-                                            return field.state.value ? [parseDate(field.state.value)] : []
-                                        } catch (e) {
-                                            return []
-                                        }
-                                    })()}
-                                    onValueChange={(details) => {
-                                        if (details.value && details.value[0]) {
-                                            field.handleChange(details.value[0].toString())
-                                        } else {
-                                            field.handleChange('')
-                                        }
-                                    }}
+                                    value={field.state.value}
+                                    onChange={(val) => field.handleChange(val)}
                                     placeholder="Select date"
                                 />
                                 <ErrorMessage field={field} />

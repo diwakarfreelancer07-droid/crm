@@ -2,13 +2,14 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { withPermission } from '@/lib/permissions';
 
-export async function GET(req: Request) {
+export const dynamic = 'force-dynamic';
+
+export const GET = withPermission('LEADS', 'VIEW', async (req, { permission }) => {
     try {
-        const session = await getServerSession(authOptions) as any;
-        if (!session) {
-            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-        }
+        const { user: sessionUser, scope } = permission;
+        const session = { user: sessionUser };
 
         const { searchParams } = new URL(req.url);
         const search = searchParams.get('search');
@@ -37,11 +38,13 @@ export async function GET(req: Request) {
             ];
         }
 
-        // RBAC: Employee/Agent/Counselor visibility
-        if (session.user.role === 'EMPLOYEE' || session.user.role === 'AGENT' || session.user.role === 'COUNSELOR' || session.user.role === 'SALES_REP' || session.user.role === 'SUPPORT_AGENT') {
+        // RBAC: Dynamic scope-based visibility
+        if (scope === 'OWN' || scope === 'ASSIGNED') {
             const assignedToIds = [session.user.id];
 
-            // For AGENT, also include leads assigned to their subordinates
+            // For AGENT role, if they have OWN/ASSIGNED scope, arguably they should still see subordinates? 
+            // Or does OWN mean LITERALLY just them? In this system, Agents usually manage Counselors.
+            // Let's stick to the current logic for AGENT but triggered by scope.
             if (session.user.role === 'AGENT') {
                 const agent = await prisma.agentProfile.findUnique({
                     where: { userId: session.user.id }
@@ -94,14 +97,12 @@ export async function GET(req: Request) {
         console.error('Fetch leads error:', error);
         return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
     }
-}
+});
 
-export async function POST(req: Request) {
+export const POST = withPermission('LEADS', 'CREATE', async (req, { permission }) => {
     try {
-        const session = await getServerSession(authOptions) as any;
-        if (!session) {
-            return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-        }
+        const { user: sessionUser } = permission;
+        const session = { user: sessionUser };
 
         const data = await req.json();
         const {
@@ -297,4 +298,4 @@ export async function POST(req: Request) {
         console.error('Create lead error:', error);
         return NextResponse.json({ message: error.message || 'Internal server error' }, { status: 500 });
     }
-}
+});

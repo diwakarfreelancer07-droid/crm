@@ -23,6 +23,8 @@ import { AssignApplicationsModal } from "@/components/applications/AssignApplica
 import { EmailComposeModal } from "@/components/applications/EmailComposeModal";
 import { WhatsappMessageModal } from "@/components/applications/WhatsappMessageModal";
 import { StudentApplicationsModal } from "@/components/applications/StudentApplicationsModal";
+import { OfferLetterModal } from "@/components/applications/OfferLetterModal";
+import { ApplicationCommentsModal } from "@/components/applications/ApplicationCommentsModal";
 
 import { Suspense } from "react";
 
@@ -58,6 +60,8 @@ function ApplicationsPageContent() {
     const [emailModalOpen, setEmailModalOpen] = useState(false);
     const [whatsappModalOpen, setWhatsappModalOpen] = useState(false);
     const [studentAppsModal, setStudentAppsModal] = useState<any>(null);
+    const [offerLetterApp, setOfferLetterApp] = useState<any>(null);
+    const [commentsApp, setCommentsApp] = useState<any>(null);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
     // Reset page on search/filter changes
@@ -114,7 +118,7 @@ function ApplicationsPageContent() {
 
     return (
         <div className="flex flex-col gap-3 p-3 sm:p-4 bg-slate-50/50 min-h-screen">
-            <Card className="border-0 rounded-3xl overflow-hidden bg-white/80 backdrop-blur-sm shadow-sm ring-1 ring-slate-200/50">
+            <Card className="border-0 rounded-3xl overflow-hidden bg-card">
                 <CardContent className="p-4">
                     {/* Integrated Header Row */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
@@ -124,7 +128,7 @@ function ApplicationsPageContent() {
                                 placeholder="Search applications..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="pl-9 bg-slate-50 border-0 focus-visible:ring-1 focus-visible:ring-primary/20 h-10 text-[13px] placeholder:text-muted-foreground/40 font-sans w-full rounded-xl transition-all"
+                                className="pl-9 bg-transparent border-0 focus-visible:ring-0 focus-visible:ring-offset-0 h-9 text-[13px] placeholder:text-muted-foreground/40 font-sans w-full"
                             />
                         </div>
 
@@ -228,6 +232,8 @@ function ApplicationsPageContent() {
                                 setDeleteConfirmOpen(true);
                             }}
                             onOpenHistory={(app) => setHistoryApp(app)}
+                            onOpenComments={(app) => setCommentsApp(app)}
+                            onOpenOfferLetters={(app) => setOfferLetterApp(app)}
                             onOpenNotes={(app) => setNotesApp(app)}
                             onOpenStudentApps={(student) => setStudentAppsModal(student)}
                             onAddAnother={handleAddAnother}
@@ -291,6 +297,20 @@ function ApplicationsPageContent() {
                 isOpen={!!studentAppsModal}
                 onClose={() => setStudentAppsModal(null)}
                 student={studentAppsModal}
+                onUpdate={refetch}
+            />
+
+            <OfferLetterModal
+                isOpen={!!offerLetterApp}
+                onClose={() => setOfferLetterApp(null)}
+                application={offerLetterApp}
+                onUpdate={refetch}
+            />
+
+            <ApplicationCommentsModal
+                isOpen={!!commentsApp}
+                onClose={() => setCommentsApp(null)}
+                application={commentsApp}
                 onUpdate={refetch}
             />
 

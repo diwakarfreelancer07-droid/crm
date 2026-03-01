@@ -41,6 +41,13 @@ export async function GET(req: NextRequest) {
                     email: true,
                     role: true,
                     isActive: true,
+                    roleId: true,
+                    roleProfile: {
+                        select: {
+                            id: true,
+                            name: true,
+                        }
+                    },
                     createdAt: true,
                     agentProfile: true,
                     _count: {
@@ -73,7 +80,8 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
-        const { name, email, password, companyName, address, phone, commission } = await req.json();
+        const body = await req.json();
+        const { name, email, password, companyName, address, phone, commission, roleId } = body;
 
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) return NextResponse.json({ error: "Email already exists" }, { status: 400 });
@@ -86,6 +94,7 @@ export async function POST(req: NextRequest) {
                 email,
                 passwordHash,
                 role: "AGENT",
+                roleId: roleId || null,
                 emailVerified: new Date(),
                 agentProfile: {
                     create: {

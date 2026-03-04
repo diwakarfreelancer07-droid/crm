@@ -22,9 +22,6 @@ import { DynamicFavicon } from "@/components/DynamicFavicon";
 export const metadata: Metadata = {
   title: "Inter CRM Admin",
   description: "Admin dashboard for Inter CRM",
-  icons: {
-    icon: "/logos/intered-circle.png",
-  },
 };
 
 export default function RootLayout({

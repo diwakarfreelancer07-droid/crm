@@ -20,13 +20,15 @@ export function DynamicFavicon() {
             ? "/logos/Icon%20Colour.png"
             : "/logos/intered-circle.png";
 
-        let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
-        if (!link) {
-            link = document.createElement("link");
-            link.rel = "icon";
-            document.getElementsByTagName("head")[0].appendChild(link);
-        }
-        link.href = favicon;
+        // Remove any existing tags that might conflict
+        const existingLinks = document.querySelectorAll("link[rel~='icon']");
+        existingLinks.forEach(l => l.parentNode?.removeChild(l));
+
+        // Create the fresh link tag
+        const link = document.createElement("link");
+        link.rel = "icon";
+        link.href = favicon + "?v=" + new Date().getTime(); // Bust cache
+        document.getElementsByTagName("head")[0].appendChild(link);
     }, [session, pathname]);
 
     return null;

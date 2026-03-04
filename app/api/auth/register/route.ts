@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 import { sendOTPEmail } from '@/lib/mail';
+import { sendWhatsAppOtp } from '@/lib/whatsapp';
 import crypto from 'crypto';
 
 export async function POST(req: Request) {
@@ -62,12 +63,35 @@ export async function POST(req: Request) {
             return user;
         });
 
-        await sendOTPEmail(email, otp);
+        // ── Send OTP: WhatsApp for students, Email for others ───────────────
+        if (prismaRole === 'STUDENT') {
+            const waResult = await sendWhatsAppOtp(phone, otp);
+            if (!waResult.success) {
+                // Fallback to email if WhatsApp delivery fails
+                console.warn(`⚠️  WhatsApp OTP failed (${waResult.error}) — falling back to email`);
+                await sendOTPEmail(email, otp);
+                return NextResponse.json({
+                    message: 'WhatsApp delivery failed. OTP sent to your email instead.',
+                    userId: result.id,
+                    otpChannel: 'email',
+                }, { status: 201 });
+            }
 
-        return NextResponse.json({
-            message: 'User registered. Please verify your email with the OTP sent.',
-            userId: result.id
-        }, { status: 201 });
+            return NextResponse.json({
+                message: 'Registered! Please verify your WhatsApp OTP.',
+                userId: result.id,
+                otpChannel: 'whatsapp',
+            }, { status: 201 });
+        } else {
+            // Agent / other roles → email OTP
+            await sendOTPEmail(email, otp);
+
+            return NextResponse.json({
+                message: 'User registered. Please verify your email with the OTP sent.',
+                userId: result.id,
+                otpChannel: 'email',
+            }, { status: 201 });
+        }
 
     } catch (error) {
         console.error('Registration error:', error);

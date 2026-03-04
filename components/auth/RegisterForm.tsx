@@ -58,8 +58,14 @@ export function RegisterForm({
         try {
             const response = await axios.post("/api/auth/register", formData);
             toast.success(response.data.message);
-            // Pass email and role to verification page via search params
-            router.push(`/verify-otp?email=${encodeURIComponent(formData.email)}&role=${formData.role}`);
+            // Pass email, phone and role to verification page via search params
+            const params = new URLSearchParams({
+                email: formData.email,
+                phone: formData.phone,
+                role: formData.role,
+                channel: response.data.otpChannel || 'email',
+            });
+            router.push(`/verify-otp?${params.toString()}`);
         } catch (error: any) {
             const message = error.response?.data?.message || "Registration failed. Please try again.";
             toast.error(message);

@@ -5,16 +5,10 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { FaGoogle, FaFacebookF } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
 import { toast } from "sonner";
 
 interface LoginFormProps {
@@ -26,8 +20,11 @@ function LoginFormContent({ loginType = 'student' }: LoginFormProps) {
   const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // For students: phone + password. For others: email + password.
+  const isStudent = loginType === 'student';
   const [formData, setFormData] = useState({
-    email: "",
+    identifier: "", // phone for student, email for others
     password: "",
   });
 
@@ -40,13 +37,12 @@ function LoginFormContent({ loginType = 'student' }: LoginFormProps) {
       case 'counselor':
         return { eyebrow: 'Counselor Portal', title: 'Welcome back', subtitle: 'Sign in with your counselor credentials to continue.' };
       default:
-        return { eyebrow: 'Student Portal', title: 'Welcome back', subtitle: 'Enter your credentials to access your global journey.' };
+        return { eyebrow: 'Student Portal', title: 'Welcome back', subtitle: 'Enter your mobile number and password to access your global journey.' };
     }
   };
 
   const { eyebrow, title, subtitle } = getWelcomeText();
 
-  // Role-specific accents — ALL class strings must be fully written out (no dynamic concatenation) for Tailwind JIT
   const accents: Record<string, any> = {
     admin: { text: "text-indigo-600", borderHover: "hover:border-indigo-400", focusBorder: "focus-visible:border-indigo-500", ring: "focus-visible:ring-indigo-500/5", accent: "accent-indigo-600", groupFocus: "group-focus-within:text-indigo-600", groupHoverText: "group-hover:text-indigo-600", focusRing: "focus:ring-indigo-500" },
     student: { text: "text-cyan-600", borderHover: "hover:border-cyan-400", focusBorder: "focus-visible:border-cyan-500", ring: "focus-visible:ring-cyan-500/5", accent: "accent-cyan-600", groupFocus: "group-focus-within:text-cyan-600", groupHoverText: "group-hover:text-cyan-600", focusRing: "focus:ring-cyan-500" },
@@ -78,7 +74,12 @@ function LoginFormContent({ loginType = 'student' }: LoginFormProps) {
     }
 
     if (searchParams.get("verified")) {
-      toast.success("Email verified! You can now login.");
+      const channel = searchParams.get("channel");
+      if (channel === "whatsapp") {
+        toast.success("WhatsApp verified! You can now login.");
+      } else {
+        toast.success("Email verified! You can now login.");
+      }
     }
   }, [searchParams]);
 
@@ -99,14 +100,24 @@ function LoginFormContent({ loginType = 'student' }: LoginFormProps) {
     setError("");
 
     try {
-      if (!formData.email.includes("@")) {
-        setError("Please enter a valid email address");
-        setIsLoading(false);
-        return;
+      // For students: validate phone; for others: validate email
+      if (isStudent) {
+        const cleanPhone = formData.identifier.replace(/\D/g, '');
+        if (cleanPhone.length < 10) {
+          setError("Please enter a valid mobile number");
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        if (!formData.identifier.includes("@")) {
+          setError("Please enter a valid email address");
+          setIsLoading(false);
+          return;
+        }
       }
 
       const result = await signIn("credentials", {
-        email: formData.email,
+        email: formData.identifier, // field name kept as 'email' for NextAuth compat; auth.ts handles it
         password: formData.password,
         loginType: loginType || 'student',
         redirect: false,
@@ -114,7 +125,7 @@ function LoginFormContent({ loginType = 'student' }: LoginFormProps) {
 
       if (result?.error) {
         const errorMessage = result.error === "CredentialsSignin"
-          ? "Invalid email or password"
+          ? isStudent ? "Invalid mobile number or password" : "Invalid email or password"
           : result.error;
         setError(errorMessage);
         toast.error(errorMessage);
@@ -163,23 +174,29 @@ function LoginFormContent({ loginType = 'student' }: LoginFormProps) {
 
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <Label htmlFor="login-email" className="text-[11px] font-bold uppercase tracking-wider text-gray-700 ml-1">
-                {loginType === 'agent' ? 'Agent ID / Email' : 'Email Address'}
+              <Label htmlFor="login-identifier" className="text-[11px] font-bold uppercase tracking-wider text-gray-700 ml-1">
+                {isStudent ? 'Mobile Number' : loginType === 'agent' ? 'Agent ID / Email' : 'Email Address'}
               </Label>
               <div className="relative group">
                 <div className={`absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 ${clr.groupFocus} transition-colors`}>
-                  <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
-                  </svg>
+                  {isStudent ? (
+                    <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4">
+                      <path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  ) : (
+                    <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="w-4 h-4">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+                    </svg>
+                  )}
                 </div>
                 <Input
-                  id="login-email"
-                  type="email"
-                  placeholder={loginType === 'admin' ? "Enter your Admin ID" : "enter your email address"}
-                  autoComplete="email"
+                  id="login-identifier"
+                  type={isStudent ? "tel" : "email"}
+                  placeholder={isStudent ? "+91 98765 43210" : loginType === 'admin' ? "Enter your Admin ID" : "enter your email address"}
+                  autoComplete={isStudent ? "tel" : "email"}
                   required
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  value={formData.identifier}
+                  onChange={(e) => setFormData({ ...formData, identifier: e.target.value })}
                   className={`h-12 pl-11 rounded-xl border-gray-200 bg-white text-gray-900 transition-all placeholder:text-gray-400 ${clr.borderHover} ${clr.focusBorder} focus-visible:ring-4 ${clr.ring} shadow-sm`}
                 />
               </div>
@@ -280,4 +297,3 @@ export function LoginForm({ loginType = 'student' }: LoginFormProps) {
     </Suspense>
   )
 }
-

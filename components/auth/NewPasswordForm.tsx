@@ -4,16 +4,9 @@ import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { toast } from "sonner";
 import axios from "axios";
 
@@ -21,8 +14,11 @@ function NewPasswordFormContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const email = searchParams.get("email");
+    const phone = searchParams.get("phone");
     const loginType = (searchParams.get("type") || "student") as "student" | "admin" | "agent" | "counselor";
+    const isStudent = loginType === "student" && !!phone;
     const [isLoading, setIsLoading] = useState(false);
+    const [resendLoading, setResendLoading] = useState(false);
     const [formData, setFormData] = useState({
         otp: "",
         password: "",
@@ -53,7 +49,7 @@ function NewPasswordFormContent() {
         setIsLoading(true);
         try {
             await axios.post("/api/auth/reset-password", {
-                email,
+                ...(isStudent ? { phone } : { email }),
                 otp: formData.otp,
                 newPassword: formData.password
             });
@@ -67,6 +63,21 @@ function NewPasswordFormContent() {
         }
     };
 
+    const handleResend = async () => {
+        setResendLoading(true);
+        try {
+            await axios.post("/api/auth/forgot-password", {
+                ...(isStudent ? { phone } : { email }),
+                role: loginType,
+            });
+            toast.success(isStudent ? "New code sent to your WhatsApp!" : "New code sent to your email!");
+        } catch {
+            toast.error("Failed to resend code");
+        } finally {
+            setResendLoading(false);
+        }
+    };
+
     return (
         <div className="w-full">
             <div className="mb-10">
@@ -77,7 +88,10 @@ function NewPasswordFormContent() {
                     Set New Password
                 </h2>
                 <p className="text-sm text-gray-500 leading-relaxed font-medium">
-                    Enter the code sent to your email and choose a strong new password.
+                    {isStudent
+                        ? <>Enter the code sent to your <strong>WhatsApp ({phone})</strong> and choose a new password.</>
+                        : <>Enter the code sent to your email and choose a strong new password.</>
+                    }
                 </p>
             </div>
 
@@ -159,7 +173,18 @@ function NewPasswordFormContent() {
                     </Button>
                 </form>
 
-                <div className="text-center text-sm text-gray-500 font-medium pt-4">
+                <div className="text-center text-sm text-gray-500 font-medium pt-4 space-y-3">
+                    <p>
+                        Didn&apos;t receive the code?{" "}
+                        <button
+                            type="button"
+                            onClick={handleResend}
+                            disabled={resendLoading}
+                            className={`${clr.text} font-bold hover:underline ml-1 disabled:opacity-50`}
+                        >
+                            {resendLoading ? "Sending..." : "Resend Code"}
+                        </button>
+                    </p>
                     <Link href={`/login?type=${loginType}`} className={`${clr.text} font-bold hover:underline`}>
                         Back to Login
                     </Link>

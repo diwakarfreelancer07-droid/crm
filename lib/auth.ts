@@ -9,23 +9,56 @@ export const authOptions: NextAuthOptions = {
         CredentialsProvider({
             name: 'Credentials',
             credentials: {
-                email: { label: 'Email', type: 'email' },
+                email: { label: 'Email or Phone', type: 'text' },
                 password: { label: 'Password', type: 'password' },
                 loginType: { label: 'Login Type', type: 'text' },
             },
             async authorize(credentials) {
                 console.log('Authorize check:', {
-                    email: credentials?.email,
+                    identifier: credentials?.email,
                     loginType: (credentials as any)?.loginType || 'none'
                 });
                 try {
                     if (!credentials?.email || !credentials?.password) {
-                        throw new Error('Email and password required');
+                        throw new Error('Credentials required');
                     }
 
-                    const user = await prisma.user.findUnique({
-                        where: { email: credentials.email },
-                    });
+                    const loginType = (credentials as any).loginType;
+                    const identifier = credentials.email.trim();
+
+                    let user: Awaited<ReturnType<typeof prisma.user.findUnique>> | null = null;
+
+                    // ── For students: identifier is a phone number → look up via Lead ──
+                    if (loginType === 'student') {
+                        // Normalise: strip spaces/dashes, keep digits and leading +
+                        const cleanPhone = identifier.replace(/[\s\-().]/g, '');
+                        const digitOnly = cleanPhone.replace(/\D/g, '');
+
+                        // Try looking up Lead by phone (stored as-is or with country code)
+                        const lead = await prisma.lead.findFirst({
+                            where: {
+                                OR: [
+                                    { phone: cleanPhone },
+                                    { phone: identifier },
+                                    // also try without country code prefix (last 10 digits)
+                                    ...(digitOnly.length >= 10 ? [{ phone: digitOnly.slice(-10) }] : []),
+                                    // and with +91 prepended
+                                    ...(digitOnly.length === 10 ? [{ phone: `+91${digitOnly}` }, { phone: `91${digitOnly}` }] : []),
+                                ],
+                            },
+                            include: { user: true },
+                        });
+
+                        if (!lead?.user) {
+                            throw new Error('No student account found for this mobile number');
+                        }
+                        user = lead.user;
+                    } else {
+                        // ── For other roles: identifier is email ──
+                        user = await prisma.user.findUnique({
+                            where: { email: identifier },
+                        });
+                    }
 
                     if (!user || !user.passwordHash) {
                         throw new Error('Account not found');
@@ -36,7 +69,7 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     if (!user.emailVerified) {
-                        throw new Error('Please verify your email via OTP before logging in.');
+                        throw new Error('Please verify your account via OTP before logging in.');
                     }
 
                     const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
@@ -46,8 +79,6 @@ export const authOptions: NextAuthOptions = {
                     }
 
                     // Role-based access control
-                    const loginType = (credentials as any).loginType;
-
                     if (loginType === 'admin') {
                         if (user.role !== 'ADMIN' && user.role !== 'MANAGER') {
                             throw new Error('Access denied. Admin privileges required.');

@@ -9,7 +9,18 @@ import {
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal, Eye, Pencil, Trash2, UserPlus, ChevronLeft, ChevronRight, Zap } from "lucide-react";
+import axios from "axios";
+import {
+    MoreHorizontal,
+    Eye,
+    Pencil,
+    Trash2,
+    UserPlus,
+    ChevronLeft,
+    ChevronRight,
+    Zap,
+    Phone
+} from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -86,9 +97,28 @@ export function LeadsTable({
     const updateLeadMutation = useUpdateLead();
     const deleteLeadMutation = useDeleteLead();
 
+    // Call state
+    const [isCalling, setIsCalling] = useState<string | null>(null);
+
     // Delete Dialog State
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [leadToDelete, setLeadToDelete] = useState<string | null>(null);
+
+    const handleCall = async (lead: Lead) => {
+        setIsCalling(lead.id);
+        try {
+            const res = await axios.post('/api/exotel/call', {
+                employeeId: session?.user?.id,
+                targetType: 'lead',
+                targetId: lead.id,
+            });
+            toast.success(`Call initiated! SID: ${res.data.callSid}`);
+        } catch (err: any) {
+            toast.error(err.response?.data?.error || 'Failed to initiate call');
+        } finally {
+            setIsCalling(null);
+        }
+    };
 
     const handleUpdate = async (id: string, field: string, value: string) => {
         try {
@@ -259,34 +289,52 @@ export function LeadsTable({
             id: "actions",
             cell: ({ row }) => (
                 <div className="flex items-center justify-end gap-2">
-                    {(session?.user?.role === "ADMIN" || session?.user?.role === "MANAGER" || session?.user?.role === "AGENT") && (
-                        <div className="flex items-center gap-1">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => handleAssignClick(row.original)}
-                                className="h-8 w-8 p-0 text-primary hover:bg-primary/5"
-                                title="Assign Lead"
-                            >
-                                <UserPlus className="h-4 w-4" />
-                            </Button>
-                            {row.original.status !== 'CONVERTED' && (
+                    <div className="flex items-center gap-1">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleCall(row.original);
+                            }}
+                            className={`h-8 w-8 p-0 ${isCalling === row.original.id ? 'text-orange-500' : 'text-primary hover:bg-primary/5'}`}
+                            title="Call Lead"
+                            disabled={!!isCalling}
+                        >
+                            <Phone className={`h-4 w-4 ${isCalling === row.original.id ? 'animate-pulse' : ''}`} />
+                        </Button>
+                        {(session?.user?.role === "ADMIN" || session?.user?.role === "MANAGER" || session?.user?.role === "AGENT") && (
+                            <>
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setConvertingLead(row.original);
-                                        setConvertModalOpen(true);
+                                        handleAssignClick(row.original);
                                     }}
-                                    className="h-8 w-8 p-0 text-emerald-600 hover:bg-emerald-50"
-                                    title="Convert to Student"
+                                    className="h-8 w-8 p-0 text-primary hover:bg-primary/5"
+                                    title="Assign Lead"
                                 >
-                                    <Zap className="h-4 w-4" />
+                                    <UserPlus className="h-4 w-4" />
                                 </Button>
-                            )}
-                        </div>
-                    )}
+                                {row.original.status !== 'CONVERTED' && (
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setConvertingLead(row.original);
+                                            setConvertModalOpen(true);
+                                        }}
+                                        className="h-8 w-8 p-0 text-emerald-600 hover:bg-emerald-50"
+                                        title="Convert to Student"
+                                    >
+                                        <Zap className="h-4 w-4" />
+                                    </Button>
+                                )}
+                            </>
+                        )}
+                    </div>
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">

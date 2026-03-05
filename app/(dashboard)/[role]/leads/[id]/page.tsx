@@ -37,6 +37,7 @@ import {
     ChevronRight,
     Database,
     GraduationCap,
+    Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -497,7 +498,37 @@ export default function LeadDetailPage() {
                                             <div className="space-y-2">
                                                 <div className="flex items-center justify-between text-sm">
                                                     <span className="text-muted-foreground">Phone</span>
-                                                    <span className="font-semibold">{lead.phone || "-"}</span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="font-semibold">{lead.phone || "-"}</span>
+                                                        {lead.phone && (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="sm"
+                                                                className="h-6 w-6 p-0 text-primary hover:bg-primary/10"
+                                                                disabled={isCalling}
+                                                                onClick={async () => {
+                                                                    const assignedEmployeeId = lead.assignments?.[lead.assignments.length - 1]?.assignedTo || session?.user?.id;
+                                                                    if (!assignedEmployeeId) { toast.error('No employee assigned'); return; }
+                                                                    setIsCalling(true);
+                                                                    try {
+                                                                        const res = await axios.post('/api/exotel/call', {
+                                                                            employeeId: assignedEmployeeId,
+                                                                            targetType: 'lead',
+                                                                            targetId: lead.id,
+                                                                        });
+                                                                        toast.success(`Call initiated! SID: ${res.data.callSid}`);
+                                                                        setActiveTab('calls');
+                                                                    } catch (err: any) {
+                                                                        toast.error(err.response?.data?.error || 'Failed to initiate call');
+                                                                    } finally {
+                                                                        setIsCalling(false);
+                                                                    }
+                                                                }}
+                                                            >
+                                                                <Phone className="h-3 w-3" />
+                                                            </Button>
+                                                        )}
+                                                    </div>
                                                 </div>
                                                 <div className="flex items-center justify-between text-sm">
                                                     <span className="text-muted-foreground">Email</span>

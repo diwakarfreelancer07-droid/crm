@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
-import { FaGoogle } from "react-icons/fa";
 import { toast } from "sonner";
 
 interface LoginFormProps {
@@ -83,16 +82,6 @@ function LoginFormContent({ loginType = 'student' }: LoginFormProps) {
     }
   }, [searchParams]);
 
-  const handleGoogleSignIn = async () => {
-    setIsLoading(true);
-    try {
-      await signIn("google", { callbackUrl: "/dashboard" });
-    } catch (error) {
-      toast.error("An error occurred during Google sign in");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -256,25 +245,6 @@ function LoginFormContent({ loginType = 'student' }: LoginFormProps) {
           </Button>
         </form>
 
-        <div className="relative py-2">
-          <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-gray-100" />
-          </div>
-          <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-bold">
-            <span className="bg-[#F9FAFB] px-4 text-gray-400">Or continue with</span>
-          </div>
-        </div>
-
-        <Button
-          type="button"
-          variant="outline"
-          disabled={isLoading}
-          onClick={handleGoogleSignIn}
-          className={`h-12 w-full rounded-xl border-gray-200 bg-white text-sm font-bold text-gray-700 transition-all hover:bg-gray-50 ${clr.borderHover} shadow-sm`}
-        >
-          <FaGoogle className="mr-3 h-4 w-4 text-red-500" />
-          Sign in with Google
-        </Button>
 
         <div className="pt-6 text-center text-sm text-gray-500 font-medium">
           {loginType === 'student' ? (

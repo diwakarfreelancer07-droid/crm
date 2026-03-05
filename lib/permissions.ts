@@ -86,22 +86,24 @@ export async function checkPermission(
 
         // If user has a roleProfile, use it (fine-grained permissions)
         if (user.roleProfile && user.roleProfile.isActive) {
-            const modulePermission = user.roleProfile.permissions[0];
-            if (!modulePermission) {
-                // Fall through to role enum defaults below
-            } else if (modulePermission.actions.includes(action)) {
-                return {
-                    hasPermission: true,
-                    scope: modulePermission.scope as PermissionScope,
-                    user
-                };
-            } else {
-                return { hasPermission: false, scope: "OWN", user };
+            const modulePermission = user.roleProfile.permissions.find(p => p.module === module);
+            if (modulePermission) {
+                if (modulePermission.actions.includes(action)) {
+                    return {
+                        hasPermission: true,
+                        scope: modulePermission.scope as PermissionScope,
+                        user
+                    };
+                } else {
+                    return { hasPermission: false, scope: "OWN", user };
+                }
             }
+            // If module permission is not FOUND in the profile, fall through to defaults
         }
 
         // Fallback: use role-enum defaults
-        const roleDefault = ROLE_DEFAULTS[user.role];
+        const userRole = (user.role || "").toUpperCase();
+        const roleDefault = ROLE_DEFAULTS[userRole];
         if (roleDefault && roleDefault.actions.includes(action)) {
             return { hasPermission: true, scope: roleDefault.scope, user };
         }
@@ -109,6 +111,8 @@ export async function checkPermission(
         return { hasPermission: false, scope: "OWN", user };
     } catch (error) {
         console.error("checkPermission error:", error);
+        // On technical error, we fail closed but log clearly.
+        // If it's a DB connection issue (P2037/P2024), logging helps diagnosis.
         return { hasPermission: false, scope: "OWN" };
     }
 }

@@ -100,10 +100,14 @@ export default withAuth(
                 // Check that this role is allowed in this namespace
                 const allowedRoles = NAMESPACE_ROLES[namespace] || [];
                 if (role && !allowedRoles.includes(role)) {
-                    // Redirect to the user's correct namespace
                     const correctPrefix = ROLE_PREFIX[role] || "/admin";
-                    console.log('Middleware redirecting unauthorized role:', { role, correctPrefix });
-                    return NextResponse.redirect(new URL(`${correctPrefix}/dashboard`, req.url));
+                    const targetPath = `${correctPrefix}/dashboard`;
+                    // Prevent infinite self-redirect loop
+                    if (pathname === targetPath || pathname.startsWith(targetPath)) {
+                        return NextResponse.next();
+                    }
+                    console.log('Middleware redirecting unauthorized role:', { role, pathname, namespace, allowedRoles, correctPrefix });
+                    return NextResponse.redirect(new URL(targetPath, req.url));
                 }
             }
 

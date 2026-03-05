@@ -3,15 +3,20 @@
  * Reusable Exotel API wrapper for the CRM
  * Ported from taxiby_backend ExotelService
  */
+import axios from "axios";
 
 const getExotelConfig = () => {
-    const sid = process.env.EXOTEL_SID!;
-    const apiKey = process.env.EXOTEL_API_KEY!;
-    const apiToken = process.env.EXOTEL_API_TOKEN!;
-    const subdomain = process.env.EXOTEL_SUBDOMAIN || 'api.exotel.com';
-    const virtualNumber = process.env.EXOTEL_VIRTUAL_NUMBER!;
+    const sid = process.env.EXOTEL_SID?.trim();
+    const apiKey = process.env.EXOTEL_API_KEY?.trim();
+    const apiToken = process.env.EXOTEL_API_TOKEN?.trim();
+    const subdomain = process.env.EXOTEL_SUBDOMAIN?.trim() || 'api.in.exotel.com';
+    const virtualNumber = process.env.EXOTEL_VIRTUAL_NUMBER?.trim();
 
-    return { sid, apiKey, apiToken, subdomain, virtualNumber };
+    if (!sid || !apiKey || !apiToken) {
+        throw new Error('EXOTEL_MISSING_CREDENTIALS');
+    }
+
+    return { sid, apiKey, apiToken, subdomain, virtualNumber: virtualNumber! };
 };
 
 const authHeader = (apiKey: string, apiToken: string) =>
@@ -57,6 +62,12 @@ export async function createExotelUser(opts: {
     const data = await res.json();
 
     if (!res.ok) {
+        console.error('[Exotel Create User API Error Payload]:', JSON.stringify({
+            status: res.status,
+            statusText: res.statusText,
+            data: data
+        }, null, 2));
+
         const msg =
             data?.response?.error_data?.description ||
             data?.response?.error_data?.message ||
@@ -79,45 +90,55 @@ export async function createExotelUser(opts: {
 // Make an outbound click-to-call
 // Exotel calls `from` first, then bridges to `to`
 // --------------------------------------------------------------------------
-export async function makeOutboundCall(opts: {
-    from: string;       // agent's phone number
-    to: string;         // lead / student phone number
-    statusCallbackUrl?: string;
-}): Promise<{ callSid: string;[key: string]: any }> {
-    const { sid, apiKey, apiToken, subdomain, virtualNumber } = getExotelConfig();
+export async function makeOutboundCall(from: string, to: string, callerId: string): Promise<any> {
+    const { sid, apiKey, apiToken, subdomain } = getExotelConfig();
+    const baseUrl = `https://${subdomain}/v1/Accounts/${sid}`;
 
-    const url = `https://${subdomain}/v1/Accounts/${sid}/Calls/connect.json`;
+    try {
+        console.log(`Initiating outbound call from ${from} to ${to} via callerId ${callerId}`);
 
-    const body = new URLSearchParams({
-        From: opts.from,
-        To: opts.to,
-        CallerId: virtualNumber,
-        ...(opts.statusCallbackUrl ? { StatusCallback: opts.statusCallbackUrl } : {}),
-    });
+        const params = new URLSearchParams();
+        params.append('From', from);
+        params.append('To', to);
+        params.append('CallerId', callerId);
 
-    const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-            Authorization: authHeader(apiKey, apiToken),
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: body.toString(),
-    });
+        const response = await axios.post(`${baseUrl}/Calls/connect.json`, params, {
+            auth: {
+                username: apiKey,
+                password: apiToken,
+            },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        });
 
-    const data = await res.json();
+        console.log(`Outbound call initiated: ${JSON.stringify(response.data?.Call)}`);
+        return response.data?.Call || response.data;
+    } catch (error: any) {
+        let exotelMessage = '';
 
-    if (!res.ok) {
-        const msg =
-            data?.RestException?.Message ||
-            data?.message ||
-            'Exotel makeCall failed';
-        throw new Error(msg);
+        if (error?.response?.data) {
+            const data = error.response.data;
+            console.error(`Exotel making outbound call raw error data: ${JSON.stringify(data)}`);
+
+            if (data?.response?.error_data?.description) {
+                exotelMessage = data.response.error_data.description;
+            } else if (data?.response?.error_data?.message) {
+                exotelMessage = data.response.error_data.message;
+            } else if (data?.RestException?.Message) {
+                exotelMessage = data.RestException.Message;
+            } else if (data?.message) {
+                exotelMessage = data.message;
+            } else if (data?.response?.message) {
+                exotelMessage = data.response.message;
+            }
+        }
+
+        const finalMessage = exotelMessage || error?.message || `Exotel making outbound call failed`;
+        console.error(`Exotel Error [making outbound call] extracted message: ${finalMessage}`);
+
+        throw new Error(`Exotel Error: ${finalMessage}`);
     }
-
-    const callSid = data?.Call?.Sid ?? data?.Sid ?? null;
-    if (!callSid) throw new Error(`Exotel makeCall response missing Sid: ${JSON.stringify(data)}`);
-
-    return { callSid, ...data };
 }
 
 // --------------------------------------------------------------------------

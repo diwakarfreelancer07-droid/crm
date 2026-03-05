@@ -87,45 +87,54 @@ export async function GET(req: NextRequest) {
 
         console.log("API Employees Where:", JSON.stringify(where, null, 2));
 
-        const [employees, total] = await Promise.all([
-            prisma.user.findMany({
-                where,
-                select: {
-                    id: true,
-                    name: true,
-                    email: true,
-                    role: true,
-                    roleId: true,
-                    roleProfile: {
-                        select: {
-                            id: true,
-                            name: true,
+        // Get total count first
+        const total = await prisma.user.count({ where });
+
+        // Then get data - splitting these reduces peak connection usage
+        const employees = await prisma.user.findMany({
+            where,
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                role: true,
+                roleId: true,
+                roleProfile: {
+                    select: {
+                        id: true,
+                        name: true,
+                    }
+                },
+                isActive: true,
+                createdAt: true,
+                agentProfile: true,
+                counselorProfile: {
+                    select: {
+                        id: true,
+                        phone: true,
+                        agent: {
+                            select: {
+                                id: true,
+                                companyName: true,
+                                user: { select: { name: true } }
+                            }
                         }
-                    },
-                    isActive: true,
-                    createdAt: true,
-                    agentProfile: true,
-                    counselorProfile: {
-                        include: {
-                            agent: { include: { user: { select: { name: true } } } }
-                        }
-                    },
-                    _count: {
-                        select: {
-                            assignedLeads: true,
-                            activities: true,
-                            onboardedStudents: true,
-                        },
+                    }
+                },
+                _count: {
+                    select: {
+                        assignedLeads: true,
+                        activities: true,
+                        onboardedStudents: true,
                     },
                 },
-                orderBy: {
-                    name: 'asc'
-                },
-                skip,
-                take: limit,
-            }),
-            prisma.user.count({ where }),
-        ]);
+            },
+            orderBy: {
+                name: 'asc'
+            },
+            skip,
+            take: limit,
+        });
 
         return NextResponse.json({
             employees,

@@ -16,8 +16,9 @@ import { zodValidator } from "@tanstack/zod-form-adapter";
 import { z } from "zod";
 
 interface LeadFormProps {
-    leadId: string;
-    onSuccess: () => void;
+    leadId?: string;
+    onSuccess: (leadId: string) => void;
+    initialData?: Partial<LeadFormData>;
 }
 
 const leadSchema = z.object({
@@ -63,49 +64,55 @@ function ErrorMessage({ field }: { field: any }) {
 }
 
 
-export function LeadForm({ leadId, onSuccess }: LeadFormProps) {
-    const [isLoading, setIsLoading] = useState(true);
+export function LeadForm({ leadId, onSuccess, initialData }: LeadFormProps) {
+    const [isLoading, setIsLoading] = useState(!!leadId);
 
     const form = useForm({
         // @ts-ignore
         validatorAdapter: zodValidator(),
 
         defaultValues: {
-            firstName: "",
-            lastName: "",
-            name: "",
-            email: "",
-            phone: "",
-            alternateNo: "",
-            dateOfBirth: "",
-            gender: "",
-            nationality: "",
-            maritalStatus: "",
-            address: "",
-            highestQualification: "",
-            testName: "",
-            testScore: "",
-            interestedCourse: "",
-            interestedCountry: "",
-            intake: "",
-            applyLevel: "",
-            source: "",
-            status: "",
-            temperature: "",
-            message: "",
-            remark: "",
-            imageUrl: null,
+            firstName: initialData?.firstName || "",
+            lastName: initialData?.lastName || "",
+            name: initialData?.name || "",
+            email: initialData?.email || "",
+            phone: initialData?.phone || "",
+            alternateNo: initialData?.alternateNo || "",
+            dateOfBirth: initialData?.dateOfBirth || "",
+            gender: initialData?.gender || "",
+            nationality: initialData?.nationality || "",
+            maritalStatus: initialData?.maritalStatus || "",
+            address: initialData?.address || "",
+            highestQualification: initialData?.highestQualification || "",
+            testName: initialData?.testName || "",
+            testScore: initialData?.testScore || "",
+            interestedCourse: initialData?.interestedCourse || "",
+            interestedCountry: initialData?.interestedCountry || "",
+            intake: initialData?.intake || "",
+            applyLevel: initialData?.applyLevel || "",
+            source: initialData?.source || "",
+            status: initialData?.status || "",
+            temperature: initialData?.temperature || "",
+            message: initialData?.message || "",
+            remark: initialData?.remark || "",
+            imageUrl: initialData?.imageUrl || null,
         } as LeadFormData,
         validators: {
             onChange: leadSchema,
         },
         onSubmit: async ({ value }) => {
             try {
-                await axios.patch(`/api/leads/${leadId}`, value);
-                toast.success("Lead updated successfully");
-                onSuccess();
-            } catch (error) {
-                toast.error("Failed to update lead");
+                if (leadId) {
+                    await axios.patch(`/api/leads/${leadId}`, value);
+                    toast.success("Lead updated successfully");
+                    onSuccess(leadId);
+                } else {
+                    const res = await axios.post("/api/leads", value);
+                    toast.success("Lead created successfully");
+                    onSuccess(res.data.id);
+                }
+            } catch (error: any) {
+                toast.error(error.response?.data?.message || "Failed to save lead");
             }
         },
     });
@@ -116,6 +123,7 @@ export function LeadForm({ leadId, onSuccess }: LeadFormProps) {
 
     useEffect(() => {
         const fetchLead = async () => {
+            if (!leadId) return;
             try {
                 const response = await axios.get(`/api/leads/${leadId}`);
                 const lead = response.data;
@@ -179,7 +187,7 @@ export function LeadForm({ leadId, onSuccess }: LeadFormProps) {
             }
         };
 
-        if (leadId) fetchLead();
+        fetchLead();
         fetchWebsites();
         fetchQualifications();
         fetchCountries();

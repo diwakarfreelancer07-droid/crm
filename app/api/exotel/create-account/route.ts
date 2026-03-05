@@ -96,6 +96,12 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ exotelAgentId }, { status: 201 });
     } catch (error: any) {
         console.error('[Exotel Create Account]', error);
+        if (error.message === 'EXOTEL_MISSING_CREDENTIALS') {
+            return NextResponse.json(
+                { error: 'Exotel API credentials are not configured in the server environment.' },
+                { status: 500 }
+            );
+        }
         return NextResponse.json(
             { error: error.message || 'Failed to create Exotel account' },
             { status: 500 }

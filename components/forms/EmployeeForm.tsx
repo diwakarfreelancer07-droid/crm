@@ -76,16 +76,25 @@ export default function EmployeeForm({ employee, onSuccess, formId, defaultRole 
     ) || [];
 
 
+    // Help prefill fields that might be nested or named differently in the API response
+    const nameParts = (employee as any)?.name ? (employee as any).name.trim().split(/\s+/) : [];
+    const inferredFirstName = nameParts[0] || '';
+    const inferredLastName = nameParts.slice(1).join(' ') || '';
+
+    const profile = employee?.role === 'AGENT' ? (employee as any).agentProfile : (employee as any).counselorProfile;
+
     const form = useForm({
         defaultValues: {
-            phone: employee?.phone || '',
+            phone: employee?.phone || profile?.phone || '',
             email: employee?.email || '',
-            firstName: employee?.firstName || '',
-            lastName: employee?.lastName || '',
-            department: employee?.department || '',
-            designation: employee?.designation || '',
-            joiningDate: employee?.joiningDate ? new Date(employee.joiningDate).toISOString().split('T')[0] : '',
-            salary: employee?.salary || 0,
+            firstName: employee?.firstName || inferredFirstName,
+            lastName: employee?.lastName || inferredLastName,
+            department: employee?.department || (employee as any).counselorProfile?.department || '',
+            designation: employee?.designation || (employee as any).counselorProfile?.designation || '',
+            joiningDate: (employee?.joiningDate || (employee as any).counselorProfile?.joiningDate)
+                ? new Date(employee?.joiningDate || (employee as any).counselorProfile?.joiningDate).toISOString().split('T')[0]
+                : '',
+            salary: employee?.salary || (employee as any).counselorProfile?.salary || 0,
             imageUrl: employee?.imageUrl || null,
             password: '',
             role: employee?.role || defaultRole || 'EMPLOYEE',

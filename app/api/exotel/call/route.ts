@@ -76,12 +76,14 @@ export async function POST(req: NextRequest) {
             ? `${webhookBase}/api/exotel/webhook?secret=${secret}`
             : `${webhookBase}/api/exotel/webhook`;
 
-        // 4. Initiate the call
-        const { callSid } = await makeOutboundCall({
-            from: callerPhone,
-            to: targetPhone,
-            statusCallbackUrl,
-        });
+        // 4. Initiate the call using the new signature mapping to taxiby_backend
+        const callerId = process.env.EXOTEL_VIRTUAL_NUMBER!;
+        const callResponse = await makeOutboundCall(callerPhone, targetPhone, callerId);
+        const callSid = callResponse?.Sid || callResponse?.Call?.Sid;
+
+        if (!callSid) {
+            throw new Error(`Exotel failed to return a Call Sid: ${JSON.stringify(callResponse)}`);
+        }
 
         // 5. Create initial CallLog
         await prisma.callLog.create({

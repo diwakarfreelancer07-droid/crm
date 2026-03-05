@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSession } from "next-auth/react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Phone, History, LayoutGrid, Loader2, Delete,
@@ -15,6 +16,14 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { useCallNotifications } from "@/hooks/use-call-notifications";
+import { useCallCenterKeyboard } from "@/hooks/useCallCenterKeyboard";
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+} from "@/components/ui/sheet";
+import { LeadForm } from "@/components/dashboard/LeadForm";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 type CallTab = "status" | "dialpad" | "history";
@@ -39,13 +48,21 @@ function formatTime(dateStr: string) {
 // ── Status icon helper ─────────────────────────────────────────────────────
 function CallStatusIcon({ status }: { status: string }) {
     const s = status?.toLowerCase();
-    if (s === "completed") return <CheckCircle2 className="h-3 w-3 text-emerald-500" />;
+    if (s === "completed") return <CheckCircle2 className="h-3 w-3 text-primary" />;
     if (s === "ringing" || s === "in-progress") return <PhoneIncoming className="h-3 w-3 text-blue-500" />;
     return <PhoneMissed className="h-3 w-3 text-red-500" />;
 }
 
-// ── Main Page ──────────────────────────────────────────────────────────────
+// Main Page wrapped in Suspense for useSearchParams
 export default function CallCenterPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen items-center justify-center bg-muted/20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>}>
+            <CallCenterComponent />
+        </Suspense>
+    );
+}
+
+function CallCenterComponent() {
     const { data: session } = useSession() as any;
     const userId = session?.user?.id;
     const role = session?.user?.role;
@@ -69,7 +86,27 @@ export default function CallCenterPage() {
     const [activeCall, setActiveCall] = useState<any>(null);
 
     // ── Tab
-    const [callTab, setCallTab] = useState<CallTab>("status");
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const queryTab = searchParams.get("tab") as CallTab | null;
+    const [callTab, setCallTabState] = useState<CallTab>("status");
+
+    useEffect(() => {
+        if (queryTab && ["status", "dialpad", "history"].includes(queryTab) && queryTab !== callTab) {
+            setCallTabState(queryTab as CallTab);
+        } else if (!queryTab) {
+            setCallTabState("status");
+        }
+    }, [queryTab]);
+
+    const setCallTab = useCallback((tab: CallTab) => {
+        setCallTabState(tab);
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("tab", tab);
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    }, [pathname, searchParams, router]);
 
     // ── Dialpad
     const [dialNumber, setDialNumber] = useState("");
@@ -84,14 +121,19 @@ export default function CallCenterPage() {
     const [leadResults, setLeadResults] = useState<any[]>([]);
     const [selectedLead, setSelectedLead] = useState<any>(null);
     const [leadLoading, setLeadLoading] = useState(false);
-
+    const [isLeadSheetOpen, setIsLeadSheetOpen] = useState(false);
+    const [recentLeads, setRecentLeads] = useState<any[]>([]);
     // ── Call notes (save after call ends)
     const [showNotes, setShowNotes] = useState(false);
     const [notes, setNotes] = useState("");
     const [savingNotes, setSavingNotes] = useState(false);
     const [lastEndedCall, setLastEndedCall] = useState<any>(null);
 
-    // ── Socket effects ─────────────────────────────────────────────────────
+    // ── Keyboard State Selection Indexes
+    const [selectedHistoryIdx, setSelectedHistoryIdx] = useState(0);
+    const [selectedCustomerIdx, setSelectedCustomerIdx] = useState(0);
+
+    // ── Keyboard State Selection Indexes
     useEffect(() => {
         if (incomingCall) {
             setActiveCall({
@@ -156,9 +198,22 @@ export default function CallCenterPage() {
         }
     }, []);
 
+    // Load recent leads if search is empty
+    const loadRecentLeads = useCallback(async () => {
+        try {
+            const res = await fetch("/api/leads?limit=5");
+            const data = await res.json();
+            setRecentLeads(Array.isArray(data.leads) ? data.leads : []);
+        } catch { /* ignore */ }
+    }, []);
+
     useEffect(() => {
         if (callTab === "history") loadHistory();
     }, [callTab, loadHistory]);
+
+    useEffect(() => {
+        loadRecentLeads();
+    }, [loadRecentLeads]);
 
     // ── Lead search debounce ──────────────────────────────────────────────
     useEffect(() => {
@@ -265,11 +320,74 @@ export default function CallCenterPage() {
         }
     };
 
+    // ── Keyboard Hook Setup (Must be below action handlers like handleDial)
+    useCallCenterKeyboard({
+        callTab,
+        hasActiveCall: !!activeCall,
+        hasIncomingCall: !!incomingCall,
+        dialpadActive: callTab === "dialpad",
+        dialNumber,
+        historyLength: callHistory.length,
+        selectedHistoryIdx,
+        customerResultsLength: leadResults.length,
+        selectedCustomerIdx,
+        setCallTab,
+        answerCall: () => { /* Add socket answer event if supported */ },
+        rejectCall: () => { /* Add socket reject event if supported */ },
+        endCall: () => { /* Add socket end call event if supported */ },
+        dialKey: (k: string) => setDialNumber(d => d + k),
+        dialBackspace: () => setDialNumber(d => d.slice(0, -1)),
+        clearDialNumber: () => setDialNumber(""),
+        handleDial,
+        setSelectedHistoryIdx,
+        redialByIdx: (idx) => {
+            const r = callHistory[idx];
+            if (r) {
+                setDialNumber(r.callerId || r.toNumber);
+                setCallTab("dialpad");
+            }
+        },
+        setSelectedCustomerIdx,
+        enterCustomer: () => {
+            const lead = leadResults[selectedCustomerIdx];
+            if (lead) {
+                setSelectedLead(lead);
+                setLeadSearch("");
+                setLeadResults([]);
+            }
+        },
+        closeDetailPanel: () => {
+            if (selectedLead) setSelectedLead(null);
+            if (showNotes) setShowNotes(false);
+        },
+        toggleHelp: () => toast.info("Keyboard Shortcuts:\r\nCtrl+1/2/3: Switch Tabs\r\nArrows: Navigate Lists\r\nEnter: Select/Dial")
+    });
+
     const isCallActive = activeCall && !["completed", "no-answer", "busy", "failed"].includes(activeCall.status);
 
     // ── Render ─────────────────────────────────────────────────────────────
     return (
         <div className="flex h-[calc(100vh-64px)] bg-muted/20 overflow-hidden">
+
+            {/* Sheet for Create/Update Lead */}
+            <Sheet open={isLeadSheetOpen} onOpenChange={setIsLeadSheetOpen}>
+                <SheetContent className="sm:max-w-[600px] overflow-y-auto">
+                    <SheetHeader>
+                        <SheetTitle>Add New Lead</SheetTitle>
+                    </SheetHeader>
+                    <LeadForm
+                        onSuccess={(id) => {
+                            setIsLeadSheetOpen(false);
+                            loadRecentLeads();
+                            // Optionally select the new lead
+                            fetch(`/api/leads/${id}`).then(r => r.json()).then(l => setSelectedLead(l));
+                        }}
+                        initialData={{
+                            phone: leadSearch.match(/^\d+$/) ? leadSearch : (dialNumber.match(/^\d+$/) ? dialNumber : "")
+                        }}
+                    />
+                </SheetContent>
+            </Sheet>
 
             {/* ══ LEFT PANEL — CALL CONTROL ══════════════════════════════════ */}
             <div className="w-[380px] bg-background border-r border-border/60 flex flex-col shrink-0 shadow-xl z-20">
@@ -277,7 +395,7 @@ export default function CallCenterPage() {
                 {/* Header */}
                 <div className="h-14 border-b border-border/60 flex items-center justify-between px-5 shrink-0">
                     <div className="flex items-center gap-2.5">
-                        <div className={`w-2.5 h-2.5 rounded-full transition-colors ${isAvailable ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground/30"}`} />
+                        <div className={`w-2.5 h-2.5 rounded-full transition-colors ${isAvailable ? "bg-primary animate-pulse" : "bg-muted-foreground/30"}`} />
                         <span className="font-bold text-sm tracking-tight">Call Center</span>
                         <Badge variant={isAvailable ? "default" : "secondary"} className="text-[9px] h-4 px-1.5 uppercase tracking-wider">
                             {isAvailable ? "Online" : "Offline"}
@@ -324,9 +442,9 @@ export default function CallCenterPage() {
                                     <div className={`mb-4 p-3 rounded-xl border flex items-center gap-3 transition-all
                                         ${activeCall.status === "ringing"
                                             ? "border-blue-200 bg-blue-50/80 dark:bg-blue-950/30"
-                                            : "border-emerald-200 bg-emerald-50/80 dark:bg-emerald-950/30"}`}>
+                                            : "border-primary/20 bg-primary/10"}`}>
                                         <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0
-                                            ${activeCall.status === "ringing" ? "bg-blue-500 animate-bounce" : "bg-emerald-500"}`}>
+                                            ${activeCall.status === "ringing" ? "bg-blue-500 animate-bounce" : "bg-primary"}`}>
                                             <Phone className="h-4 w-4 text-white fill-current" />
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -346,10 +464,10 @@ export default function CallCenterPage() {
                                 {/* Agent status circle */}
                                 <div className="flex flex-col items-center justify-center flex-1 gap-5">
                                     <div className={`w-28 h-28 rounded-full border-4 flex items-center justify-center shadow-inner transition-all duration-500
-                                        ${isAvailable ? "border-emerald-100 bg-emerald-50" : "border-muted bg-muted/30"}`}>
+                                        ${isAvailable ? "border-primary/20 bg-primary/10" : "border-muted bg-muted/30"}`}>
                                         <div className={`w-20 h-20 rounded-full flex items-center justify-center shadow-lg transition-all duration-500
-                                            ${isAvailable ? "bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-emerald-200" : "bg-muted"}`}>
-                                            <Phone className={`h-9 w-9 ${isAvailable ? "text-white fill-current" : "text-muted-foreground"}`} />
+                                            ${isAvailable ? "bg-primary shadow-primary/20" : "bg-muted"}`}>
+                                            <Phone className={`h-9 w-9 ${isAvailable ? "text-primary-foreground fill-current" : "text-muted-foreground"}`} />
                                         </div>
                                     </div>
                                     <div className="text-center">
@@ -363,8 +481,8 @@ export default function CallCenterPage() {
                                         disabled={availLoading}
                                         size="lg"
                                         className={`rounded-full px-8 font-bold shadow-lg transition-all hover:scale-105 active:scale-95 ${isAvailable
-                                            ? "bg-red-500 hover:bg-red-600"
-                                            : "bg-emerald-600 hover:bg-emerald-700"}`}>
+                                            ? "bg-red-500 hover:bg-red-600 text-white"
+                                            : "bg-primary hover:bg-primary/90 text-primary-foreground"}`}>
                                         {availLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                                         {isAvailable ? "Go Offline" : "Go Online"}
                                     </Button>
@@ -379,9 +497,9 @@ export default function CallCenterPage() {
 
                                 {/* Active call indicator */}
                                 {isCallActive && (
-                                    <div className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50 flex items-center gap-2">
-                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                        <span className="text-xs font-semibold text-emerald-700 truncate">
+                                    <div className="p-2.5 rounded-xl border border-primary/20 bg-primary/10 flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                                        <span className="text-xs font-semibold text-primary truncate">
                                             {activeCall.status === "ringing" ? "Incoming..." : "Call in progress"}
                                         </span>
                                     </div>
@@ -413,7 +531,7 @@ export default function CallCenterPage() {
                                 </div>
 
                                 <Button onClick={handleDial} disabled={!dialNumber || dialLoading}
-                                    className="w-full rounded-xl h-11 bg-emerald-600 hover:bg-emerald-700 gap-2 font-semibold disabled:opacity-50">
+                                    className="w-full rounded-xl h-11 bg-primary hover:bg-primary/90 text-primary-foreground gap-2 font-semibold disabled:opacity-50">
                                     {dialLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Phone className="h-4 w-4" />}
                                     {dialLoading ? "Connecting..." : "Call"}
                                 </Button>
@@ -437,9 +555,11 @@ export default function CallCenterPage() {
                                         </div>
                                     ) : callHistory.length === 0 ? (
                                         <div className="text-center p-8 text-muted-foreground text-sm">No recent calls</div>
-                                    ) : callHistory.map((r) => (
+                                    ) : callHistory.map((r, idx) => (
                                         <div key={r.id}
-                                            className="p-3 rounded-xl border border-border/60 hover:bg-muted/30 transition-colors group">
+                                            onMouseEnter={() => setSelectedHistoryIdx(idx)}
+                                            className={`p-3 rounded-xl border transition-colors group
+                                                ${idx === selectedHistoryIdx ? "border-primary bg-primary/5" : "border-border/60 hover:bg-muted/30"}`}>
                                             <div className="flex justify-between items-start">
                                                 <div>
                                                     <p className="text-sm font-semibold">{r.lead?.name || r.student?.name || r.callerId || r.toNumber}</p>
@@ -456,9 +576,9 @@ export default function CallCenterPage() {
                                                 {r.direction && <span className="capitalize opacity-60">{r.direction}</span>}
                                             </div>
                                             {/* Redial */}
-                                            <div className="flex gap-2 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className={`flex gap-2 mt-2 transition-opacity ${idx === selectedHistoryIdx ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}>
                                                 <Button size="sm" variant="ghost"
-                                                    className="h-6 px-2 text-[10px] gap-1 text-emerald-600 hover:bg-emerald-50"
+                                                    className="h-6 px-2 text-[10px] gap-1 text-primary hover:bg-primary/10"
                                                     onClick={() => { setDialNumber(r.callerId || r.toNumber); setCallTab("dialpad"); }}>
                                                     <Phone className="h-3 w-3" /> Redial
                                                 </Button>
@@ -480,8 +600,8 @@ export default function CallCenterPage() {
                 <div className="h-14 border-b border-border/60 flex items-center justify-between px-6 bg-background shrink-0">
                     <h2 className="font-bold text-sm">Lead Details</h2>
                     {isCallActive && (
-                        <Badge variant="outline" className="gap-1.5 text-emerald-600 border-emerald-500/40">
-                            <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                        <Badge variant="outline" className="gap-1.5 text-primary border-primary/40">
+                            <div className="w-1.5 h-1.5 bg-primary rounded-full animate-pulse" />
                             Call Active
                         </Badge>
                     )}
@@ -530,42 +650,82 @@ export default function CallCenterPage() {
                     </AnimatePresence>
 
                     {/* LEAD SEARCH ─────────────────────────────────────────── */}
-                    <div className="bg-background rounded-2xl border border-border/60 p-4 space-y-3">
-                        <div className="flex items-center gap-2 mb-1">
-                            <Search className="h-4 w-4 text-muted-foreground" />
-                            <span className="font-semibold text-sm">Search Lead</span>
+                    <div className="bg-background rounded-2xl border border-border/60 p-4 space-y-3 flex flex-col h-[400px]">
+                        <div className="flex items-center justify-between mb-1">
+                            <div className="flex items-center gap-2">
+                                <Search className="h-4 w-4 text-muted-foreground" />
+                                <span className="font-semibold text-sm">Lead Directory</span>
+                            </div>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 px-2 text-[10px] gap-1 hover:bg-primary hover:text-white"
+                                onClick={() => setIsLeadSheetOpen(true)}
+                            >
+                                <UserPlus className="h-3 w-3" /> Create Lead
+                            </Button>
                         </div>
                         <div className="relative">
                             <Input
                                 placeholder="Search by name, phone, email..."
                                 value={leadSearch}
                                 onChange={e => setLeadSearch(e.target.value)}
-                                className="pr-8"
+                                className="pr-8 h-9 text-sm"
                             />
                             {leadLoading && (
                                 <Loader2 className="h-4 w-4 animate-spin absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                             )}
                         </div>
 
-                        {/* Search results */}
-                        {leadResults.length > 0 && (
-                            <div className="space-y-1.5 max-h-60 overflow-y-auto">
-                                {leadResults.map(lead => (
-                                    <div key={lead.id}
-                                        onClick={() => { setSelectedLead(lead); setLeadSearch(""); setLeadResults([]); }}
-                                        className="flex items-center gap-3 p-2.5 rounded-xl hover:bg-muted/50 cursor-pointer border border-transparent hover:border-border/60 transition-all">
-                                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                            <User2 className="h-4 w-4 text-primary" />
+                        {/* Search results or Recent Leads */}
+                        <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 -mr-1">
+                            {leadSearch.length >= 3 ? (
+                                leadResults.length > 0 ? (
+                                    leadResults.map((lead, idx) => (
+                                        <div key={lead.id}
+                                            onMouseEnter={() => setSelectedCustomerIdx(idx)}
+                                            onClick={() => { setSelectedLead(lead); setLeadSearch(""); setLeadResults([]); }}
+                                            className={`flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all border
+                                                ${idx === selectedCustomerIdx ? "bg-primary/10 border-primary/30" : "border-transparent hover:bg-muted/50"}`}>
+                                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                                <User2 className="h-4 w-4 text-primary" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium truncate">{lead.name}</p>
+                                                <p className="text-[11px] text-muted-foreground truncate">{lead.phone}</p>
+                                            </div>
+                                            <Badge variant="outline" className="text-[9px] capitalize shrink-0">{lead.status?.toLowerCase()}</Badge>
                                         </div>
-                                        <div className="flex-1 min-w-0">
-                                            <p className="text-sm font-medium truncate">{lead.name}</p>
-                                            <p className="text-[11px] text-muted-foreground truncate">{lead.phone}</p>
-                                        </div>
-                                        <Badge variant="outline" className="text-[9px] capitalize shrink-0">{lead.status?.toLowerCase()}</Badge>
+                                    ))
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-8 text-center">
+                                        <AlertCircle className="h-8 w-8 text-muted-foreground/30 mb-2" />
+                                        <p className="text-xs text-muted-foreground">No leads found for "{leadSearch}"</p>
+                                        <Button variant="link" size="sm" className="text-[11px] mt-1" onClick={() => setIsLeadSheetOpen(true)}>
+                                            Create new lead instead?
+                                        </Button>
                                     </div>
-                                ))}
-                            </div>
-                        )}
+                                )
+                            ) : (
+                                <>
+                                    <p className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground/60 px-1 mb-1">Recently Active</p>
+                                    {recentLeads.map((lead, idx) => (
+                                        <div key={lead.id}
+                                            onClick={() => setSelectedLead(lead)}
+                                            className="flex items-center gap-3 p-2.5 rounded-xl cursor-pointer transition-all border border-transparent hover:bg-muted/50">
+                                            <div className="w-8 h-8 rounded-full bg-primary/5 flex items-center justify-center shrink-0">
+                                                <User2 className="h-4 w-4 text-muted-foreground" />
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <p className="text-sm font-medium truncate">{lead.name}</p>
+                                                <p className="text-[11px] text-muted-foreground truncate">{lead.phone}</p>
+                                            </div>
+                                            <Badge variant="secondary" className="text-[8px] h-3.5 px-1 capitalize shrink-0">{lead.status?.toLowerCase()}</Badge>
+                                        </div>
+                                    ))}
+                                </>
+                            )}
+                        </div>
                     </div>
 
                     {/* SELECTED LEAD DETAILS ───────────────────────────────── */}
@@ -586,7 +746,7 @@ export default function CallCenterPage() {
                                 <div className="flex gap-1.5">
                                     {/* Call this lead */}
                                     <Button size="sm" variant="outline"
-                                        className="h-8 px-3 gap-1.5 text-xs border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                                        className="h-8 px-3 gap-1.5 text-xs border-primary/30 text-primary hover:bg-primary/10"
                                         onClick={() => handleCallLead(selectedLead)}>
                                         <Phone className="h-3 w-3" /> Call
                                     </Button>

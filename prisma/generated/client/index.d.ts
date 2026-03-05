@@ -7108,6 +7108,8 @@ export namespace Prisma {
     phone: string | null
     commission: number | null
     approvalStatus: $Enums.AgentApprovalStatus | null
+    exotelAgentId: string | null
+    exotelAvailable: boolean | null
   }
 
   export type AgentProfileMaxAggregateOutputType = {
@@ -7118,6 +7120,8 @@ export namespace Prisma {
     phone: string | null
     commission: number | null
     approvalStatus: $Enums.AgentApprovalStatus | null
+    exotelAgentId: string | null
+    exotelAvailable: boolean | null
   }
 
   export type AgentProfileCountAggregateOutputType = {
@@ -7128,6 +7132,8 @@ export namespace Prisma {
     phone: number
     commission: number
     approvalStatus: number
+    exotelAgentId: number
+    exotelAvailable: number
     _all: number
   }
 
@@ -7148,6 +7154,8 @@ export namespace Prisma {
     phone?: true
     commission?: true
     approvalStatus?: true
+    exotelAgentId?: true
+    exotelAvailable?: true
   }
 
   export type AgentProfileMaxAggregateInputType = {
@@ -7158,6 +7166,8 @@ export namespace Prisma {
     phone?: true
     commission?: true
     approvalStatus?: true
+    exotelAgentId?: true
+    exotelAvailable?: true
   }
 
   export type AgentProfileCountAggregateInputType = {
@@ -7168,6 +7178,8 @@ export namespace Prisma {
     phone?: true
     commission?: true
     approvalStatus?: true
+    exotelAgentId?: true
+    exotelAvailable?: true
     _all?: true
   }
 
@@ -7265,6 +7277,8 @@ export namespace Prisma {
     phone: string | null
     commission: number | null
     approvalStatus: $Enums.AgentApprovalStatus
+    exotelAgentId: string | null
+    exotelAvailable: boolean
     _count: AgentProfileCountAggregateOutputType | null
     _avg: AgentProfileAvgAggregateOutputType | null
     _sum: AgentProfileSumAggregateOutputType | null
@@ -7294,6 +7308,8 @@ export namespace Prisma {
     phone?: boolean
     commission?: boolean
     approvalStatus?: boolean
+    exotelAgentId?: boolean
+    exotelAvailable?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     counselors?: boolean | AgentProfile$counselorsArgs<ExtArgs>
     _count?: boolean | AgentProfileCountOutputTypeDefaultArgs<ExtArgs>
@@ -7307,6 +7323,8 @@ export namespace Prisma {
     phone?: boolean
     commission?: boolean
     approvalStatus?: boolean
+    exotelAgentId?: boolean
+    exotelAvailable?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["agentProfile"]>
 
@@ -7318,6 +7336,8 @@ export namespace Prisma {
     phone?: boolean
     commission?: boolean
     approvalStatus?: boolean
+    exotelAgentId?: boolean
+    exotelAvailable?: boolean
   }
 
   export type AgentProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7343,6 +7363,8 @@ export namespace Prisma {
       phone: string | null
       commission: number | null
       approvalStatus: $Enums.AgentApprovalStatus
+      exotelAgentId: string | null
+      exotelAvailable: boolean
     }, ExtArgs["result"]["agentProfile"]>
     composites: {}
   }
@@ -7745,6 +7767,8 @@ export namespace Prisma {
     readonly phone: FieldRef<"AgentProfile", 'String'>
     readonly commission: FieldRef<"AgentProfile", 'Float'>
     readonly approvalStatus: FieldRef<"AgentProfile", 'AgentApprovalStatus'>
+    readonly exotelAgentId: FieldRef<"AgentProfile", 'String'>
+    readonly exotelAvailable: FieldRef<"AgentProfile", 'Boolean'>
   }
     
 
@@ -8126,6 +8150,8 @@ export namespace Prisma {
     salary: number | null
     joiningDate: Date | null
     agentId: string | null
+    exotelAgentId: string | null
+    exotelAvailable: boolean | null
   }
 
   export type CounselorProfileMaxAggregateOutputType = {
@@ -8137,6 +8163,8 @@ export namespace Prisma {
     salary: number | null
     joiningDate: Date | null
     agentId: string | null
+    exotelAgentId: string | null
+    exotelAvailable: boolean | null
   }
 
   export type CounselorProfileCountAggregateOutputType = {
@@ -8148,6 +8176,8 @@ export namespace Prisma {
     salary: number
     joiningDate: number
     agentId: number
+    exotelAgentId: number
+    exotelAvailable: number
     _all: number
   }
 
@@ -8169,6 +8199,8 @@ export namespace Prisma {
     salary?: true
     joiningDate?: true
     agentId?: true
+    exotelAgentId?: true
+    exotelAvailable?: true
   }
 
   export type CounselorProfileMaxAggregateInputType = {
@@ -8180,6 +8212,8 @@ export namespace Prisma {
     salary?: true
     joiningDate?: true
     agentId?: true
+    exotelAgentId?: true
+    exotelAvailable?: true
   }
 
   export type CounselorProfileCountAggregateInputType = {
@@ -8191,6 +8225,8 @@ export namespace Prisma {
     salary?: true
     joiningDate?: true
     agentId?: true
+    exotelAgentId?: true
+    exotelAvailable?: true
     _all?: true
   }
 
@@ -8289,6 +8325,8 @@ export namespace Prisma {
     salary: number | null
     joiningDate: Date | null
     agentId: string | null
+    exotelAgentId: string | null
+    exotelAvailable: boolean
     _count: CounselorProfileCountAggregateOutputType | null
     _avg: CounselorProfileAvgAggregateOutputType | null
     _sum: CounselorProfileSumAggregateOutputType | null
@@ -8319,6 +8357,8 @@ export namespace Prisma {
     salary?: boolean
     joiningDate?: boolean
     agentId?: boolean
+    exotelAgentId?: boolean
+    exotelAvailable?: boolean
     agent?: boolean | CounselorProfile$agentArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["counselorProfile"]>
@@ -8332,6 +8372,8 @@ export namespace Prisma {
     salary?: boolean
     joiningDate?: boolean
     agentId?: boolean
+    exotelAgentId?: boolean
+    exotelAvailable?: boolean
     agent?: boolean | CounselorProfile$agentArgs<ExtArgs>
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["counselorProfile"]>
@@ -8345,6 +8387,8 @@ export namespace Prisma {
     salary?: boolean
     joiningDate?: boolean
     agentId?: boolean
+    exotelAgentId?: boolean
+    exotelAvailable?: boolean
   }
 
   export type CounselorProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -8371,6 +8415,8 @@ export namespace Prisma {
       salary: number | null
       joiningDate: Date | null
       agentId: string | null
+      exotelAgentId: string | null
+      exotelAvailable: boolean
     }, ExtArgs["result"]["counselorProfile"]>
     composites: {}
   }
@@ -8774,6 +8820,8 @@ export namespace Prisma {
     readonly salary: FieldRef<"CounselorProfile", 'Float'>
     readonly joiningDate: FieldRef<"CounselorProfile", 'DateTime'>
     readonly agentId: FieldRef<"CounselorProfile", 'String'>
+    readonly exotelAgentId: FieldRef<"CounselorProfile", 'String'>
+    readonly exotelAvailable: FieldRef<"CounselorProfile", 'Boolean'>
   }
     
 
@@ -37365,7 +37413,9 @@ export namespace Prisma {
     address: 'address',
     phone: 'phone',
     commission: 'commission',
-    approvalStatus: 'approvalStatus'
+    approvalStatus: 'approvalStatus',
+    exotelAgentId: 'exotelAgentId',
+    exotelAvailable: 'exotelAvailable'
   };
 
   export type AgentProfileScalarFieldEnum = (typeof AgentProfileScalarFieldEnum)[keyof typeof AgentProfileScalarFieldEnum]
@@ -37379,7 +37429,9 @@ export namespace Prisma {
     designation: 'designation',
     salary: 'salary',
     joiningDate: 'joiningDate',
-    agentId: 'agentId'
+    agentId: 'agentId',
+    exotelAgentId: 'exotelAgentId',
+    exotelAvailable: 'exotelAvailable'
   };
 
   export type CounselorProfileScalarFieldEnum = (typeof CounselorProfileScalarFieldEnum)[keyof typeof CounselorProfileScalarFieldEnum]
@@ -38416,6 +38468,8 @@ export namespace Prisma {
     phone?: StringNullableFilter<"AgentProfile"> | string | null
     commission?: FloatNullableFilter<"AgentProfile"> | number | null
     approvalStatus?: EnumAgentApprovalStatusFilter<"AgentProfile"> | $Enums.AgentApprovalStatus
+    exotelAgentId?: StringNullableFilter<"AgentProfile"> | string | null
+    exotelAvailable?: BoolFilter<"AgentProfile"> | boolean
     user?: XOR<UserRelationFilter, UserWhereInput>
     counselors?: CounselorProfileListRelationFilter
   }
@@ -38428,6 +38482,8 @@ export namespace Prisma {
     phone?: SortOrderInput | SortOrder
     commission?: SortOrderInput | SortOrder
     approvalStatus?: SortOrder
+    exotelAgentId?: SortOrderInput | SortOrder
+    exotelAvailable?: SortOrder
     user?: UserOrderByWithRelationInput
     counselors?: CounselorProfileOrderByRelationAggregateInput
   }
@@ -38443,6 +38499,8 @@ export namespace Prisma {
     phone?: StringNullableFilter<"AgentProfile"> | string | null
     commission?: FloatNullableFilter<"AgentProfile"> | number | null
     approvalStatus?: EnumAgentApprovalStatusFilter<"AgentProfile"> | $Enums.AgentApprovalStatus
+    exotelAgentId?: StringNullableFilter<"AgentProfile"> | string | null
+    exotelAvailable?: BoolFilter<"AgentProfile"> | boolean
     user?: XOR<UserRelationFilter, UserWhereInput>
     counselors?: CounselorProfileListRelationFilter
   }, "id" | "userId">
@@ -38455,6 +38513,8 @@ export namespace Prisma {
     phone?: SortOrderInput | SortOrder
     commission?: SortOrderInput | SortOrder
     approvalStatus?: SortOrder
+    exotelAgentId?: SortOrderInput | SortOrder
+    exotelAvailable?: SortOrder
     _count?: AgentProfileCountOrderByAggregateInput
     _avg?: AgentProfileAvgOrderByAggregateInput
     _max?: AgentProfileMaxOrderByAggregateInput
@@ -38473,6 +38533,8 @@ export namespace Prisma {
     phone?: StringNullableWithAggregatesFilter<"AgentProfile"> | string | null
     commission?: FloatNullableWithAggregatesFilter<"AgentProfile"> | number | null
     approvalStatus?: EnumAgentApprovalStatusWithAggregatesFilter<"AgentProfile"> | $Enums.AgentApprovalStatus
+    exotelAgentId?: StringNullableWithAggregatesFilter<"AgentProfile"> | string | null
+    exotelAvailable?: BoolWithAggregatesFilter<"AgentProfile"> | boolean
   }
 
   export type CounselorProfileWhereInput = {
@@ -38487,6 +38549,8 @@ export namespace Prisma {
     salary?: FloatNullableFilter<"CounselorProfile"> | number | null
     joiningDate?: DateTimeNullableFilter<"CounselorProfile"> | Date | string | null
     agentId?: StringNullableFilter<"CounselorProfile"> | string | null
+    exotelAgentId?: StringNullableFilter<"CounselorProfile"> | string | null
+    exotelAvailable?: BoolFilter<"CounselorProfile"> | boolean
     agent?: XOR<AgentProfileNullableRelationFilter, AgentProfileWhereInput> | null
     user?: XOR<UserRelationFilter, UserWhereInput>
   }
@@ -38500,6 +38564,8 @@ export namespace Prisma {
     salary?: SortOrderInput | SortOrder
     joiningDate?: SortOrderInput | SortOrder
     agentId?: SortOrderInput | SortOrder
+    exotelAgentId?: SortOrderInput | SortOrder
+    exotelAvailable?: SortOrder
     agent?: AgentProfileOrderByWithRelationInput
     user?: UserOrderByWithRelationInput
   }
@@ -38516,6 +38582,8 @@ export namespace Prisma {
     salary?: FloatNullableFilter<"CounselorProfile"> | number | null
     joiningDate?: DateTimeNullableFilter<"CounselorProfile"> | Date | string | null
     agentId?: StringNullableFilter<"CounselorProfile"> | string | null
+    exotelAgentId?: StringNullableFilter<"CounselorProfile"> | string | null
+    exotelAvailable?: BoolFilter<"CounselorProfile"> | boolean
     agent?: XOR<AgentProfileNullableRelationFilter, AgentProfileWhereInput> | null
     user?: XOR<UserRelationFilter, UserWhereInput>
   }, "id" | "userId">
@@ -38529,6 +38597,8 @@ export namespace Prisma {
     salary?: SortOrderInput | SortOrder
     joiningDate?: SortOrderInput | SortOrder
     agentId?: SortOrderInput | SortOrder
+    exotelAgentId?: SortOrderInput | SortOrder
+    exotelAvailable?: SortOrder
     _count?: CounselorProfileCountOrderByAggregateInput
     _avg?: CounselorProfileAvgOrderByAggregateInput
     _max?: CounselorProfileMaxOrderByAggregateInput
@@ -38548,6 +38618,8 @@ export namespace Prisma {
     salary?: FloatNullableWithAggregatesFilter<"CounselorProfile"> | number | null
     joiningDate?: DateTimeNullableWithAggregatesFilter<"CounselorProfile"> | Date | string | null
     agentId?: StringNullableWithAggregatesFilter<"CounselorProfile"> | string | null
+    exotelAgentId?: StringNullableWithAggregatesFilter<"CounselorProfile"> | string | null
+    exotelAvailable?: BoolWithAggregatesFilter<"CounselorProfile"> | boolean
   }
 
   export type EmployeeProfileWhereInput = {
@@ -41260,6 +41332,8 @@ export namespace Prisma {
     phone?: string | null
     commission?: number | null
     approvalStatus?: $Enums.AgentApprovalStatus
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
     user: UserCreateNestedOneWithoutAgentProfileInput
     counselors?: CounselorProfileCreateNestedManyWithoutAgentInput
   }
@@ -41272,6 +41346,8 @@ export namespace Prisma {
     phone?: string | null
     commission?: number | null
     approvalStatus?: $Enums.AgentApprovalStatus
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
     counselors?: CounselorProfileUncheckedCreateNestedManyWithoutAgentInput
   }
 
@@ -41282,6 +41358,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     commission?: NullableFloatFieldUpdateOperationsInput | number | null
     approvalStatus?: EnumAgentApprovalStatusFieldUpdateOperationsInput | $Enums.AgentApprovalStatus
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutAgentProfileNestedInput
     counselors?: CounselorProfileUpdateManyWithoutAgentNestedInput
   }
@@ -41294,6 +41372,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     commission?: NullableFloatFieldUpdateOperationsInput | number | null
     approvalStatus?: EnumAgentApprovalStatusFieldUpdateOperationsInput | $Enums.AgentApprovalStatus
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
     counselors?: CounselorProfileUncheckedUpdateManyWithoutAgentNestedInput
   }
 
@@ -41305,6 +41385,8 @@ export namespace Prisma {
     phone?: string | null
     commission?: number | null
     approvalStatus?: $Enums.AgentApprovalStatus
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
   }
 
   export type AgentProfileUpdateManyMutationInput = {
@@ -41314,6 +41396,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     commission?: NullableFloatFieldUpdateOperationsInput | number | null
     approvalStatus?: EnumAgentApprovalStatusFieldUpdateOperationsInput | $Enums.AgentApprovalStatus
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type AgentProfileUncheckedUpdateManyInput = {
@@ -41324,6 +41408,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     commission?: NullableFloatFieldUpdateOperationsInput | number | null
     approvalStatus?: EnumAgentApprovalStatusFieldUpdateOperationsInput | $Enums.AgentApprovalStatus
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type CounselorProfileCreateInput = {
@@ -41333,6 +41419,8 @@ export namespace Prisma {
     designation?: string | null
     salary?: number | null
     joiningDate?: Date | string | null
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
     agent?: AgentProfileCreateNestedOneWithoutCounselorsInput
     user: UserCreateNestedOneWithoutCounselorProfileInput
   }
@@ -41346,6 +41434,8 @@ export namespace Prisma {
     salary?: number | null
     joiningDate?: Date | string | null
     agentId?: string | null
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
   }
 
   export type CounselorProfileUpdateInput = {
@@ -41355,6 +41445,8 @@ export namespace Prisma {
     designation?: NullableStringFieldUpdateOperationsInput | string | null
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     joiningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
     agent?: AgentProfileUpdateOneWithoutCounselorsNestedInput
     user?: UserUpdateOneRequiredWithoutCounselorProfileNestedInput
   }
@@ -41368,6 +41460,8 @@ export namespace Prisma {
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     joiningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type CounselorProfileCreateManyInput = {
@@ -41379,6 +41473,8 @@ export namespace Prisma {
     salary?: number | null
     joiningDate?: Date | string | null
     agentId?: string | null
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
   }
 
   export type CounselorProfileUpdateManyMutationInput = {
@@ -41388,6 +41484,8 @@ export namespace Prisma {
     designation?: NullableStringFieldUpdateOperationsInput | string | null
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     joiningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type CounselorProfileUncheckedUpdateManyInput = {
@@ -41399,6 +41497,8 @@ export namespace Prisma {
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     joiningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type EmployeeProfileCreateInput = {
@@ -44477,6 +44577,8 @@ export namespace Prisma {
     phone?: SortOrder
     commission?: SortOrder
     approvalStatus?: SortOrder
+    exotelAgentId?: SortOrder
+    exotelAvailable?: SortOrder
   }
 
   export type AgentProfileAvgOrderByAggregateInput = {
@@ -44491,6 +44593,8 @@ export namespace Prisma {
     phone?: SortOrder
     commission?: SortOrder
     approvalStatus?: SortOrder
+    exotelAgentId?: SortOrder
+    exotelAvailable?: SortOrder
   }
 
   export type AgentProfileMinOrderByAggregateInput = {
@@ -44501,6 +44605,8 @@ export namespace Prisma {
     phone?: SortOrder
     commission?: SortOrder
     approvalStatus?: SortOrder
+    exotelAgentId?: SortOrder
+    exotelAvailable?: SortOrder
   }
 
   export type AgentProfileSumOrderByAggregateInput = {
@@ -44542,6 +44648,8 @@ export namespace Prisma {
     salary?: SortOrder
     joiningDate?: SortOrder
     agentId?: SortOrder
+    exotelAgentId?: SortOrder
+    exotelAvailable?: SortOrder
   }
 
   export type CounselorProfileAvgOrderByAggregateInput = {
@@ -44557,6 +44665,8 @@ export namespace Prisma {
     salary?: SortOrder
     joiningDate?: SortOrder
     agentId?: SortOrder
+    exotelAgentId?: SortOrder
+    exotelAvailable?: SortOrder
   }
 
   export type CounselorProfileMinOrderByAggregateInput = {
@@ -44568,6 +44678,8 @@ export namespace Prisma {
     salary?: SortOrder
     joiningDate?: SortOrder
     agentId?: SortOrder
+    exotelAgentId?: SortOrder
+    exotelAvailable?: SortOrder
   }
 
   export type CounselorProfileSumOrderByAggregateInput = {
@@ -50129,6 +50241,8 @@ export namespace Prisma {
     phone?: string | null
     commission?: number | null
     approvalStatus?: $Enums.AgentApprovalStatus
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
     counselors?: CounselorProfileCreateNestedManyWithoutAgentInput
   }
 
@@ -50139,6 +50253,8 @@ export namespace Prisma {
     phone?: string | null
     commission?: number | null
     approvalStatus?: $Enums.AgentApprovalStatus
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
     counselors?: CounselorProfileUncheckedCreateNestedManyWithoutAgentInput
   }
 
@@ -50338,6 +50454,8 @@ export namespace Prisma {
     designation?: string | null
     salary?: number | null
     joiningDate?: Date | string | null
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
     agent?: AgentProfileCreateNestedOneWithoutCounselorsInput
   }
 
@@ -50349,6 +50467,8 @@ export namespace Prisma {
     salary?: number | null
     joiningDate?: Date | string | null
     agentId?: string | null
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
   }
 
   export type CounselorProfileCreateOrConnectWithoutUserInput = {
@@ -51412,6 +51532,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     commission?: NullableFloatFieldUpdateOperationsInput | number | null
     approvalStatus?: EnumAgentApprovalStatusFieldUpdateOperationsInput | $Enums.AgentApprovalStatus
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
     counselors?: CounselorProfileUpdateManyWithoutAgentNestedInput
   }
 
@@ -51422,6 +51544,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     commission?: NullableFloatFieldUpdateOperationsInput | number | null
     approvalStatus?: EnumAgentApprovalStatusFieldUpdateOperationsInput | $Enums.AgentApprovalStatus
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
     counselors?: CounselorProfileUncheckedUpdateManyWithoutAgentNestedInput
   }
 
@@ -51593,6 +51717,8 @@ export namespace Prisma {
     designation?: NullableStringFieldUpdateOperationsInput | string | null
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     joiningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
     agent?: AgentProfileUpdateOneWithoutCounselorsNestedInput
   }
 
@@ -51604,6 +51730,8 @@ export namespace Prisma {
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     joiningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     agentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type EmployeeProfileUpsertWithoutUserInput = {
@@ -52571,6 +52699,8 @@ export namespace Prisma {
     designation?: string | null
     salary?: number | null
     joiningDate?: Date | string | null
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
     user: UserCreateNestedOneWithoutCounselorProfileInput
   }
 
@@ -52582,6 +52712,8 @@ export namespace Prisma {
     designation?: string | null
     salary?: number | null
     joiningDate?: Date | string | null
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
   }
 
   export type CounselorProfileCreateOrConnectWithoutAgentInput = {
@@ -52721,6 +52853,8 @@ export namespace Prisma {
     salary?: FloatNullableFilter<"CounselorProfile"> | number | null
     joiningDate?: DateTimeNullableFilter<"CounselorProfile"> | Date | string | null
     agentId?: StringNullableFilter<"CounselorProfile"> | string | null
+    exotelAgentId?: StringNullableFilter<"CounselorProfile"> | string | null
+    exotelAvailable?: BoolFilter<"CounselorProfile"> | boolean
   }
 
   export type AgentProfileCreateWithoutCounselorsInput = {
@@ -52730,6 +52864,8 @@ export namespace Prisma {
     phone?: string | null
     commission?: number | null
     approvalStatus?: $Enums.AgentApprovalStatus
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
     user: UserCreateNestedOneWithoutAgentProfileInput
   }
 
@@ -52741,6 +52877,8 @@ export namespace Prisma {
     phone?: string | null
     commission?: number | null
     approvalStatus?: $Enums.AgentApprovalStatus
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
   }
 
   export type AgentProfileCreateOrConnectWithoutCounselorsInput = {
@@ -52859,6 +52997,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     commission?: NullableFloatFieldUpdateOperationsInput | number | null
     approvalStatus?: EnumAgentApprovalStatusFieldUpdateOperationsInput | $Enums.AgentApprovalStatus
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutAgentProfileNestedInput
   }
 
@@ -52870,6 +53010,8 @@ export namespace Prisma {
     phone?: NullableStringFieldUpdateOperationsInput | string | null
     commission?: NullableFloatFieldUpdateOperationsInput | number | null
     approvalStatus?: EnumAgentApprovalStatusFieldUpdateOperationsInput | $Enums.AgentApprovalStatus
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type UserUpsertWithoutCounselorProfileInput = {
@@ -65162,6 +65304,8 @@ export namespace Prisma {
     designation?: string | null
     salary?: number | null
     joiningDate?: Date | string | null
+    exotelAgentId?: string | null
+    exotelAvailable?: boolean
   }
 
   export type CounselorProfileUpdateWithoutAgentInput = {
@@ -65171,6 +65315,8 @@ export namespace Prisma {
     designation?: NullableStringFieldUpdateOperationsInput | string | null
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     joiningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
     user?: UserUpdateOneRequiredWithoutCounselorProfileNestedInput
   }
 
@@ -65182,6 +65328,8 @@ export namespace Prisma {
     designation?: NullableStringFieldUpdateOperationsInput | string | null
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     joiningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type CounselorProfileUncheckedUpdateManyWithoutAgentInput = {
@@ -65192,6 +65340,8 @@ export namespace Prisma {
     designation?: NullableStringFieldUpdateOperationsInput | string | null
     salary?: NullableFloatFieldUpdateOperationsInput | number | null
     joiningDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    exotelAgentId?: NullableStringFieldUpdateOperationsInput | string | null
+    exotelAvailable?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type AcademicDetailCreateManyLeadInput = {

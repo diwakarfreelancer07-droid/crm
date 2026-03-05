@@ -21,6 +21,8 @@ import { useState } from "react";
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import EmployeeForm from "@/components/forms/EmployeeForm";
 import { Employee } from "@/types/api";
+import { ExotelAccountButton } from "@/components/dashboard/ExotelAccountButton";
+import { useSession } from "next-auth/react";
 
 interface EmployeesTableProps {
     data: any[];
@@ -40,6 +42,8 @@ interface EmployeesTableProps {
 export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagination, title = "Employee" }: EmployeesTableProps) {
     const [editSheetOpen, setEditSheetOpen] = useState(false);
     const [editingEmployee, setEditingEmployee] = useState<Employee | undefined>(undefined);
+    const { data: session } = useSession() as any;
+    const isAdmin = session?.user?.role === "ADMIN";
 
     const columns: ColumnDef<any>[] = [
         {
@@ -131,6 +135,18 @@ export function EmployeesTable({ data, onUpdate, onDelete, onToggleStatus, pagin
             id: "actions",
             cell: ({ row }) => (
                 <div className="flex items-center justify-end gap-2">
+                    {/* Exotel account creation — admin only, for AGENT/COUNSELOR rows */}
+                    {isAdmin && (row.original.role === "AGENT" || row.original.role === "COUNSELOR") && (
+                        <ExotelAccountButton
+                            userId={row.original.id}
+                            role={row.original.role}
+                            existingExotelId={
+                                row.original.agentProfile?.exotelAgentId ||
+                                row.original.counselorProfile?.exotelAgentId ||
+                                null
+                            }
+                        />
+                    )}
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0">

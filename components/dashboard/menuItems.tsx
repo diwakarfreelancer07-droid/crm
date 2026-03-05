@@ -8,6 +8,7 @@ import {
     FaCheckCircle,
     FaClock,
     FaSync,
+    FaPhone,
 } from "react-icons/fa";
 
 export interface MenuItem {
@@ -22,6 +23,7 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
     { label: "Dashboard", icon: <FaTachometerAlt />, href: "/dashboard" },
     { label: "Leads", icon: <FaHeadset />, href: "/leads" },
+    { label: "Call Center", icon: <FaPhone />, href: "/call-center", roles: ["AGENT", "COUNSELOR"] },
     { label: "Students", icon: <FaUsers />, href: "/students" },
     { label: "Applications", icon: <FaFolderOpen />, href: "/applications", roles: ["ADMIN", "MANAGER", "AGENT", "COUNSELOR", "SALES_REP", "SUPPORT_AGENT"] },
     { label: "Visa Applications", icon: <FaSitemap />, href: "/visa-applications", roles: ["ADMIN", "MANAGER", "AGENT", "COUNSELOR"] },

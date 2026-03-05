@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
+import { emitToUser } from '@/lib/socket-io';
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -12,9 +13,9 @@ const RINGING_STATUSES = new Set(['ringing', 'initiated', 'queued']);
 /** Normalize any phone string to E.164 (assumes India +91). */
 function toE164(phone: string): string {
     const digits = phone.replace(/\D/g, '');
-    if (digits.startsWith('91') && digits.length === 12) return `+${digits}`;        // 917867010056  → +917867010056
-    if (digits.startsWith('0') && digits.length === 11) return `+91${digits.slice(1)}`; // 07867010056 → +917867010056
-    if (digits.length === 10) return `+91${digits}`;       // 7867010056    → +917867010056
+    if (digits.startsWith('91') && digits.length === 12) return `+${digits}`;
+    if (digits.startsWith('0') && digits.length === 11) return `+91${digits.slice(1)}`;
+    if (digits.length === 10) return `+91${digits}`;
     return `+${digits}`;
 }
 
@@ -42,35 +43,49 @@ async function findContact(phone: string) {
     return { lead, student };
 }
 
-/** Find the employee User whose EmployeeProfile.phone matches a number. */
-async function findEmployee(phone: string) {
+/**
+ * Find the employee User whose AgentProfile or CounselorProfile phone matches.
+ * Also checks EmployeeProfile for completeness.
+ */
+async function findEmployeeByPhone(phone: string) {
     const variants = [phone, phone.replace('+91', ''), phone.slice(-10)];
-    return prisma.employeeProfile.findFirst({
+
+    // Try AgentProfile first
+    const agentProfile = await prisma.agentProfile.findFirst({
         where: { phone: { in: variants } },
         include: { user: { select: { id: true, name: true } } },
     });
+    if (agentProfile) return agentProfile.user;
+
+    // Try CounselorProfile
+    const counselorProfile = await prisma.counselorProfile.findFirst({
+        where: { phone: { in: variants } },
+        include: { user: { select: { id: true, name: true } } },
+    });
+    if (counselorProfile) return counselorProfile.user;
+
+    // Fallback to EmployeeProfile
+    const employeeProfile = await prisma.employeeProfile.findFirst({
+        where: { phone: { in: variants } },
+        include: { user: { select: { id: true, name: true } } },
+    });
+    return employeeProfile?.user ?? null;
 }
 
 // ─── Scenario Handlers ────────────────────────────────────────────────────────
 
-/**
- * INCOMING CALL
- * Fired when Exotel starts ringing (Status = ringing / initiated / queued / in-progress).
- * We create/update the CallLog immediately so the CRM knows a call is happening.
- */
 async function handleIncomingCall(params: Record<string, string>) {
     const { CallSid, From, To, Status, Direction } = params;
 
-    // For inbound: caller = From, employee's number = To
     const callerPhone = toE164(From || '');
     const employeePhone = toE164(To || '');
 
-    const [employeeProfile, { lead, student }] = await Promise.all([
-        findEmployee(employeePhone),
+    const [employee, { lead, student }] = await Promise.all([
+        findEmployeeByPhone(employeePhone),
         findContact(callerPhone),
     ]);
 
-    const employeeId = employeeProfile?.user?.id ?? null;
+    const employeeId = employee?.id ?? null;
     const leadId = lead?.id ?? null;
     const studentId = student?.id ?? null;
 
@@ -90,13 +105,49 @@ async function handleIncomingCall(params: Record<string, string>) {
             status: (Status || 'ringing').toLowerCase(),
         },
     });
+
+    // Emit real-time notification to the agent/counselor
+    if (employeeId) {
+        emitToUser(employeeId, 'call:incoming', {
+            callSid: CallSid,
+            callerPhone: toE164(From || ''),
+            callerName: lead?.name || student?.name || null,
+            leadId,
+            studentId,
+            direction: (Direction || 'inbound').toLowerCase(),
+        });
+    }
 }
 
-/**
- * COMPLETED CALL
- * Fired when Status = "completed" (someone answered and the call ended normally).
- * Updates CallLog with duration + recording, then creates a LeadActivity.
- */
+async function handleCallConnected(params: Record<string, string>) {
+    const { CallSid, From, To, Direction } = params;
+
+    const direction = (Direction || 'outbound').toLowerCase();
+    const employeePhone = direction === 'outbound' ? toE164(From || '') : toE164(To || '');
+    const employee = await findEmployeeByPhone(employeePhone);
+    const employeeId = employee?.id ?? null;
+
+    await prisma.callLog.upsert({
+        where: { exotelCallSid: CallSid },
+        create: {
+            exotelCallSid: CallSid,
+            callerId: toE164(From || ''),
+            toNumber: toE164(To || ''),
+            direction,
+            status: 'in-progress',
+            employeeId,
+        },
+        update: { status: 'in-progress' },
+    });
+
+    if (employeeId) {
+        emitToUser(employeeId, 'call:connected', {
+            callSid: CallSid,
+            direction,
+        });
+    }
+}
+
 async function handleCompletedCall(params: Record<string, string>) {
     const {
         CallSid, From, To, Direction,
@@ -108,16 +159,15 @@ async function handleCompletedCall(params: Record<string, string>) {
     const customerPhone = direction === 'outbound' ? toE164(To || '') : toE164(From || '');
     const duration = DialCallDuration ? parseInt(DialCallDuration, 10) : null;
 
-    const [employeeProfile, { lead, student }] = await Promise.all([
-        findEmployee(employeePhone),
+    const [employee, { lead, student }] = await Promise.all([
+        findEmployeeByPhone(employeePhone),
         findContact(customerPhone),
     ]);
 
-    const employeeId = employeeProfile?.user?.id ?? null;
+    const employeeId = employee?.id ?? null;
     const leadId = lead?.id ?? null;
     const studentId = student?.id ?? null;
 
-    // Check if we already created a LeadActivity for this call
     const existing = await prisma.callLog.findUnique({
         where: { exotelCallSid: CallSid },
         select: { id: true, leadActivityId: true },
@@ -183,13 +233,21 @@ async function handleCompletedCall(params: Record<string, string>) {
             });
         }
     }
+
+    // Emit call:ended to the agent/counselor
+    if (employeeId) {
+        emitToUser(employeeId, 'call:ended', {
+            callSid: CallSid,
+            status: 'completed',
+            duration,
+            recordingUrl: RecordingUrl || null,
+            leadId,
+            studentId,
+            leadName: lead?.name || null,
+        });
+    }
 }
 
-/**
- * MISSED CALL
- * Fired when Status = "no-answer" | "busy" | "failed".
- * Updates CallLog and creates a "Missed Call" LeadActivity.
- */
 async function handleMissedCall(params: Record<string, string>) {
     const { CallSid, From, To, Direction, Status, StartTime, EndTime } = params;
 
@@ -198,12 +256,12 @@ async function handleMissedCall(params: Record<string, string>) {
     const employeePhone = direction === 'outbound' ? toE164(From || '') : toE164(To || '');
     const customerPhone = direction === 'outbound' ? toE164(To || '') : toE164(From || '');
 
-    const [employeeProfile, { lead, student }] = await Promise.all([
-        findEmployee(employeePhone),
+    const [employee, { lead, student }] = await Promise.all([
+        findEmployeeByPhone(employeePhone),
         findContact(customerPhone),
     ]);
 
-    const employeeId = employeeProfile?.user?.id ?? null;
+    const employeeId = employee?.id ?? null;
     const leadId = lead?.id ?? null;
     const studentId = student?.id ?? null;
 
@@ -254,12 +312,7 @@ async function handleMissedCall(params: Record<string, string>) {
                     userId: activityUserId,
                     type: 'CALL',
                     content,
-                    meta: {
-                        callSid: CallSid,
-                        direction,
-                        status,
-                        missed: true,
-                    },
+                    meta: { callSid: CallSid, direction, status, missed: true },
                 },
             });
 
@@ -269,28 +322,31 @@ async function handleMissedCall(params: Record<string, string>) {
             });
         }
     }
+
+    // Emit call:ended (missed)
+    if (employeeId) {
+        emitToUser(employeeId, 'call:ended', {
+            callSid: CallSid,
+            status,
+            missed: true,
+            leadId,
+            studentId,
+        });
+    }
 }
 
 // ─── Main Handler ─────────────────────────────────────────────────────────────
 
-/**
- * Normalise Exotel's param field names.
- * Exotel uses CallFrom/CallTo in some flows and From/To in others.
- */
 function normaliseParams(raw: Record<string, string>): Record<string, string> {
     const p = { ...raw };
-    // Unify phone fields
     if (!p.From && p.CallFrom) p.From = p.CallFrom;
     if (!p.To && p.CallTo) p.To = p.CallTo;
-    // Unify status fields
-    // CallType=incomplete means the call was not answered (missed)
     if (!p.Status && p.CallType) {
         p.Status = p.CallType === 'incomplete' ? 'no-answer'
             : p.CallType === 'completed' ? 'completed'
                 : p.CallType;
     }
     if (!p.Status && p.DialCallStatus) p.Status = p.DialCallStatus;
-    // Direction
     if (!p.Direction) p.Direction = 'incoming';
     return p;
 }
@@ -308,12 +364,13 @@ async function processWebhook(raw: Record<string, string>) {
         } else {
             await handleCompletedCall(params);
         }
-    } else if (RINGING_STATUSES.has(status) || status === 'in-progress') {
+    } else if (status === 'in-progress' || status === 'answered') {
+        await handleCallConnected(params);
+    } else if (RINGING_STATUSES.has(status)) {
         if (direction === 'incoming' || direction === 'inbound' || RINGING_STATUSES.has(status)) {
             await handleIncomingCall(params);
         }
     }
-    // "incomplete" already mapped to "no-answer" above; other unknowns ignored safely
 }
 
 function checkSecret(req: NextRequest): boolean {
@@ -322,7 +379,7 @@ function checkSecret(req: NextRequest): boolean {
     return !webhookSecret || secret === webhookSecret;
 }
 
-// ── GET ── (Exotel StatusCallback / Passthru sends GET with query params)
+// ── GET ──
 export async function GET(req: NextRequest) {
     try {
         if (!checkSecret(req)) {
@@ -340,7 +397,7 @@ export async function GET(req: NextRequest) {
     }
 }
 
-// ── POST ── (Exotel Connect API / some flow nodes send POST form-urlencoded)
+// ── POST ──
 export async function POST(req: NextRequest) {
     try {
         if (!checkSecret(req)) {
@@ -354,7 +411,6 @@ export async function POST(req: NextRequest) {
             const text = await req.text();
             new URLSearchParams(text).forEach((v, k) => { params[k] = v; });
         } else {
-            // Also check query params (some Exotel POSTs include params in the URL)
             req.nextUrl.searchParams.forEach((v, k) => { params[k] = v; });
             try { Object.assign(params, await req.json()); } catch { /* ignore */ }
         }

@@ -155,7 +155,9 @@ exports.Prisma.AgentProfileScalarFieldEnum = {
   address: 'address',
   phone: 'phone',
   commission: 'commission',
-  approvalStatus: 'approvalStatus'
+  approvalStatus: 'approvalStatus',
+  exotelAgentId: 'exotelAgentId',
+  exotelAvailable: 'exotelAvailable'
 };
 
 exports.Prisma.CounselorProfileScalarFieldEnum = {
@@ -166,7 +168,9 @@ exports.Prisma.CounselorProfileScalarFieldEnum = {
   designation: 'designation',
   salary: 'salary',
   joiningDate: 'joiningDate',
-  agentId: 'agentId'
+  agentId: 'agentId',
+  exotelAgentId: 'exotelAgentId',
+  exotelAvailable: 'exotelAvailable'
 };
 
 exports.Prisma.EmployeeProfileScalarFieldEnum = {
